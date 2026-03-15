@@ -24,7 +24,7 @@ interface SafehouseData {
   rooms: Record<string, number>;
 }
 
-const SafehouseScreen = ({ activeTab, onTabChange }: SafehouseScreenProps) => {
+const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreenProps) => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [safehouse, setSafehouse] = useState<SafehouseData | null>(null);
   const [unlockModal, setUnlockModal] = useState<typeof SAFEHOUSE_ROOMS[number] | null>(null);
