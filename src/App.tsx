@@ -57,6 +57,11 @@ const AppContent = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Auto-skip auth for testing
+  useEffect(() => {
+    if (!session && !skipAuth) setSkipAuth(true);
+  }, [session, skipAuth]);
+
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', background: THEME.colors.void, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
