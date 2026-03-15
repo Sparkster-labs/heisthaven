@@ -8,6 +8,8 @@ import BottomNav from '@/components/BottomNav';
 import SafehouseRoomModal from '@/components/SafehouseRoomModal';
 import HeldLootBanner from '@/components/HeldLootBanner';
 import SkeletonLoader from '@/components/SkeletonLoader';
+import { AvatarMini } from '@/components/Avatar';
+import { type AvatarConfig, type EquippedItems, DEFAULT_AVATAR, DEFAULT_EQUIPPED } from '@/lib/avatarData';
 
 interface SafehouseScreenProps {
   activeTab: string;
