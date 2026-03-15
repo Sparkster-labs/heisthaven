@@ -236,75 +236,16 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreen
         </div>
       </div>
 
-      {/* UNLOCK MODAL */}
-      {unlockModal && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.8)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 200,
-            padding: THEME.space.lg,
-          }}
-          onClick={() => setUnlockModal(null)}
-        >
-          <div
-            style={{
-              ...S.card,
-              maxWidth: 320,
-              width: '100%',
-              textAlign: 'center',
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div style={{ fontSize: 48, marginBottom: THEME.space.md }}>{unlockModal.emoji}</div>
-            <div style={{ ...S.eyebrow, marginBottom: THEME.space.xs }}>LOCKED</div>
-            <div
-              style={{
-                fontFamily: THEME.fonts.display,
-                fontSize: 20,
-                color: THEME.colors.textPrimary,
-                letterSpacing: 2,
-                textTransform: 'uppercase',
-                marginBottom: THEME.space.md,
-              }}
-            >
-              {unlockModal.name}
-            </div>
-            <p style={{ fontFamily: THEME.fonts.body, fontSize: 13, color: THEME.colors.textSecondary, marginBottom: THEME.space.lg, lineHeight: 1.5 }}>
-              {unlockModal.description}
-            </p>
-            <div style={{ fontSize: 14, color: THEME.colors.gold, fontFamily: THEME.fonts.mono, marginBottom: THEME.space.lg }}>
-              Requires {formatCash(unlockModal.cost)}
-              {unlockModal.jewel && ` + ${unlockModal.jewel.count} ${unlockModal.jewel.type.charAt(0).toUpperCase() + unlockModal.jewel.type.slice(1)}`}
-            </div>
-
-            {profile.cash >= unlockModal.cost &&
-             (!unlockModal.jewel || (profile.jewels[unlockModal.jewel.type] || 0) >= unlockModal.jewel.count) ? (
-              <button
-                onClick={() => handleUnlock(unlockModal)}
-                disabled={unlocking}
-                style={{ ...S.btnPrimary, opacity: unlocking ? 0.6 : 1 }}
-              >
-                {unlocking ? 'UPGRADING...' : 'UPGRADE'}
-              </button>
-            ) : (
-              <div style={{ fontSize: 11, color: THEME.colors.danger, fontFamily: THEME.fonts.mono, letterSpacing: 1 }}>
-                INSUFFICIENT FUNDS
-              </div>
-            )}
-
-            <button
-              onClick={() => setUnlockModal(null)}
-              style={{ ...S.btnGhost, marginTop: THEME.space.md }}
-            >
-              CANCEL
-            </button>
-          </div>
-        </div>
+      {/* ROOM UPGRADE MODAL */}
+      {selectedRoom && (
+        <SafehouseRoomModal
+          roomId={selectedRoom}
+          currentTier={safehouse.rooms[selectedRoom] || 0}
+          playerCash={profile.cash}
+          playerJewels={profile.jewels}
+          onUpgrade={() => { setSelectedRoom(null); fetchData(); }}
+          onClose={() => setSelectedRoom(null)}
+        />
       )}
 
       <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
