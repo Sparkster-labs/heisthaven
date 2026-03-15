@@ -129,15 +129,26 @@ const CityMapScreen = ({ activeTab, onTabChange }: CityMapScreenProps) => {
   const handleUnlockCity = async (cityId: string) => {
     if (!profile || acting) return;
     const city = CITIES[cityId as keyof typeof CITIES];
-    if (profile.cash < city.unlockCost || profile.rep_level < city.repRequired) return;
+    if (!canAffordCity(profile, city)) return;
 
     setActing(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setActing(false); return; }
 
+    // Deduct jewels if needed
+    const updatedJewels = { ...profile.jewels };
+    if (city.jewelCost) {
+      updatedJewels[city.jewelCost.type] = (updatedJewels[city.jewelCost.type] || 0) - city.jewelCost.count;
+      if ('extra' in city.jewelCost && city.jewelCost.extra) {
+        const extra = city.jewelCost.extra as { type: string; count: number };
+        updatedJewels[extra.type] = (updatedJewels[extra.type] || 0) - extra.count;
+      }
+    }
+
     await supabase.from('profiles').update({
       cash: profile.cash - city.unlockCost,
       unlocked_cities: [...profile.unlocked_cities, cityId],
+      jewels: updatedJewels as unknown as Json,
     }).eq('id', user.id);
 
     await supabase.from('city_progress').insert({
