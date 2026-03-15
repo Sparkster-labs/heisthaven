@@ -144,6 +144,17 @@ const JobBoardScreen = ({ activeTab, onTabChange, onSelectVault }: JobBoardScree
 
       {/* Job Cards */}
       <div style={{ paddingLeft: THEME.space.md, paddingRight: THEME.space.md, paddingBottom: 160, maxWidth: 480, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: THEME.space.md }}>
+        {jobs.length === 0 && (
+          <div style={{ ...S.card, textAlign: 'center', padding: THEME.space.xl }}>
+            <div style={{ fontSize: 36, marginBottom: THEME.space.md }}>🌙</div>
+            <div style={{ fontFamily: THEME.fonts.display, fontSize: 16, color: THEME.colors.textSecondary, letterSpacing: 2, marginBottom: THEME.space.sm }}>
+              THE STREETS ARE QUIET TONIGHT
+            </div>
+            <div style={{ fontFamily: THEME.fonts.body, fontStyle: 'italic', fontSize: 12, color: THEME.colors.textMuted, lineHeight: 1.6 }}>
+              Pull new jobs for ${REFRESH_COST} and see what the city has to offer.
+            </div>
+          </div>
+        )}
         {jobs.map((job, idx) => {
           const isExpired = job.expiresAt <= now;
           const isPressed = pressedIdx === idx;

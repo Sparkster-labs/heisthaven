@@ -18,11 +18,11 @@ type GameType = 'lock' | 'combo' | 'wire' | 'tail' | 'interrogation';
 
 function getGameSequence(tier: number): GameType[] {
   if (tier <= 1) return ['lock'];
-  if (tier <= 2) return ['lock', 'combo'];
-  if (tier === 3) return ['combo', 'wire'];
-  if (tier === 4) return ['combo', 'wire'];
-  if (tier === 5) return ['lock', 'wire', 'combo'];
-  // tier 5+ vaults already max at 5 in our data, but handle higher for expansions
+  if (tier <= 3) return ['lock', 'combo'];
+  if (tier <= 5) return ['combo', 'wire'];
+  if (tier <= 7) return ['lock', 'wire', 'combo'];
+  if (tier <= 9) return ['combo', 'wire', 'tail'];
+  // Tier 10+: all five mini-games
   return ['lock', 'combo', 'wire', 'tail', 'interrogation'];
 }
 

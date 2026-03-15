@@ -9,6 +9,7 @@ export const CITIES = {
     accentColor: '#E8B84B',
     districts: ['docks', 'market_square', 'old_quarter', 'financial_row'],
     unlockCost: 0,
+    jewelCost: null,
     repRequired: 1,
   },
   shadowport: {
@@ -17,7 +18,8 @@ export const CITIES = {
     tagline: 'The city that never sleeps — or forgives.',
     accentColor: '#4A9FE8',
     districts: ['harborfront', 'neon_strip', 'the_undercity', 'clocktower_district'],
-    unlockCost: 10000,
+    unlockCost: 25000,
+    jewelCost: { type: 'sapphire' as const, count: 2 },
     repRequired: 5,
   },
   ironhollow: {
@@ -26,7 +28,8 @@ export const CITIES = {
     tagline: 'Built on steel. Runs on blood.',
     accentColor: '#E84A6A',
     districts: ['foundry_row', 'the_yards', 'smelter_heights', 'the_pit'],
-    unlockCost: 50000,
+    unlockCost: 80000,
+    jewelCost: { type: 'emerald' as const, count: 2, extra: { type: 'ruby' as const, count: 1 } },
     repRequired: 10,
   },
   verenthia: {
@@ -35,7 +38,8 @@ export const CITIES = {
     tagline: 'Where the elite keep their darkest secrets.',
     accentColor: '#B8E8FF',
     districts: ['crystal_promenade', 'the_spires', 'palace_grounds', 'the_sanctum'],
-    unlockCost: 200000,
+    unlockCost: 250000,
+    jewelCost: { type: 'ruby' as const, count: 2, extra: { type: 'diamond' as const, count: 1 } },
     repRequired: 15,
   },
 } as const;
