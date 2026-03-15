@@ -309,7 +309,7 @@ const PhotoModeScreen = ({
                   style={{
                     flexShrink: 0, width: 48, height: 64, borderRadius: 4, cursor: 'pointer',
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                    background: p.tier === 'legendary' && unlocked ? 'rgba(232,184,75,0.15)' : THEME.colors.cardBg,
+                    background: p.tier === 'legendary' && unlocked ? 'rgba(232,184,75,0.15)' : THEME.colors.dusk,
                     border: active ? `2px solid ${THEME.colors.goldMid}` : `1px solid ${THEME.colors.borderFaint}`,
                     opacity: unlocked ? 1 : 0.5,
                     position: 'relative',
