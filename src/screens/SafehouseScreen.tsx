@@ -101,6 +101,7 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreen
 
     setUnlocking(false);
     setUnlockModal(null);
+    toast({ title: `${room.emoji} ${room.name} Unlocked!`, description: room.description });
     fetchData();
   };
 
