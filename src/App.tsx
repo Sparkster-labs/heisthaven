@@ -148,6 +148,7 @@ const AppContent = () => {
     case 'home':
       return <SafehouseScreen activeTab={activeTab} onTabChange={setActiveTab} onOpenRoom={(roomId) => {
         if (roomId === 'vault') setSubScreen('held_loot');
+        if (roomId === 'war_room') setSubScreen('leaderboard');
       }} />;
     case 'jobs':
       return (
