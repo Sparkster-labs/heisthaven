@@ -282,7 +282,7 @@ const PhotoModeScreen = ({
             {PHOTO_LIGHTING.map(l => (
               <button key={l.id} onClick={() => setSelectedLighting(l)} style={{
                 padding: '6px 14px', borderRadius: 20, cursor: 'pointer', fontFamily: THEME.fonts.display, fontSize: 11, letterSpacing: 1,
-                background: selectedLighting.id === l.id ? THEME.colors.goldMid : THEME.colors.cardBg,
+                background: selectedLighting.id === l.id ? THEME.colors.goldMid : THEME.colors.dusk,
                 color: selectedLighting.id === l.id ? THEME.colors.void : THEME.colors.textSecondary,
                 border: selectedLighting.id === l.id ? 'none' : `1px solid ${THEME.colors.borderFaint}`,
               }}>
