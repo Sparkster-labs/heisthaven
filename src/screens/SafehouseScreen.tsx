@@ -57,6 +57,8 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom, onOpenIAP, onOpen
         rep_xp: profileRes.data.rep_xp,
         notoriety_title: profileRes.data.notoriety_title,
         jewels: profileRes.data.jewels as Record<string, number>,
+        avatar: (profileRes.data.avatar as any) || DEFAULT_AVATAR,
+        equippedItems: (profileRes.data.equippedItems as any) || DEFAULT_EQUIPPED,
       });
     }
     if (safehouseRes.data) {
