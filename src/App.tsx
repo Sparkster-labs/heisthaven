@@ -88,6 +88,9 @@ const AppContent = () => {
   if (subScreen === 'iap') {
     return <IAPScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} onBack={() => navigate(() => setSubScreen(null))} />;
   }
+  if (subScreen === 'dressing_room') {
+    return <DressingRoomScreen onBack={() => navigate(() => setSubScreen(null))} />;
+  }
 
   // Heist results
   if (selectedVault && heistPhase === 'results' && chaosCard && heistOutcome) {
