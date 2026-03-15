@@ -180,6 +180,7 @@ const AppContent = () => {
             onOpenRoom={(roomId) => {
               if (roomId === 'vault') navigate(() => setSubScreen('held_loot'));
               if (roomId === 'war_room') navigate(() => setSubScreen('leaderboard'));
+              if (roomId === 'dressing_room') navigate(() => setSubScreen('dressing_room'));
             }}
             onOpenIAP={() => navigate(() => setSubScreen('iap'))}
             onOpenBlackMarket={() => navigate(() => setSubScreen('black_market'))}
