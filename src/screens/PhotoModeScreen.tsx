@@ -361,7 +361,7 @@ const PhotoModeScreen = ({
             </button>
             <button onClick={() => setStatsCard(!statsCard)} style={{
               padding: '6px 14px', borderRadius: 20, cursor: 'pointer', fontFamily: THEME.fonts.display, fontSize: 11, letterSpacing: 1,
-              background: statsCard ? THEME.colors.goldMid : THEME.colors.cardBg,
+              background: statsCard ? THEME.colors.goldMid : THEME.colors.dusk,
               color: statsCard ? THEME.colors.void : THEME.colors.textSecondary,
               border: statsCard ? 'none' : `1px solid ${THEME.colors.borderFaint}`,
             }}>
