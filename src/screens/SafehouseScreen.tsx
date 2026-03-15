@@ -29,8 +29,7 @@ interface SafehouseData {
 const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreenProps) => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [safehouse, setSafehouse] = useState<SafehouseData | null>(null);
-  const [unlockModal, setUnlockModal] = useState<typeof SAFEHOUSE_ROOMS[number] | null>(null);
-  const [unlocking, setUnlocking] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
 
   const fetchData = async () => {
     const { data: { user } } = await supabase.auth.getUser();
