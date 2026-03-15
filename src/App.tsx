@@ -23,6 +23,7 @@ import CrewHireScreen from '@/screens/heist/CrewHireScreen';
 import ChaosCardReveal from '@/screens/heist/ChaosCardReveal';
 import HeistExecution from '@/screens/heist/HeistExecution';
 import HeistResults from '@/screens/heist/HeistResults';
+import ResetPasswordScreen from '@/screens/ResetPasswordScreen';
 import type { Session } from '@supabase/supabase-js';
 
 const queryClient = new QueryClient();
@@ -61,6 +62,11 @@ const AppContent = () => {
         </div>
       </div>
     );
+  }
+
+  // Reset password route (must be accessible without session)
+  if (window.location.pathname === '/reset-password') {
+    return <ResetPasswordScreen />;
   }
 
   if (!session) {
