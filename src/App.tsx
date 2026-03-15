@@ -31,7 +31,7 @@ const AppContent = () => {
   const [heistPhase, setHeistPhase] = useState<'vault' | 'crew' | 'chaos' | 'execution' | 'results' | null>(null);
   const [selectedCrewIds, setSelectedCrewIds] = useState<string[]>([]);
   const [chaosCard, setChaosCard] = useState<typeof CHAOS_CARDS[number] | null>(null);
-  const [heistOutcome, setHeistOutcome] = useState<{ success: boolean; miniGameResults: boolean[] } | null>(null);
+  const [heistOutcome, setHeistOutcome] = useState<{ miniGameResults: boolean[] } | null>(null);
   const [subScreen, setSubScreen] = useState<string | null>(null);
 
   useEffect(() => {
@@ -78,7 +78,6 @@ const AppContent = () => {
         crewIds={selectedCrewIds}
         chaosCard={chaosCard}
         miniGameResults={heistOutcome.miniGameResults}
-        success={heistOutcome.success}
         onFinish={() => {
           setHeistPhase(null);
           setSelectedVault(null);
