@@ -17,6 +17,8 @@ interface LeaderboardEntry {
   notoriety_title?: string;
   rep_level?: number;
   jewels?: Record<string, number>;
+  avatar?: AvatarConfig;
+  equippedItems?: EquippedItems;
 }
 
 type TabType = 'weekly' | 'alltime' | 'city';
