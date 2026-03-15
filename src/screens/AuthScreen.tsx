@@ -54,6 +54,7 @@ const AuthScreen = ({ onAuth }: AuthScreenProps) => {
   return (
     <div style={S.page}>
       <div
+        className="screen-enter"
         style={{
           display: 'flex',
           flexDirection: 'column',
