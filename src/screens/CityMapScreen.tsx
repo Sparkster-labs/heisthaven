@@ -28,6 +28,35 @@ interface CityProgressRow {
 
 const formatDistrict = (d: string) => d.replace(/_/g, ' ');
 
+const jewelEmojis: Record<string, string> = {
+  pearl: '🤍', sapphire: '💙', emerald: '💚', ruby: '❤️', diamond: '💎',
+};
+
+const canAffordCity = (profile: ProfileData, city: typeof CITIES[keyof typeof CITIES]) => {
+  if (profile.cash < city.unlockCost) return false;
+  if (profile.rep_level < city.repRequired) return false;
+  if (city.jewelCost) {
+    const jc = city.jewelCost;
+    if ((profile.jewels[jc.type] || 0) < jc.count) return false;
+    if ('extra' in jc && jc.extra) {
+      const extra = jc.extra as { type: string; count: number };
+      if ((profile.jewels[extra.type] || 0) < extra.count) return false;
+    }
+  }
+  return true;
+};
+
+const formatJewelCost = (city: typeof CITIES[keyof typeof CITIES]) => {
+  if (!city.jewelCost) return '';
+  const jc = city.jewelCost;
+  let str = `${jc.count} ${jewelEmojis[jc.type] || jc.type}`;
+  if ('extra' in jc && jc.extra) {
+    const extra = jc.extra as { type: string; count: number };
+    str += ` + ${extra.count} ${jewelEmojis[extra.type] || extra.type}`;
+  }
+  return str;
+};
+
 const districtEmojis: Record<string, string> = {
   docks: '⚓', market_square: '🏪', old_quarter: '🏛️', financial_row: '🏦',
   harborfront: '🌊', neon_strip: '🎰', the_undercity: '🕳️', clocktower_district: '🕰️',
