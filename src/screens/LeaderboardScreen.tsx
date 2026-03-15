@@ -125,7 +125,7 @@ const LeaderboardScreen = ({ activeTab, onTabChange }: LeaderboardScreenProps) =
         const userIds = sorted.map(([id]) => id);
         const { data: profiles } = await supabase
           .from('profiles')
-          .select('id, display_name, notoriety_title, rep_level, jewels')
+          .select('id, display_name, notoriety_title, rep_level, jewels, avatar, equippedItems')
           .in('id', userIds);
         const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
         enriched = sorted.map(([uid, total]) => {
