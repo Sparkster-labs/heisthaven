@@ -70,6 +70,9 @@ const AppContent = () => {
   if (subScreen === 'leaderboard') {
     return <LeaderboardScreen activeTab={activeTab} onTabChange={(tab) => { setSubScreen(null); setActiveTab(tab); }} />;
   }
+  if (subScreen === 'black_market') {
+    return <BlackMarketScreen activeTab={activeTab} onTabChange={(tab) => { setSubScreen(null); setActiveTab(tab); }} />;
+  }
 
   // Heist results
   if (selectedVault && heistPhase === 'results' && chaosCard && heistOutcome) {
