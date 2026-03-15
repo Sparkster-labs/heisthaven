@@ -240,7 +240,15 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom, onOpenIAP, onOpen
             return (
               <div
                 key={room.id}
-                onClick={() => setSelectedRoom(room.id)}
+                onClick={() => {
+                  const roomTierVal = safehouse.rooms[room.id] || 0;
+                  const navigableRooms = ['vault', 'war_room', 'dressing_room'];
+                  if (roomTierVal >= 1 && navigableRooms.includes(room.id) && onOpenRoom) {
+                    onOpenRoom(room.id);
+                  } else {
+                    setSelectedRoom(room.id);
+                  }
+                }}
                 style={{
                   ...S.card,
                   textAlign: 'center',
