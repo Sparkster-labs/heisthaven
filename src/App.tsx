@@ -77,10 +77,7 @@ const AppContent = () => {
     return <ResetPasswordScreen />;
   }
 
-  // Auth screen temporarily bypassed for testing
   if (!session && !skipAuth) {
-    // return <AuthScreen onAuth={() => {}} onSkip={() => setSkipAuth(true)} />;
-    if (!skipAuth) setSkipAuth(true);
     return null;
   }
 
