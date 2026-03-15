@@ -65,6 +65,9 @@ const AppContent = () => {
   if (subScreen === 'held_loot') {
     return <HeldLootScreen onBack={() => setSubScreen(null)} />;
   }
+  if (subScreen === 'leaderboard') {
+    return <LeaderboardScreen activeTab={activeTab} onTabChange={(tab) => { setSubScreen(null); setActiveTab(tab); }} />;
+  }
 
   // Heist results
   if (selectedVault && heistPhase === 'results' && chaosCard && heistOutcome) {
