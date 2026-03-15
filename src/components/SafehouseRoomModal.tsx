@@ -103,6 +103,7 @@ interface SafehouseRoomModalProps {
   playerJewels: Record<string, number>;
   onUpgrade: () => void;
   onClose: () => void;
+  onOpenBlackMarket?: () => void;
 }
 
 const jewelEmojis: Record<string, string> = {
