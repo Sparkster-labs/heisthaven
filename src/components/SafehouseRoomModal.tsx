@@ -103,13 +103,14 @@ interface SafehouseRoomModalProps {
   playerJewels: Record<string, number>;
   onUpgrade: () => void;
   onClose: () => void;
+  onOpenBlackMarket?: () => void;
 }
 
 const jewelEmojis: Record<string, string> = {
   pearl: '🤍', sapphire: '💙', emerald: '💚', ruby: '❤️', diamond: '💎',
 };
 
-const SafehouseRoomModal = ({ roomId, currentTier, playerCash, playerJewels, onUpgrade, onClose }: SafehouseRoomModalProps) => {
+const SafehouseRoomModal = ({ roomId, currentTier, playerCash, playerJewels, onUpgrade, onClose, onOpenBlackMarket }: SafehouseRoomModalProps) => {
   const [upgrading, setUpgrading] = useState(false);
   const room = ROOM_DEFS.find(r => r.id === roomId);
   if (!room) return null;
@@ -321,7 +322,26 @@ const SafehouseRoomModal = ({ roomId, currentTier, playerCash, playerJewels, onU
           </div>
         )}
 
-        <button onClick={onClose} style={{ ...S.btnGhost, marginTop: THEME.space.md }}>
+        {/* War Room: Black Market shortcut */}
+        {roomId === 'war_room' && onOpenBlackMarket && (
+          <button
+            onClick={() => { onClose(); onOpenBlackMarket(); }}
+            style={{
+              ...S.btnGhost,
+              marginTop: THEME.space.md,
+              borderColor: `${THEME.colors.gold}30`,
+              color: THEME.colors.goldMid,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
+            }}
+          >
+            🏪 VISIT BLACK MARKET
+          </button>
+        )}
+
+        <button onClick={onClose} style={{ ...S.btnGhost, marginTop: THEME.space.sm }}>
           CLOSE
         </button>
       </div>
