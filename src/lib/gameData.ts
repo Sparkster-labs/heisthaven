@@ -1,0 +1,184 @@
+// THE GIFT HEIST — Static Game Data
+// Single source of truth for all game logic
+
+export const CITIES = {
+  new_cavendish: {
+    id: 'new_cavendish',
+    name: 'New Cavendish',
+    tagline: 'Where fortunes are made and stolen.',
+    accentColor: '#E8B84B',
+    districts: ['docks', 'market_square', 'old_quarter', 'financial_row'],
+    unlockCost: 0,
+    repRequired: 1,
+  },
+  shadowport: {
+    id: 'shadowport',
+    name: 'Shadowport',
+    tagline: 'The city that never sleeps — or forgives.',
+    accentColor: '#4A9FE8',
+    districts: ['harborfront', 'neon_strip', 'the_undercity', 'clocktower_district'],
+    unlockCost: 10000,
+    repRequired: 5,
+  },
+  ironhollow: {
+    id: 'ironhollow',
+    name: 'Ironhollow',
+    tagline: 'Built on steel. Runs on blood.',
+    accentColor: '#E84A6A',
+    districts: ['foundry_row', 'the_yards', 'smelter_heights', 'the_pit'],
+    unlockCost: 50000,
+    repRequired: 10,
+  },
+  verenthia: {
+    id: 'verenthia',
+    name: 'Verenthia',
+    tagline: 'Where the elite keep their darkest secrets.',
+    accentColor: '#B8E8FF',
+    districts: ['crystal_promenade', 'the_spires', 'palace_grounds', 'the_sanctum'],
+    unlockCost: 200000,
+    repRequired: 15,
+  },
+} as const;
+
+export const CREW_MEMBERS = [
+  {
+    id: 'fingers',
+    name: 'Fingers Malone',
+    role: 'Lockpick',
+    specialty: 'lock_sequences',
+    emoji: '🔑',
+    flavor: 'Fastest hands in New Cavendish. Never met a lock he couldn\'t sweet-talk.',
+    baseCost: 0,
+    unlocked: true,
+  },
+  {
+    id: 'echo',
+    name: 'Echo',
+    role: 'Hacker',
+    specialty: 'wire_puzzles',
+    emoji: '💻',
+    flavor: 'Ghost in the machine. She sees the code behind the code.',
+    baseCost: 0,
+    unlocked: true,
+  },
+  {
+    id: 'brick',
+    name: 'Brick Wallace',
+    role: 'Muscle',
+    specialty: 'pressure_valves',
+    emoji: '💪',
+    flavor: 'Two hundred pounds of quiet persuasion.',
+    baseCost: 0,
+    unlocked: true,
+  },
+  {
+    id: 'silk',
+    name: 'Silk',
+    role: 'Grifter',
+    specialty: 'deception',
+    emoji: '🎭',
+    flavor: 'Could sell sand in a desert and make you thank her for it.',
+    baseCost: 0,
+    unlocked: true,
+  },
+  {
+    id: 'ghost',
+    name: 'The Ghost',
+    role: 'Infiltrator',
+    specialty: 'stealth',
+    emoji: '👻',
+    flavor: 'You won\'t see him coming. Neither will the guards.',
+    baseCost: 0,
+    unlocked: true,
+  },
+  {
+    id: 'doc',
+    name: 'Doc Voss',
+    role: 'Medic',
+    specialty: 'recovery',
+    emoji: '💉',
+    flavor: 'Patch you up or put you down. Either way, he\'s precise.',
+    baseCost: 5000,
+    unlocked: false,
+  },
+  {
+    id: 'raven',
+    name: 'Raven',
+    role: 'Scout',
+    specialty: 'intel',
+    emoji: '🦅',
+    flavor: 'Eyes everywhere. She knows the layout before you arrive.',
+    baseCost: 8000,
+    unlocked: false,
+  },
+  {
+    id: 'king',
+    name: 'The Kingpin',
+    role: 'Mastermind',
+    specialty: 'planning',
+    emoji: '👑',
+    flavor: 'Retired legend. His plans don\'t fail — they evolve.',
+    baseCost: 25000,
+    unlocked: false,
+  },
+] as const;
+
+export const VAULTS = [
+  // Tier 1 — New Cavendish
+  { id: 'pawnshop_safe', name: 'Pawnshop Safe', tier: 1, city: 'new_cavendish', district: 'docks', buyIn: 50, payoutMin: 120, payoutMax: 210, difficulty: 1, crewSlots: 1 },
+  { id: 'harbor_lockbox', name: 'Harbor Lockbox', tier: 1, city: 'new_cavendish', district: 'docks', buyIn: 75, payoutMin: 180, payoutMax: 320, difficulty: 1, crewSlots: 1 },
+  { id: 'market_register', name: 'Market Register', tier: 1, city: 'new_cavendish', district: 'market_square', buyIn: 100, payoutMin: 250, payoutMax: 450, difficulty: 2, crewSlots: 2 },
+  { id: 'jewelers_case', name: "Jeweler's Case", tier: 2, city: 'new_cavendish', district: 'market_square', buyIn: 200, payoutMin: 500, payoutMax: 900, difficulty: 2, crewSlots: 2 },
+  { id: 'bank_branch', name: 'First National Branch', tier: 2, city: 'new_cavendish', district: 'financial_row', buyIn: 400, payoutMin: 900, payoutMax: 1600, difficulty: 3, crewSlots: 2 },
+  { id: 'old_quarter_vault', name: 'Old Quarter Vault', tier: 3, city: 'new_cavendish', district: 'old_quarter', buyIn: 750, payoutMin: 1800, payoutMax: 3200, difficulty: 4, crewSlots: 3 },
+  // Tier 2 — Shadowport
+  { id: 'neon_casino', name: 'Neon Casino Cage', tier: 2, city: 'shadowport', district: 'neon_strip', buyIn: 300, payoutMin: 700, payoutMax: 1400, difficulty: 3, crewSlots: 2 },
+  { id: 'undercity_stash', name: 'Undercity Stash', tier: 3, city: 'shadowport', district: 'the_undercity', buyIn: 600, payoutMin: 1500, payoutMax: 2800, difficulty: 4, crewSlots: 3 },
+  // Tier 3 — Ironhollow
+  { id: 'foundry_payroll', name: 'Foundry Payroll', tier: 3, city: 'ironhollow', district: 'foundry_row', buyIn: 800, payoutMin: 2000, payoutMax: 4000, difficulty: 4, crewSlots: 3 },
+  { id: 'pit_vault', name: 'The Pit Vault', tier: 4, city: 'ironhollow', district: 'the_pit', buyIn: 1500, payoutMin: 4000, payoutMax: 8000, difficulty: 5, crewSlots: 3 },
+  // Tier 4 — Verenthia
+  { id: 'crystal_gallery', name: 'Crystal Gallery', tier: 4, city: 'verenthia', district: 'crystal_promenade', buyIn: 2000, payoutMin: 6000, payoutMax: 12000, difficulty: 5, crewSlots: 3 },
+  { id: 'the_sanctum_vault', name: 'The Sanctum', tier: 5, city: 'verenthia', district: 'the_sanctum', buyIn: 5000, payoutMin: 15000, payoutMax: 30000, difficulty: 5, crewSlots: 3 },
+] as const;
+
+export const CHAOS_CARDS = [
+  { id: 'silent_alarm', name: 'Silent Alarm', effect: 'heat_increase', description: 'The alarm was tripped. District heat rises by 15.', modifier: { heat: 15 } },
+  { id: 'lucky_break', name: 'Lucky Break', effect: 'payout_bonus', description: 'You found a hidden compartment. Payout increased by 30%.', modifier: { payoutMultiplier: 1.3 } },
+  { id: 'crew_injury', name: 'Crew Injury', effect: 'loyalty_loss', description: 'A crew member took a hit. Loyalty drops by 10.', modifier: { loyaltyLoss: 10 } },
+  { id: 'double_or_nothing', name: 'Double or Nothing', effect: 'gamble', description: 'The fence offers a deal. Risk it all for double payout.', modifier: { payoutMultiplier: 2, failChance: 0.5 } },
+  { id: 'inside_job', name: 'Inside Job', effect: 'skip_minigame', description: 'A guard looks the other way. Skip one mini-game.', modifier: { skipMinigame: true } },
+  { id: 'police_raid', name: 'Police Raid', effect: 'abort_risk', description: 'Cops are closing in. 25% chance the heist is aborted.', modifier: { abortChance: 0.25 } },
+  { id: 'gem_cache', name: 'Gem Cache', effect: 'bonus_jewel', description: 'A hidden gem cache! Bonus jewel drop guaranteed.', modifier: { bonusJewel: true } },
+  { id: 'betrayal', name: 'Betrayal', effect: 'crew_betrayal', description: 'Someone tipped off the guards. Lowest loyalty crew member leaves.', modifier: { betrayal: true } },
+  { id: 'smooth_operation', name: 'Smooth Operation', effect: 'loyalty_boost', description: 'Flawless execution. All crew gain +5 loyalty.', modifier: { loyaltyBoost: 5 } },
+  { id: 'fog_cover', name: 'Fog Cover', effect: 'heat_reduction', description: 'Dense fog rolls in. District heat reduced by 10.', modifier: { heat: -10 } },
+] as const;
+
+// Rep level thresholds
+export const REP_THRESHOLDS = [
+  { level: 1, xpRequired: 0, title: 'Street Rat' },
+  { level: 2, xpRequired: 100, title: 'Petty Thief' },
+  { level: 3, xpRequired: 300, title: 'Cat Burglar' },
+  { level: 4, xpRequired: 600, title: 'Safecracker' },
+  { level: 5, xpRequired: 1000, title: 'Heist Artist' },
+  { level: 6, xpRequired: 1500, title: 'Vault Breaker' },
+  { level: 7, xpRequired: 2200, title: 'Shadow Broker' },
+  { level: 8, xpRequired: 3000, title: 'Crime Lord' },
+  { level: 9, xpRequired: 4000, title: 'Phantom' },
+  { level: 10, xpRequired: 5500, title: 'Ghost King' },
+  { level: 11, xpRequired: 7500, title: 'Untouchable' },
+  { level: 12, xpRequired: 10000, title: 'Legend' },
+] as const;
+
+// Safehouse room definitions
+export const SAFEHOUSE_ROOMS = [
+  { id: 'war_room', name: 'The War Room', emoji: '🎯', cost: 0, jewel: null, description: 'Plan your heists and manage your crew.' },
+  { id: 'vault', name: 'The Vault', emoji: '🏦', cost: 1000, jewel: null, description: 'Store jewels and track your fortune.' },
+  { id: 'garage', name: 'The Garage', emoji: '🚗', cost: 2500, jewel: null, description: 'Getaway vehicles for faster escapes.' },
+  { id: 'study', name: 'The Study', emoji: '📚', cost: 5000, jewel: null, description: 'Research targets for better intel.' },
+  { id: 'infirmary', name: 'The Infirmary', emoji: '💉', cost: 8000, jewel: null, description: 'Heal injured crew faster.' },
+  { id: 'signal_room', name: 'The Signal Room', emoji: '📡', cost: 15000, jewel: null, description: 'Intercept communications for tips.' },
+  { id: 'parlor', name: 'The Parlor', emoji: '🎭', cost: 30000, jewel: { type: 'emerald', count: 1 }, description: 'Recruit high-tier crew members.' },
+  { id: 'penthouse', name: 'The Penthouse', emoji: '🏙️', cost: 80000, jewel: { type: 'ruby', count: 1 }, description: 'The crown jewel. Ultimate prestige.' },
+] as const;
