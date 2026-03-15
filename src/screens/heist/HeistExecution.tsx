@@ -134,6 +134,14 @@ const HeistExecution = ({ vault, crewIds, chaosCard, onComplete }: HeistExecutio
   }, [phase]);
 
   const handleGameResult = useCallback((success: boolean) => {
+    if (success) {
+      SFX.miniGameSuccess();
+      Haptics.success();
+    } else {
+      SFX.miniGameFail();
+      Haptics.fail();
+    }
+
     const newResults = [...results, success];
     setResults(newResults);
 

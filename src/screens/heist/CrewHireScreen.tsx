@@ -65,6 +65,7 @@ const CrewHireScreen = ({ vault, onLaunch, onBack }: CrewHireScreenProps) => {
     if (selectedIds.includes(crewId)) {
       setSelectedIds(selectedIds.filter(id => id !== crewId));
     } else if (selectedIds.length < maxSlots) {
+      SFX.crewHire();
       setSelectedIds([...selectedIds, crewId]);
     }
   };

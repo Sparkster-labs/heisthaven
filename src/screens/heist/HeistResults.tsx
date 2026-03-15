@@ -95,8 +95,8 @@ const HeistResults = ({ vault, crewIds, chaosCard, miniGameResults, onFinish }: 
       jewelEntries.forEach(([jewel], i) => {
         timers.push(setTimeout(() => {
           setRevealedJewels(prev => [...prev, jewel]);
-          // Haptic
-          if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+          SFX.jewelDrop();
+          Haptics.jewelDrop();
         }, 3900 + i * 500));
       });
       timers.push(setTimeout(() => setPhase('ledger'), 3900 + jewelEntries.length * 500 + 800));
