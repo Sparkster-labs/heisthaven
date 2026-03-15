@@ -8,6 +8,8 @@ import BottomNav from '@/components/BottomNav';
 import SafehouseRoomModal from '@/components/SafehouseRoomModal';
 import HeldLootBanner from '@/components/HeldLootBanner';
 import SkeletonLoader from '@/components/SkeletonLoader';
+import { AvatarMini } from '@/components/Avatar';
+import { type AvatarConfig, type EquippedItems, DEFAULT_AVATAR, DEFAULT_EQUIPPED } from '@/lib/avatarData';
 
 interface SafehouseScreenProps {
   activeTab: string;
@@ -25,6 +27,8 @@ interface ProfileData {
   rep_xp: number;
   notoriety_title: string;
   jewels: Record<string, number>;
+  avatar: AvatarConfig;
+  equippedItems: EquippedItems;
 }
 
 interface SafehouseData {
@@ -53,6 +57,8 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom, onOpenIAP, onOpen
         rep_xp: profileRes.data.rep_xp,
         notoriety_title: profileRes.data.notoriety_title,
         jewels: profileRes.data.jewels as Record<string, number>,
+        avatar: (profileRes.data.avatar as any) || DEFAULT_AVATAR,
+        equippedItems: (profileRes.data.equippedItems as any) || DEFAULT_EQUIPPED,
       });
     }
     if (safehouseRes.data) {
@@ -112,12 +118,15 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom, onOpenIAP, onOpen
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: 480, margin: '0 auto' }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 11, color: THEME.colors.gold, fontFamily: THEME.fonts.display, letterSpacing: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {profile.display_name}
-            </div>
-            <div style={{ fontSize: 9, color: THEME.colors.textMuted, fontFamily: THEME.fonts.mono, letterSpacing: 2, textTransform: 'uppercase' }}>
-              {profile.notoriety_title}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
+            <AvatarMini avatarConfig={profile.avatar} equippedItems={profile.equippedItems} size={36} />
+            <div>
+              <div style={{ fontSize: 11, color: THEME.colors.gold, fontFamily: THEME.fonts.display, letterSpacing: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {profile.display_name}
+              </div>
+              <div style={{ fontSize: 9, color: THEME.colors.textMuted, fontFamily: THEME.fonts.mono, letterSpacing: 2, textTransform: 'uppercase' }}>
+                {profile.notoriety_title}
+              </div>
             </div>
           </div>
 
