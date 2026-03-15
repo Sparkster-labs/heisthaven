@@ -160,6 +160,33 @@ const HeistResults = ({ vault, crewIds, chaosCard, miniGameResults, success, onF
       }
     }
 
+    // Update weekly leaderboard
+    const netEarned = payout - vault.buyIn;
+    const weekStart = (() => {
+      const now = new Date();
+      const day = now.getDay();
+      const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(now.setDate(diff));
+      monday.setHours(0, 0, 0, 0);
+      return monday.toISOString().split('T')[0];
+    })();
+
+    const { data: existingLb } = await supabase
+      .from('leaderboard_weekly')
+      .select('id, net_cash_earned')
+      .eq('user_id', user.id)
+      .eq('week_start', weekStart)
+      .single();
+
+    if (existingLb) {
+      await supabase.from('leaderboard_weekly')
+        .update({ net_cash_earned: existingLb.net_cash_earned + netEarned })
+        .eq('id', existingLb.id);
+    } else {
+      await supabase.from('leaderboard_weekly')
+        .insert({ user_id: user.id, week_start: weekStart, net_cash_earned: netEarned });
+    }
+
     setPhase('saved');
     setSaving(false);
   };
