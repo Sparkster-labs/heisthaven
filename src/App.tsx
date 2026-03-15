@@ -25,6 +25,7 @@ import HeistExecution from '@/screens/heist/HeistExecution';
 import HeistResults from '@/screens/heist/HeistResults';
 import ResetPasswordScreen from '@/screens/ResetPasswordScreen';
 import DressingRoomScreen from '@/screens/DressingRoomScreen';
+import PhotoModeScreen from '@/screens/PhotoModeScreen';
 import type { Session } from '@supabase/supabase-js';
 
 const queryClient = new QueryClient();
