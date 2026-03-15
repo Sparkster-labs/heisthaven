@@ -103,7 +103,7 @@ const AppContent = () => {
         <JobBoardScreen
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          onSelectVault={(vault) => setSelectedVault(vault)}
+          onSelectVault={(vault) => { setSelectedVault(vault); setHeistPhase('vault'); }}
         />
       );
     case 'city':
