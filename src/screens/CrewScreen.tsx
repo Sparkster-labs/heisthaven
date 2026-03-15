@@ -96,7 +96,7 @@ const CrewScreen = ({ activeTab, onTabChange }: CrewScreenProps) => {
   });
 
   return (
-    <div style={S.page}>
+    <div style={S.page} className="screen-enter">
       <div style={{ paddingTop: THEME.space.xl, paddingBottom: 100, maxWidth: 480, margin: '0 auto', padding: `${THEME.space.xl}px ${THEME.space.md}px 100px` }}>
         <div style={S.eyebrow}>YOUR NETWORK</div>
         <h1 style={{ ...S.h1, fontSize: 22, marginBottom: THEME.space.sm }}>THE CREW</h1>
