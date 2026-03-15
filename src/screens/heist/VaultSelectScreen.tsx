@@ -1,5 +1,6 @@
 import { THEME, S } from '@/styles/theme';
 import { VAULTS, CITIES } from '@/lib/gameData';
+import { SFX } from '@/lib/sounds';
 
 interface VaultSelectScreenProps {
   vault: typeof VAULTS[number];
