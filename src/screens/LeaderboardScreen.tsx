@@ -343,6 +343,7 @@ const LeaderboardScreen = ({ activeTab, onTabChange }: LeaderboardScreenProps) =
                       }}>
                         {rank <= 3 ? medals[rank - 1] : `#${rank}`}
                       </div>
+                      <AvatarMini avatarConfig={entry.avatar || DEFAULT_AVATAR} equippedItems={entry.equippedItems || DEFAULT_EQUIPPED} size={32} />
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{
                           fontFamily: THEME.fonts.display, fontSize: 12,
