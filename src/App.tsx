@@ -11,6 +11,7 @@ import CityMapScreen from '@/screens/CityMapScreen';
 import CrewScreen from '@/screens/CrewScreen';
 import ProfileScreen from '@/screens/ProfileScreen';
 import HeldLootScreen from '@/screens/HeldLootScreen';
+import LeaderboardScreen from '@/screens/LeaderboardScreen';
 import JobBoardScreen from '@/screens/JobBoardScreen';
 import VaultSelectScreen from '@/screens/heist/VaultSelectScreen';
 import CrewHireScreen from '@/screens/heist/CrewHireScreen';
