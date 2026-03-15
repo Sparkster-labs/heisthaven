@@ -19,7 +19,13 @@ const AuthScreen = ({ onAuth }: AuthScreenProps) => {
     setError('');
 
     try {
-      if (isSignUp) {
+      if (mode === 'forgot') {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        setResetSent(true);
+      } else if (mode === 'signup') {
         const { error } = await supabase.auth.signUp({
           email,
           password,
