@@ -287,6 +287,7 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom, onOpenIAP, onOpen
           playerJewels={profile.jewels}
           onUpgrade={() => { setSelectedRoom(null); fetchData(); }}
           onClose={() => setSelectedRoom(null)}
+          onOpenBlackMarket={onOpenBlackMarket}
         />
       )}
 
