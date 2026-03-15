@@ -52,17 +52,44 @@ const AppContent = () => {
     return <AuthScreen onAuth={() => {}} />;
   }
 
-  // If a vault is selected, show vault detail
-  if (selectedVault) {
+  // Heist flow phases
+  if (selectedVault && heistPhase === 'chaos') {
+    return (
+      <ChaosCardReveal
+        onComplete={(card) => {
+          setChaosCard(card);
+          // For now, return to jobs after chaos card (heist execution in next prompt)
+          setHeistPhase(null);
+          setSelectedVault(null);
+          setSelectedCrewIds([]);
+          setActiveTab('jobs');
+        }}
+      />
+    );
+  }
+
+  if (selectedVault && heistPhase === 'crew') {
+    return (
+      <CrewHireScreen
+        vault={selectedVault}
+        onLaunch={(crewIds) => {
+          setSelectedCrewIds(crewIds);
+          setHeistPhase('chaos');
+        }}
+        onBack={() => setHeistPhase('vault')}
+      />
+    );
+  }
+
+  if (selectedVault && heistPhase === 'vault') {
     return (
       <VaultSelectScreen
         vault={selectedVault}
-        onCommit={() => {
-          // Will connect to CrewHire in Prompt 4
+        onCommit={() => setHeistPhase('crew')}
+        onBack={() => {
           setSelectedVault(null);
-          setActiveTab('jobs');
+          setHeistPhase(null);
         }}
-        onBack={() => setSelectedVault(null)}
       />
     );
   }
