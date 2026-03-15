@@ -5,6 +5,7 @@ import { resolveHeist, calculateRepLevel, calculateFenceOffer } from '@/lib/heis
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { Json } from '@/integrations/supabase/types';
+import { SFX, Haptics } from '@/lib/sounds';
 
 interface HeistResultsProps {
   vault: typeof VAULTS[number];
