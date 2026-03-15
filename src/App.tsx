@@ -190,6 +190,7 @@ const App = () => (
         }}
       />
       <AppContent />
+      <Toaster />
     </TooltipProvider>
   </QueryClientProvider>
 );
