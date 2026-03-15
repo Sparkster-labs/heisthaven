@@ -183,6 +183,23 @@ const AuthScreen = ({ onAuth, onSkip }: AuthScreenProps) => {
               </button>
             </>
           )}
+
+          {onSkip && (
+            <>
+              <div style={S.divider} />
+              <button
+                onClick={onSkip}
+                style={{
+                  ...S.btnGhost,
+                  fontSize: 9,
+                  color: THEME.colors.textMuted,
+                  letterSpacing: 2,
+                }}
+              >
+                ⚠️ SKIP SIGN IN (DEV MODE)
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

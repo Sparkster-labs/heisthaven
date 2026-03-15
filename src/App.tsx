@@ -70,8 +70,8 @@ const AppContent = () => {
     return <ResetPasswordScreen />;
   }
 
-  if (!session) {
-    return <AuthScreen onAuth={() => {}} />;
+  if (!session && !skipAuth) {
+    return <AuthScreen onAuth={() => {}} onSkip={() => setSkipAuth(true)} />;
   }
 
   // Sub-screens
