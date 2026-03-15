@@ -55,17 +55,49 @@ const AppContent = () => {
     return <AuthScreen onAuth={() => {}} />;
   }
 
-  // Heist flow phases
+  // Heist results
+  if (selectedVault && heistPhase === 'results' && chaosCard && heistOutcome) {
+    return (
+      <HeistResults
+        vault={selectedVault}
+        crewIds={selectedCrewIds}
+        chaosCard={chaosCard}
+        miniGameResults={heistOutcome.miniGameResults}
+        success={heistOutcome.success}
+        onFinish={() => {
+          setHeistPhase(null);
+          setSelectedVault(null);
+          setSelectedCrewIds([]);
+          setChaosCard(null);
+          setHeistOutcome(null);
+          setActiveTab('home');
+        }}
+      />
+    );
+  }
+
+  // Heist execution (mini-games)
+  if (selectedVault && heistPhase === 'execution' && chaosCard) {
+    return (
+      <HeistExecution
+        vault={selectedVault}
+        crewIds={selectedCrewIds}
+        chaosCard={chaosCard}
+        onComplete={(outcome) => {
+          setHeistOutcome(outcome);
+          setHeistPhase('results');
+        }}
+      />
+    );
+  }
+
+  // Chaos card reveal
   if (selectedVault && heistPhase === 'chaos') {
     return (
       <ChaosCardReveal
         onComplete={(card) => {
           setChaosCard(card);
-          // For now, return to jobs after chaos card (heist execution in next prompt)
-          setHeistPhase(null);
-          setSelectedVault(null);
-          setSelectedCrewIds([]);
-          setActiveTab('jobs');
+          setHeistPhase('execution');
         }}
       />
     );
