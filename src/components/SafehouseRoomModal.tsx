@@ -110,7 +110,7 @@ const jewelEmojis: Record<string, string> = {
   pearl: '🤍', sapphire: '💙', emerald: '💚', ruby: '❤️', diamond: '💎',
 };
 
-const SafehouseRoomModal = ({ roomId, currentTier, playerCash, playerJewels, onUpgrade, onClose }: SafehouseRoomModalProps) => {
+const SafehouseRoomModal = ({ roomId, currentTier, playerCash, playerJewels, onUpgrade, onClose, onOpenBlackMarket }: SafehouseRoomModalProps) => {
   const [upgrading, setUpgrading] = useState(false);
   const room = ROOM_DEFS.find(r => r.id === roomId);
   if (!room) return null;
