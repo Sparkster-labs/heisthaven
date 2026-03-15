@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 interface HeldLootScreenProps {
   onBack: () => void;
@@ -98,11 +99,12 @@ const HeldLootScreen = ({ onBack }: HeldLootScreenProps) => {
     setActing(false);
     fetchData();
 
-    // Show result feedback (simple alert-style inline)
     if (raided && !isMatured) {
-      alert(`🚨 RAIDED! You lost half. Retrieved $${withdrawAmount} of $${loot.amount}.`);
+      toast({ title: '🚨 RAIDED!', description: `You lost half. Retrieved $${withdrawAmount} of $${loot.amount}.` });
     } else if (isMatured) {
-      alert(`💰 Matured! You earned a ${Math.round(BONUS_RATE * 100)}% bonus: $${withdrawAmount}!`);
+      toast({ title: '💰 Matured!', description: `You earned a ${Math.round(BONUS_RATE * 100)}% bonus: $${withdrawAmount}!` });
+    } else {
+      toast({ title: '✅ Withdrawn', description: `$${withdrawAmount} returned to your wallet.` });
     }
   };
 

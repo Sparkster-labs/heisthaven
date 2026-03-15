@@ -3,6 +3,7 @@ import { THEME, S } from '@/styles/theme';
 import { SAFEHOUSE_ROOMS } from '@/lib/gameData';
 import { supabase } from '@/integrations/supabase/client';
 import type { Json } from '@/integrations/supabase/types';
+import { toast } from '@/hooks/use-toast';
 import BottomNav from '@/components/BottomNav';
 
 interface SafehouseScreenProps {
@@ -100,6 +101,7 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreen
 
     setUnlocking(false);
     setUnlockModal(null);
+    toast({ title: `${room.emoji} ${room.name} Unlocked!`, description: room.description });
     fetchData();
   };
 
@@ -128,7 +130,7 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreen
   };
 
   return (
-    <div style={S.page}>
+    <div style={S.page} className="screen-enter">
       {/* TOP BAR */}
       <div
         style={{
@@ -209,6 +211,7 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreen
         }}
       >
         <div
+          className="stagger-children"
           style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',

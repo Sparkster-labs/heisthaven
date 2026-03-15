@@ -3,6 +3,7 @@ import { THEME, S } from '@/styles/theme';
 import { CITIES } from '@/lib/gameData';
 import { supabase } from '@/integrations/supabase/client';
 import type { Json } from '@/integrations/supabase/types';
+import { toast } from '@/hooks/use-toast';
 import BottomNav from '@/components/BottomNav';
 
 interface CityMapScreenProps {
@@ -91,6 +92,8 @@ const CityMapScreen = ({ activeTab, onTabChange }: CityMapScreenProps) => {
 
     setTravelModal(null);
     setActing(false);
+    const city = CITIES[cityId as keyof typeof CITIES];
+    toast({ title: `✈️ Arrived in ${city.name}`, description: city.tagline });
     fetchData();
   };
 
@@ -155,7 +158,7 @@ const CityMapScreen = ({ activeTab, onTabChange }: CityMapScreenProps) => {
   const isCurrent = (cityId: string) => profile.current_city === cityId;
 
   return (
-    <div style={S.page}>
+    <div style={S.page} className="screen-enter">
       <div style={{ paddingTop: THEME.space.xl, paddingBottom: 100, maxWidth: 480, margin: '0 auto', padding: `${THEME.space.xl}px ${THEME.space.md}px 100px` }}>
         <div style={S.eyebrow}>THE UNDERWORLD</div>
         <h1 style={{ ...S.h1, fontSize: 22, marginBottom: THEME.space.lg }}>CITY MAP</h1>

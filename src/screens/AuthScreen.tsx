@@ -54,6 +54,7 @@ const AuthScreen = ({ onAuth }: AuthScreenProps) => {
   return (
     <div style={S.page}>
       <div
+        className="screen-enter"
         style={{
           display: 'flex',
           flexDirection: 'column',
@@ -65,16 +66,15 @@ const AuthScreen = ({ onAuth }: AuthScreenProps) => {
       >
         {/* Title */}
         <h1
+          className="gold-shimmer"
           style={{
             fontFamily: THEME.fonts.display,
             fontSize: 36,
-            color: THEME.colors.gold,
             letterSpacing: 6,
             textTransform: 'uppercase',
             textAlign: 'center',
             lineHeight: 1.1,
             marginBottom: THEME.space.sm,
-            textShadow: '0 0 40px rgba(232,184,75,0.3)',
           }}
         >
           THE GIFT HEIST

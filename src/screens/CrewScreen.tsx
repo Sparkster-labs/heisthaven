@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { CREW_MEMBERS } from '@/lib/gameData';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 import BottomNav from '@/components/BottomNav';
 
 interface CrewScreenProps {
@@ -73,6 +74,7 @@ const CrewScreen = ({ activeTab, onTabChange }: CrewScreenProps) => {
 
     setRecruitModal(null);
     setActing(false);
+    toast({ title: `${member.emoji} ${member.name} Recruited!`, description: `${member.role} has joined your crew.` });
     fetchData();
   };
 
@@ -94,7 +96,7 @@ const CrewScreen = ({ activeTab, onTabChange }: CrewScreenProps) => {
   });
 
   return (
-    <div style={S.page}>
+    <div style={S.page} className="screen-enter">
       <div style={{ paddingTop: THEME.space.xl, paddingBottom: 100, maxWidth: 480, margin: '0 auto', padding: `${THEME.space.xl}px ${THEME.space.md}px 100px` }}>
         <div style={S.eyebrow}>YOUR NETWORK</div>
         <h1 style={{ ...S.h1, fontSize: 22, marginBottom: THEME.space.sm }}>THE CREW</h1>
