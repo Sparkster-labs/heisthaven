@@ -584,24 +584,6 @@ const HeistResults = ({ vault, crewIds, chaosCard, miniGameResults, onFinish }: 
             RETURN TO SAFEHOUSE
           </button>
         )}
-
-        {/* No fence — failure return */}
-        {phase === 'done' && !success && (
-          <div style={{ marginTop: THEME.space.sm }} />
-        )}
-        {(phase === 'ledger' || phase === 'done') && !fenceOffer && !saving && phase === 'done' && (
-          <button
-            onClick={onFinish}
-            style={{
-              ...S.btnPrimary,
-              boxShadow: THEME.shadows.gold,
-              animation: 'fadeSlideUp 0.3s ease-out',
-              marginTop: THEME.space.sm,
-            }}
-          >
-            RETURN TO SAFEHOUSE
-          </button>
-        )}
       </div>
 
       <style>{`
