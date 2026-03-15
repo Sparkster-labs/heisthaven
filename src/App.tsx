@@ -144,9 +144,9 @@ const AppContent = () => {
         />
       );
     case 'city':
-      return <PlaceholderScreen title="City Map" activeTab={activeTab} onTabChange={setActiveTab} />;
+      return <CityMapScreen activeTab={activeTab} onTabChange={setActiveTab} />;
     case 'crew':
-      return <PlaceholderScreen title="Crew" activeTab={activeTab} onTabChange={setActiveTab} />;
+      return <CrewScreen activeTab={activeTab} onTabChange={setActiveTab} />;
     case 'profile':
       return <PlaceholderScreen title="Profile" activeTab={activeTab} onTabChange={setActiveTab} />;
     default:
