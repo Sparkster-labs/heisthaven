@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { CREW_MEMBERS, VAULTS } from '@/lib/gameData';
 import { supabase } from '@/integrations/supabase/client';
+import { SFX } from '@/lib/sounds';
 
 interface CrewHireScreenProps {
   vault: typeof VAULTS[number];
