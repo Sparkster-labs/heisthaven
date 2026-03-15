@@ -27,6 +27,8 @@ interface ProfileData {
   rep_xp: number;
   notoriety_title: string;
   jewels: Record<string, number>;
+  avatar: AvatarConfig;
+  equippedItems: EquippedItems;
 }
 
 interface SafehouseData {
