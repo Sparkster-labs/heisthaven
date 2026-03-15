@@ -149,7 +149,7 @@ const AppContent = () => {
     case 'crew':
       return <CrewScreen activeTab={activeTab} onTabChange={setActiveTab} />;
     case 'profile':
-      return <PlaceholderScreen title="Profile" activeTab={activeTab} onTabChange={setActiveTab} />;
+      return <ProfileScreen activeTab={activeTab} onTabChange={setActiveTab} />;
     default:
       return <SafehouseScreen activeTab={activeTab} onTabChange={setActiveTab} />;
   }
