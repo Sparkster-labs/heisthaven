@@ -110,62 +110,78 @@ const AuthScreen = ({ onAuth }: AuthScreenProps) => {
           }}
         >
           <div style={{ ...S.eyebrow, textAlign: 'center', marginBottom: THEME.space.lg }}>
-            {isSignUp ? 'Create Account' : 'Sign In'}
+            {mode === 'forgot' ? 'Reset Password' : mode === 'signup' ? 'Create Account' : 'Sign In'}
           </div>
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: THEME.space.md }}>
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              style={inputStyle}
-              onFocus={(e) => (e.target.style.borderColor = THEME.colors.gold)}
-              onBlur={(e) => (e.target.style.borderColor = THEME.colors.borderFaint)}
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              style={inputStyle}
-              onFocus={(e) => (e.target.style.borderColor = THEME.colors.gold)}
-              onBlur={(e) => (e.target.style.borderColor = THEME.colors.borderFaint)}
-            />
+          {mode === 'forgot' && resetSent ? (
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 32, marginBottom: THEME.space.md }}>📧</div>
+              <p style={{ fontFamily: THEME.fonts.mono, fontSize: 12, color: THEME.colors.textSecondary, marginBottom: THEME.space.lg, lineHeight: 1.6 }}>
+                Check your email for a password reset link.
+              </p>
+              <button onClick={() => { setMode('login'); setResetSent(false); setError(''); }} style={{ ...S.btnGhost, fontSize: 10 }}>
+                BACK TO SIGN IN
+              </button>
+            </div>
+          ) : (
+            <>
+              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: THEME.space.md }}>
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  style={inputStyle}
+                  onFocus={(e) => (e.target.style.borderColor = THEME.colors.gold)}
+                  onBlur={(e) => (e.target.style.borderColor = THEME.colors.borderFaint)}
+                />
+                {mode !== 'forgot' && (
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    style={inputStyle}
+                    onFocus={(e) => (e.target.style.borderColor = THEME.colors.gold)}
+                    onBlur={(e) => (e.target.style.borderColor = THEME.colors.borderFaint)}
+                  />
+                )}
 
-            {error && (
-              <div style={{ color: THEME.colors.danger, fontSize: 12, fontFamily: THEME.fonts.mono, textAlign: 'center' }}>
-                {error}
-              </div>
-            )}
+                {error && (
+                  <div style={{ color: THEME.colors.danger, fontSize: 12, fontFamily: THEME.fonts.mono, textAlign: 'center' }}>
+                    {error}
+                  </div>
+                )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                ...S.btnPrimary,
-                opacity: loading ? 0.6 : 1,
-                marginTop: THEME.space.sm,
-              }}
-            >
-              {loading ? 'PROCESSING...' : isSignUp ? 'CREATE ACCOUNT' : 'SIGN IN'}
-            </button>
-          </form>
+                <button type="submit" disabled={loading} style={{
+                  ...S.btnPrimary, opacity: loading ? 0.6 : 1, marginTop: THEME.space.sm,
+                }}>
+                  {loading ? 'PROCESSING...' : mode === 'forgot' ? 'SEND RESET LINK' : mode === 'signup' ? 'CREATE ACCOUNT' : 'SIGN IN'}
+                </button>
+              </form>
 
-          <div style={S.divider} />
+              {mode === 'login' && (
+                <button
+                  onClick={() => { setMode('forgot'); setError(''); }}
+                  style={{ ...S.btnGhost, fontSize: 10, marginTop: THEME.space.sm }}
+                >
+                  FORGOT PASSWORD?
+                </button>
+              )}
 
-          <button
-            onClick={() => { setIsSignUp(!isSignUp); setError(''); }}
-            style={{
-              ...S.btnGhost,
-              fontSize: 10,
-            }}
-          >
-            {isSignUp ? 'ALREADY HAVE AN ACCOUNT? SIGN IN' : 'NEW HERE? CREATE ACCOUNT'}
-          </button>
+              <div style={S.divider} />
+
+              <button
+                onClick={() => { setMode(mode === 'signup' ? 'login' : mode === 'forgot' ? 'login' : 'signup'); setError(''); setResetSent(false); }}
+                style={{ ...S.btnGhost, fontSize: 10 }}
+              >
+                {mode === 'signup' ? 'ALREADY HAVE AN ACCOUNT? SIGN IN' : mode === 'forgot' ? 'BACK TO SIGN IN' : 'NEW HERE? CREATE ACCOUNT'}
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>
