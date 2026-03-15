@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      boss_vault_progress: {
+        Row: {
+          boss_id: string
+          city_id: string
+          cleared_at: string | null
+          id: string
+          legendary_piece_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          boss_id: string
+          city_id: string
+          cleared_at?: string | null
+          id?: string
+          legendary_piece_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          boss_id?: string
+          city_id?: string
+          cleared_at?: string | null
+          id?: string
+          legendary_piece_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "boss_vault_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       city_progress: {
         Row: {
           boss_vault_cleared: boolean
@@ -206,11 +241,13 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar: Json
           cash: number
           created_at: string | null
           crew_insurance: boolean
           current_city: string
           display_name: string
+          equippedItems: Json
           id: string
           jewels: Json
           last_login: string | null
@@ -220,11 +257,13 @@ export type Database = {
           unlocked_cities: string[]
         }
         Insert: {
+          avatar?: Json
           cash?: number
           created_at?: string | null
           crew_insurance?: boolean
           current_city?: string
           display_name?: string
+          equippedItems?: Json
           id: string
           jewels?: Json
           last_login?: string | null
@@ -234,11 +273,13 @@ export type Database = {
           unlocked_cities?: string[]
         }
         Update: {
+          avatar?: Json
           cash?: number
           created_at?: string | null
           crew_insurance?: boolean
           current_city?: string
           display_name?: string
+          equippedItems?: Json
           id?: string
           jewels?: Json
           last_login?: string | null
@@ -270,6 +311,38 @@ export type Database = {
             foreignKeyName: "safehouse_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wardrobe: {
+        Row: {
+          acquired_at: string | null
+          acquired_from: string
+          id: string
+          item_id: string
+          user_id: string | null
+        }
+        Insert: {
+          acquired_at?: string | null
+          acquired_from?: string
+          id?: string
+          item_id: string
+          user_id?: string | null
+        }
+        Update: {
+          acquired_at?: string | null
+          acquired_from?: string
+          id?: string
+          item_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wardrobe_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
