@@ -22,9 +22,10 @@ const AppContent = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('home');
   const [selectedVault, setSelectedVault] = useState<typeof VAULTS[number] | null>(null);
-  const [heistPhase, setHeistPhase] = useState<'vault' | 'crew' | 'chaos' | null>(null);
+  const [heistPhase, setHeistPhase] = useState<'vault' | 'crew' | 'chaos' | 'execution' | 'results' | null>(null);
   const [selectedCrewIds, setSelectedCrewIds] = useState<string[]>([]);
   const [chaosCard, setChaosCard] = useState<typeof CHAOS_CARDS[number] | null>(null);
+  const [heistOutcome, setHeistOutcome] = useState<{ success: boolean; miniGameResults: boolean[] } | null>(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
