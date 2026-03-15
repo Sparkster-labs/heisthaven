@@ -209,6 +209,7 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreen
         }}
       >
         <div
+          className="stagger-children"
           style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
