@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { CHAOS_CARDS } from '@/lib/gameData';
+import { SFX } from '@/lib/sounds';
 
 interface ChaosCardRevealProps {
   onComplete: (card: typeof CHAOS_CARDS[number]) => void;
