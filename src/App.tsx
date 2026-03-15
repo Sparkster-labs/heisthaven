@@ -11,6 +11,7 @@ import CityMapScreen from '@/screens/CityMapScreen';
 import CrewScreen from '@/screens/CrewScreen';
 import ProfileScreen from '@/screens/ProfileScreen';
 import HeldLootScreen from '@/screens/HeldLootScreen';
+import LeaderboardScreen from '@/screens/LeaderboardScreen';
 import JobBoardScreen from '@/screens/JobBoardScreen';
 import VaultSelectScreen from '@/screens/heist/VaultSelectScreen';
 import CrewHireScreen from '@/screens/heist/CrewHireScreen';
@@ -63,6 +64,9 @@ const AppContent = () => {
   // Sub-screens
   if (subScreen === 'held_loot') {
     return <HeldLootScreen onBack={() => setSubScreen(null)} />;
+  }
+  if (subScreen === 'leaderboard') {
+    return <LeaderboardScreen activeTab={activeTab} onTabChange={(tab) => { setSubScreen(null); setActiveTab(tab); }} />;
   }
 
   // Heist results
@@ -144,6 +148,7 @@ const AppContent = () => {
     case 'home':
       return <SafehouseScreen activeTab={activeTab} onTabChange={setActiveTab} onOpenRoom={(roomId) => {
         if (roomId === 'vault') setSubScreen('held_loot');
+        if (roomId === 'war_room') setSubScreen('leaderboard');
       }} />;
     case 'jobs':
       return (
