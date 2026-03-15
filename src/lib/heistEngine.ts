@@ -145,7 +145,6 @@ export function resolveHeist(input: HeistInput): HeistOutcome {
   }
 
   // --- XP ---
-  const successCount = miniGameResults.filter(Boolean).length;
   let xpGained: number;
   if (!busted) {
     xpGained = 50 + successCount * 25;
