@@ -14,6 +14,7 @@ import ProfileScreen from '@/screens/ProfileScreen';
 import HeldLootScreen from '@/screens/HeldLootScreen';
 import LeaderboardScreen from '@/screens/LeaderboardScreen';
 import JobBoardScreen from '@/screens/JobBoardScreen';
+import BlackMarketScreen from '@/screens/BlackMarketScreen';
 import VaultSelectScreen from '@/screens/heist/VaultSelectScreen';
 import CrewHireScreen from '@/screens/heist/CrewHireScreen';
 import ChaosCardReveal from '@/screens/heist/ChaosCardReveal';
