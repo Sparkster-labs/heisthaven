@@ -3,9 +3,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { supabase } from '@/integrations/supabase/client';
 import { THEME } from '@/styles/theme';
+import { VAULTS } from '@/lib/gameData';
 import AuthScreen from '@/screens/AuthScreen';
 import SafehouseScreen from '@/screens/SafehouseScreen';
 import PlaceholderScreen from '@/screens/PlaceholderScreen';
+import JobBoardScreen from '@/screens/JobBoardScreen';
+import VaultSelectScreen from '@/screens/heist/VaultSelectScreen';
 import type { Session } from '@supabase/supabase-js';
 
 const queryClient = new QueryClient();
@@ -14,6 +17,7 @@ const AppContent = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('home');
+  const [selectedVault, setSelectedVault] = useState<typeof VAULTS[number] | null>(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -43,12 +47,33 @@ const AppContent = () => {
     return <AuthScreen onAuth={() => {}} />;
   }
 
+  // If a vault is selected, show vault detail
+  if (selectedVault) {
+    return (
+      <VaultSelectScreen
+        vault={selectedVault}
+        onCommit={() => {
+          // Will connect to CrewHire in Prompt 4
+          setSelectedVault(null);
+          setActiveTab('jobs');
+        }}
+        onBack={() => setSelectedVault(null)}
+      />
+    );
+  }
+
   // Tab routing
   switch (activeTab) {
     case 'home':
       return <SafehouseScreen activeTab={activeTab} onTabChange={setActiveTab} />;
     case 'jobs':
-      return <PlaceholderScreen title="Job Board" activeTab={activeTab} onTabChange={setActiveTab} />;
+      return (
+        <JobBoardScreen
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onSelectVault={(vault) => setSelectedVault(vault)}
+        />
+      );
     case 'city':
       return <PlaceholderScreen title="City Map" activeTab={activeTab} onTabChange={setActiveTab} />;
     case 'crew':
