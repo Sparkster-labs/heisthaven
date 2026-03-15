@@ -103,7 +103,9 @@ export function resolveHeist(input: HeistInput): HeistOutcome {
   // Clamp
   failChance = Math.max(0.03, Math.min(0.97, failChance));
 
-  const busted = Math.random() < failChance;
+  // If no mini-games were passed, the heist automatically fails
+  const successCount = miniGameResults.filter(Boolean).length;
+  const busted = successCount === 0 ? true : Math.random() < failChance;
 
   // --- PAYOUT ---
   let payout = 0;
