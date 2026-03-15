@@ -78,7 +78,6 @@ const AppContent = () => {
         crewIds={selectedCrewIds}
         chaosCard={chaosCard}
         miniGameResults={heistOutcome.miniGameResults}
-        success={heistOutcome.success}
         onFinish={() => {
           setHeistPhase(null);
           setSelectedVault(null);
