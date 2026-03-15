@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Json } from '@/integrations/supabase/types';
 import { toast } from '@/hooks/use-toast';
 import BottomNav from '@/components/BottomNav';
+import SafehouseRoomModal from '@/components/SafehouseRoomModal';
 
 interface SafehouseScreenProps {
   activeTab: string;
@@ -28,8 +29,7 @@ interface SafehouseData {
 const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreenProps) => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [safehouse, setSafehouse] = useState<SafehouseData | null>(null);
-  const [unlockModal, setUnlockModal] = useState<typeof SAFEHOUSE_ROOMS[number] | null>(null);
-  const [unlocking, setUnlocking] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
 
   const fetchData = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -68,42 +68,7 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreen
     return ((profile.rep_xp - currentThreshold) / (nextThreshold - currentThreshold)) * 100;
   };
 
-  const handleUnlock = async (room: typeof SAFEHOUSE_ROOMS[number]) => {
-    if (!profile || !safehouse) return;
-    if (profile.cash < room.cost) return;
-    if (room.jewel) {
-      const jewels = profile.jewels;
-      if ((jewels[room.jewel.type] || 0) < room.jewel.count) return;
-    }
-
-    setUnlocking(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    // Deduct cash
-    let newCash = profile.cash - room.cost;
-    let newJewels = { ...profile.jewels };
-    if (room.jewel) {
-      newJewels[room.jewel.type] = (newJewels[room.jewel.type] || 0) - room.jewel.count;
-    }
-
-    // Update profile
-    await supabase.from('profiles').update({
-      cash: newCash,
-      jewels: newJewels as unknown as Json,
-    }).eq('id', user.id);
-
-    // Update safehouse
-    const newRooms = { ...safehouse.rooms, [room.id]: 1 };
-    await supabase.from('safehouse').update({
-      rooms: newRooms as unknown as Json,
-    }).eq('user_id', user.id);
-
-    setUnlocking(false);
-    setUnlockModal(null);
-    toast({ title: `${room.emoji} ${room.name} Unlocked!`, description: room.description });
-    fetchData();
-  };
+  // handleUnlock removed — now handled by SafehouseRoomModal
 
   const formatCash = (n: number) => '$' + n.toLocaleString();
 
@@ -219,17 +184,12 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreen
           }}
         >
           {SAFEHOUSE_ROOMS.map((room) => {
-            const isUnlocked = safehouse.rooms[room.id] === 1;
+            const roomTier = safehouse.rooms[room.id] || 0;
+            const isUnlocked = roomTier >= 1;
             return (
               <div
                 key={room.id}
-                onClick={() => {
-                  if (isUnlocked) {
-                    onOpenRoom?.(room.id);
-                  } else {
-                    setUnlockModal(room);
-                  }
-                }}
+                onClick={() => setSelectedRoom(room.id)}
                 style={{
                   ...S.card,
                   textAlign: 'center',
@@ -276,75 +236,16 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreen
         </div>
       </div>
 
-      {/* UNLOCK MODAL */}
-      {unlockModal && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.8)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 200,
-            padding: THEME.space.lg,
-          }}
-          onClick={() => setUnlockModal(null)}
-        >
-          <div
-            style={{
-              ...S.card,
-              maxWidth: 320,
-              width: '100%',
-              textAlign: 'center',
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div style={{ fontSize: 48, marginBottom: THEME.space.md }}>{unlockModal.emoji}</div>
-            <div style={{ ...S.eyebrow, marginBottom: THEME.space.xs }}>LOCKED</div>
-            <div
-              style={{
-                fontFamily: THEME.fonts.display,
-                fontSize: 20,
-                color: THEME.colors.textPrimary,
-                letterSpacing: 2,
-                textTransform: 'uppercase',
-                marginBottom: THEME.space.md,
-              }}
-            >
-              {unlockModal.name}
-            </div>
-            <p style={{ fontFamily: THEME.fonts.body, fontSize: 13, color: THEME.colors.textSecondary, marginBottom: THEME.space.lg, lineHeight: 1.5 }}>
-              {unlockModal.description}
-            </p>
-            <div style={{ fontSize: 14, color: THEME.colors.gold, fontFamily: THEME.fonts.mono, marginBottom: THEME.space.lg }}>
-              Requires {formatCash(unlockModal.cost)}
-              {unlockModal.jewel && ` + ${unlockModal.jewel.count} ${unlockModal.jewel.type.charAt(0).toUpperCase() + unlockModal.jewel.type.slice(1)}`}
-            </div>
-
-            {profile.cash >= unlockModal.cost &&
-             (!unlockModal.jewel || (profile.jewels[unlockModal.jewel.type] || 0) >= unlockModal.jewel.count) ? (
-              <button
-                onClick={() => handleUnlock(unlockModal)}
-                disabled={unlocking}
-                style={{ ...S.btnPrimary, opacity: unlocking ? 0.6 : 1 }}
-              >
-                {unlocking ? 'UPGRADING...' : 'UPGRADE'}
-              </button>
-            ) : (
-              <div style={{ fontSize: 11, color: THEME.colors.danger, fontFamily: THEME.fonts.mono, letterSpacing: 1 }}>
-                INSUFFICIENT FUNDS
-              </div>
-            )}
-
-            <button
-              onClick={() => setUnlockModal(null)}
-              style={{ ...S.btnGhost, marginTop: THEME.space.md }}
-            >
-              CANCEL
-            </button>
-          </div>
-        </div>
+      {/* ROOM UPGRADE MODAL */}
+      {selectedRoom && (
+        <SafehouseRoomModal
+          roomId={selectedRoom}
+          currentTier={safehouse.rooms[selectedRoom] || 0}
+          playerCash={profile.cash}
+          playerJewels={profile.jewels}
+          onUpgrade={() => { setSelectedRoom(null); fetchData(); }}
+          onClose={() => setSelectedRoom(null)}
+        />
       )}
 
       <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
