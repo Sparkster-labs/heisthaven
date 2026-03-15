@@ -9,6 +9,7 @@ import SafehouseScreen from '@/screens/SafehouseScreen';
 import PlaceholderScreen from '@/screens/PlaceholderScreen';
 import CityMapScreen from '@/screens/CityMapScreen';
 import CrewScreen from '@/screens/CrewScreen';
+import ProfileScreen from '@/screens/ProfileScreen';
 import JobBoardScreen from '@/screens/JobBoardScreen';
 import VaultSelectScreen from '@/screens/heist/VaultSelectScreen';
 import CrewHireScreen from '@/screens/heist/CrewHireScreen';
@@ -148,7 +149,7 @@ const AppContent = () => {
     case 'crew':
       return <CrewScreen activeTab={activeTab} onTabChange={setActiveTab} />;
     case 'profile':
-      return <PlaceholderScreen title="Profile" activeTab={activeTab} onTabChange={setActiveTab} />;
+      return <ProfileScreen activeTab={activeTab} onTabChange={setActiveTab} />;
     default:
       return <SafehouseScreen activeTab={activeTab} onTabChange={setActiveTab} />;
   }
