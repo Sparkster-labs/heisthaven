@@ -5,9 +5,11 @@ import { Toaster } from '@/components/ui/toaster';
 import { supabase } from '@/integrations/supabase/client';
 import { THEME } from '@/styles/theme';
 import { VAULTS, CHAOS_CARDS } from '@/lib/gameData';
+import { TransitionProvider, useTransition } from '@/contexts/TransitionContext';
+import DailyLoginModal from '@/components/DailyLoginModal';
+import OnboardingOverlay from '@/components/OnboardingOverlay';
 import AuthScreen from '@/screens/AuthScreen';
 import SafehouseScreen from '@/screens/SafehouseScreen';
-import PlaceholderScreen from '@/screens/PlaceholderScreen';
 import CityMapScreen from '@/screens/CityMapScreen';
 import CrewScreen from '@/screens/CrewScreen';
 import ProfileScreen from '@/screens/ProfileScreen';
@@ -15,6 +17,7 @@ import HeldLootScreen from '@/screens/HeldLootScreen';
 import LeaderboardScreen from '@/screens/LeaderboardScreen';
 import JobBoardScreen from '@/screens/JobBoardScreen';
 import BlackMarketScreen from '@/screens/BlackMarketScreen';
+import IAPScreen from '@/screens/IAPScreen';
 import VaultSelectScreen from '@/screens/heist/VaultSelectScreen';
 import CrewHireScreen from '@/screens/heist/CrewHireScreen';
 import ChaosCardReveal from '@/screens/heist/ChaosCardReveal';
@@ -34,18 +37,19 @@ const AppContent = () => {
   const [chaosCard, setChaosCard] = useState<typeof CHAOS_CARDS[number] | null>(null);
   const [heistOutcome, setHeistOutcome] = useState<{ miniGameResults: boolean[] } | null>(null);
   const [subScreen, setSubScreen] = useState<string | null>(null);
+  const { triggerTransition } = useTransition();
+
+  const navigate = (cb: () => void) => triggerTransition(cb);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setLoading(false);
     });
-
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
     });
-
     return () => subscription.unsubscribe();
   }, []);
 
@@ -65,13 +69,16 @@ const AppContent = () => {
 
   // Sub-screens
   if (subScreen === 'held_loot') {
-    return <HeldLootScreen onBack={() => setSubScreen(null)} />;
+    return <HeldLootScreen onBack={() => navigate(() => setSubScreen(null))} />;
   }
   if (subScreen === 'leaderboard') {
-    return <LeaderboardScreen activeTab={activeTab} onTabChange={(tab) => { setSubScreen(null); setActiveTab(tab); }} />;
+    return <LeaderboardScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} />;
   }
   if (subScreen === 'black_market') {
-    return <BlackMarketScreen activeTab={activeTab} onTabChange={(tab) => { setSubScreen(null); setActiveTab(tab); }} />;
+    return <BlackMarketScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} />;
+  }
+  if (subScreen === 'iap') {
+    return <IAPScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} onBack={() => navigate(() => setSubScreen(null))} />;
   }
 
   // Heist results
@@ -82,19 +89,19 @@ const AppContent = () => {
         crewIds={selectedCrewIds}
         chaosCard={chaosCard}
         miniGameResults={heistOutcome.miniGameResults}
-        onFinish={() => {
+        onFinish={() => navigate(() => {
           setHeistPhase(null);
           setSelectedVault(null);
           setSelectedCrewIds([]);
           setChaosCard(null);
           setHeistOutcome(null);
           setActiveTab('home');
-        }}
+        })}
       />
     );
   }
 
-  // Heist execution (mini-games)
+  // Heist execution
   if (selectedVault && heistPhase === 'execution' && chaosCard) {
     return (
       <HeistExecution
@@ -109,7 +116,7 @@ const AppContent = () => {
     );
   }
 
-  // Chaos card reveal
+  // Chaos card
   if (selectedVault && heistPhase === 'chaos') {
     return (
       <ChaosCardReveal
@@ -139,37 +146,52 @@ const AppContent = () => {
       <VaultSelectScreen
         vault={selectedVault}
         onCommit={() => setHeistPhase('crew')}
-        onBack={() => {
+        onBack={() => navigate(() => {
           setSelectedVault(null);
           setHeistPhase(null);
-        }}
+        })}
       />
     );
   }
 
   // Tab routing
+  const handleTabChange = (tab: string) => navigate(() => setActiveTab(tab));
+
   switch (activeTab) {
     case 'home':
-      return <SafehouseScreen activeTab={activeTab} onTabChange={setActiveTab} onOpenRoom={(roomId) => {
-        if (roomId === 'vault') setSubScreen('held_loot');
-        if (roomId === 'war_room') setSubScreen('leaderboard');
-      }} />;
+      return (
+        <>
+          <DailyLoginModal />
+          <OnboardingOverlay />
+          <SafehouseScreen
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+            onOpenRoom={(roomId) => {
+              if (roomId === 'vault') navigate(() => setSubScreen('held_loot'));
+              if (roomId === 'war_room') navigate(() => setSubScreen('leaderboard'));
+            }}
+            onOpenIAP={() => navigate(() => setSubScreen('iap'))}
+            onOpenBlackMarket={() => navigate(() => setSubScreen('black_market'))}
+            onOpenHeldLoot={() => navigate(() => setSubScreen('held_loot'))}
+          />
+        </>
+      );
     case 'jobs':
       return (
         <JobBoardScreen
           activeTab={activeTab}
-          onTabChange={setActiveTab}
-          onSelectVault={(vault) => { setSelectedVault(vault); setHeistPhase('vault'); }}
+          onTabChange={handleTabChange}
+          onSelectVault={(vault) => navigate(() => { setSelectedVault(vault); setHeistPhase('vault'); })}
         />
       );
     case 'city':
-      return <CityMapScreen activeTab={activeTab} onTabChange={setActiveTab} />;
+      return <CityMapScreen activeTab={activeTab} onTabChange={handleTabChange} />;
     case 'crew':
-      return <CrewScreen activeTab={activeTab} onTabChange={setActiveTab} />;
+      return <CrewScreen activeTab={activeTab} onTabChange={handleTabChange} />;
     case 'profile':
-      return <ProfileScreen activeTab={activeTab} onTabChange={setActiveTab} />;
+      return <ProfileScreen activeTab={activeTab} onTabChange={handleTabChange} />;
     default:
-      return <SafehouseScreen activeTab={activeTab} onTabChange={setActiveTab} />;
+      return <SafehouseScreen activeTab={activeTab} onTabChange={handleTabChange} />;
   }
 };
 
@@ -192,7 +214,9 @@ const App = () => (
           backgroundSize: '128px 128px',
         }}
       />
-      <AppContent />
+      <TransitionProvider>
+        <AppContent />
+      </TransitionProvider>
       <Toaster />
     </TooltipProvider>
   </QueryClientProvider>

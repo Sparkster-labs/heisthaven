@@ -6,11 +6,16 @@ import type { Json } from '@/integrations/supabase/types';
 import { toast } from '@/hooks/use-toast';
 import BottomNav from '@/components/BottomNav';
 import SafehouseRoomModal from '@/components/SafehouseRoomModal';
+import HeldLootBanner from '@/components/HeldLootBanner';
+import SkeletonLoader from '@/components/SkeletonLoader';
 
 interface SafehouseScreenProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
   onOpenRoom?: (roomId: string) => void;
+  onOpenIAP?: () => void;
+  onOpenBlackMarket?: () => void;
+  onOpenHeldLoot?: () => void;
 }
 
 interface ProfileData {
@@ -26,7 +31,7 @@ interface SafehouseData {
   rooms: Record<string, number>;
 }
 
-const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreenProps) => {
+const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom, onOpenIAP, onOpenBlackMarket, onOpenHeldLoot }: SafehouseScreenProps) => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [safehouse, setSafehouse] = useState<SafehouseData | null>(null);
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
@@ -68,16 +73,13 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreen
     return ((profile.rep_xp - currentThreshold) / (nextThreshold - currentThreshold)) * 100;
   };
 
-  // handleUnlock removed — now handled by SafehouseRoomModal
-
   const formatCash = (n: number) => '$' + n.toLocaleString();
 
   if (!profile || !safehouse) {
     return (
-      <div style={{ ...S.page, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ color: THEME.colors.goldMid, fontFamily: THEME.fonts.display, letterSpacing: 3 }}>
-          LOADING...
-        </div>
+      <div style={S.page}>
+        <SkeletonLoader variant="safehouse" />
+        <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
       </div>
     );
   }
@@ -109,9 +111,7 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreen
           padding: `${THEME.space.md}px ${THEME.space.md}px ${THEME.space.sm}px`,
         }}
       >
-        {/* Main bar row */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: 480, margin: '0 auto' }}>
-          {/* Left: player info */}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 11, color: THEME.colors.gold, fontFamily: THEME.fonts.display, letterSpacing: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {profile.display_name}
@@ -121,12 +121,10 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreen
             </div>
           </div>
 
-          {/* Center: title */}
           <div style={{ fontFamily: THEME.fonts.display, fontSize: 13, color: THEME.colors.textPrimary, letterSpacing: 3, textTransform: 'uppercase', textAlign: 'center' }}>
             THE SAFEHOUSE
           </div>
 
-          {/* Right: cash + jewels */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', minWidth: 0 }}>
             <div style={{ fontSize: 13, color: THEME.colors.gold, fontFamily: THEME.fonts.mono, fontWeight: 700 }}>
               {formatCash(profile.cash)}
@@ -175,6 +173,49 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreen
           margin: '0 auto',
         }}
       >
+        {/* HELD LOOT BANNER */}
+        <HeldLootBanner onNavigateToLoot={onOpenHeldLoot} />
+
+        {/* Quick links */}
+        <div style={{ display: 'flex', gap: THEME.space.sm, marginBottom: THEME.space.md }}>
+          {onOpenBlackMarket && (
+            <button
+              onClick={onOpenBlackMarket}
+              style={{
+                flex: 1,
+                ...S.btnGhost,
+                padding: '8px',
+                fontSize: 9,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 4,
+              }}
+            >
+              🏪 BLACK MARKET
+            </button>
+          )}
+          {onOpenIAP && (
+            <button
+              onClick={onOpenIAP}
+              style={{
+                flex: 1,
+                ...S.btnGhost,
+                padding: '8px',
+                fontSize: 9,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 4,
+                borderColor: `${THEME.colors.gold}30`,
+                color: THEME.colors.goldMid,
+              }}
+            >
+              💎 THE FENCE
+            </button>
+          )}
+        </div>
+
         <div
           className="stagger-children"
           style={{
@@ -198,6 +239,7 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreen
                   transition: 'all 0.2s',
                   position: 'relative',
                 }}
+                className="tap-active"
                 onMouseEnter={(e) => {
                   (e.currentTarget as HTMLDivElement).style.borderColor = THEME.colors.borderBright;
                   (e.currentTarget as HTMLDivElement).style.opacity = isUnlocked ? '1' : '0.6';
@@ -222,7 +264,7 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreen
                 </div>
                 {isUnlocked ? (
                   <div style={{ fontSize: 10, color: THEME.colors.emerald, fontFamily: THEME.fonts.mono, letterSpacing: 2 }}>
-                    OPEN
+                    TIER {roomTier}
                   </div>
                 ) : (
                   <div style={{ fontSize: 10, color: THEME.colors.goldDim, fontFamily: THEME.fonts.mono }}>
