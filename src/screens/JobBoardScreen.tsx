@@ -124,7 +124,7 @@ const JobBoardScreen = ({ activeTab, onTabChange, onSelectVault }: JobBoardScree
   const cityData = CITIES[currentCity as keyof typeof CITIES];
 
   return (
-    <div style={S.page}>
+    <div style={S.page} className="screen-enter">
       {/* Header */}
       <div style={{ paddingTop: THEME.space.xl, paddingBottom: THEME.space.md, paddingLeft: THEME.space.md, paddingRight: THEME.space.md, maxWidth: 480, margin: '0 auto' }}>
         <div style={S.eyebrow}>
