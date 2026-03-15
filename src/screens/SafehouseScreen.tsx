@@ -222,7 +222,7 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreen
                 key={room.id}
                 onClick={() => {
                   if (isUnlocked) {
-                    // Navigate to placeholder for now
+                    onOpenRoom?.(room.id);
                   } else {
                     setUnlockModal(room);
                   }
