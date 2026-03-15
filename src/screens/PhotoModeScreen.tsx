@@ -416,7 +416,7 @@ const PhotoModeScreen = ({
           <div
             onClick={e => e.stopPropagation()}
             style={{
-              width: '100%', maxWidth: 480, background: THEME.colors.cardBg,
+              width: '100%', maxWidth: 480, background: THEME.colors.dusk,
               borderRadius: '16px 16px 0 0', padding: '20px 20px max(20px, env(safe-area-inset-bottom))',
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12,
             }}
