@@ -128,7 +128,7 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreen
   };
 
   return (
-    <div style={S.page}>
+    <div style={S.page} className="screen-enter">
       {/* TOP BAR */}
       <div
         style={{
