@@ -92,6 +92,8 @@ const CityMapScreen = ({ activeTab, onTabChange }: CityMapScreenProps) => {
 
     setTravelModal(null);
     setActing(false);
+    const city = CITIES[cityId as keyof typeof CITIES];
+    toast({ title: `✈️ Arrived in ${city.name}`, description: city.tagline });
     fetchData();
   };
 

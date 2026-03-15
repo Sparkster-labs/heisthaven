@@ -74,6 +74,7 @@ const CrewScreen = ({ activeTab, onTabChange }: CrewScreenProps) => {
 
     setRecruitModal(null);
     setActing(false);
+    toast({ title: `${member.emoji} ${member.name} Recruited!`, description: `${member.role} has joined your crew.` });
     fetchData();
   };
 
