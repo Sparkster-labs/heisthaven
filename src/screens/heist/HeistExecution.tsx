@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { VAULTS, CHAOS_CARDS } from '@/lib/gameData';
 import { LockPickGame, WireCutGame, SafeComboGame, PressureValveGame, TailGame, InterrogationGame } from './MiniGames';
+import { SFX, Haptics } from '@/lib/sounds';
 
 interface HeistExecutionProps {
   vault: typeof VAULTS[number];
