@@ -3,6 +3,7 @@ import { THEME, S } from '@/styles/theme';
 import { SAFEHOUSE_ROOMS } from '@/lib/gameData';
 import { supabase } from '@/integrations/supabase/client';
 import type { Json } from '@/integrations/supabase/types';
+import { toast } from '@/hooks/use-toast';
 import BottomNav from '@/components/BottomNav';
 
 interface SafehouseScreenProps {
