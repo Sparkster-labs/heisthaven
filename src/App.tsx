@@ -142,7 +142,9 @@ const AppContent = () => {
   // Tab routing
   switch (activeTab) {
     case 'home':
-      return <SafehouseScreen activeTab={activeTab} onTabChange={setActiveTab} />;
+      return <SafehouseScreen activeTab={activeTab} onTabChange={setActiveTab} onOpenRoom={(roomId) => {
+        if (roomId === 'vault') setSubScreen('held_loot');
+      }} />;
     case 'jobs':
       return (
         <JobBoardScreen
