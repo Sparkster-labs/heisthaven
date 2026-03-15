@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { CREW_MEMBERS } from '@/lib/gameData';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 import BottomNav from '@/components/BottomNav';
 
 interface CrewScreenProps {
