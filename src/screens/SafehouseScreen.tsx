@@ -68,42 +68,7 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreen
     return ((profile.rep_xp - currentThreshold) / (nextThreshold - currentThreshold)) * 100;
   };
 
-  const handleUnlock = async (room: typeof SAFEHOUSE_ROOMS[number]) => {
-    if (!profile || !safehouse) return;
-    if (profile.cash < room.cost) return;
-    if (room.jewel) {
-      const jewels = profile.jewels;
-      if ((jewels[room.jewel.type] || 0) < room.jewel.count) return;
-    }
-
-    setUnlocking(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    // Deduct cash
-    let newCash = profile.cash - room.cost;
-    let newJewels = { ...profile.jewels };
-    if (room.jewel) {
-      newJewels[room.jewel.type] = (newJewels[room.jewel.type] || 0) - room.jewel.count;
-    }
-
-    // Update profile
-    await supabase.from('profiles').update({
-      cash: newCash,
-      jewels: newJewels as unknown as Json,
-    }).eq('id', user.id);
-
-    // Update safehouse
-    const newRooms = { ...safehouse.rooms, [room.id]: 1 };
-    await supabase.from('safehouse').update({
-      rooms: newRooms as unknown as Json,
-    }).eq('user_id', user.id);
-
-    setUnlocking(false);
-    setUnlockModal(null);
-    toast({ title: `${room.emoji} ${room.name} Unlocked!`, description: room.description });
-    fetchData();
-  };
+  // handleUnlock removed — now handled by SafehouseRoomModal
 
   const formatCash = (n: number) => '$' + n.toLocaleString();
 
