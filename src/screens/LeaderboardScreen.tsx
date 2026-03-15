@@ -105,6 +105,8 @@ const LeaderboardScreen = ({ activeTab, onTabChange }: LeaderboardScreenProps) =
             notoriety_title: p?.notoriety_title || 'Street Rat',
             rep_level: p?.rep_level || 1,
             jewels: p?.jewels as Record<string, number> || {},
+            avatar: (p?.avatar as any) || DEFAULT_AVATAR,
+            equippedItems: (p?.equippedItems as any) || DEFAULT_EQUIPPED,
           };
         });
       }
