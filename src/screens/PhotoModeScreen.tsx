@@ -353,7 +353,7 @@ const PhotoModeScreen = ({
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={() => setOverlayText(!overlayText)} style={{
               padding: '6px 14px', borderRadius: 20, cursor: 'pointer', fontFamily: THEME.fonts.display, fontSize: 11, letterSpacing: 1,
-              background: overlayText ? THEME.colors.goldMid : THEME.colors.cardBg,
+              background: overlayText ? THEME.colors.goldMid : THEME.colors.dusk,
               color: overlayText ? THEME.colors.void : THEME.colors.textSecondary,
               border: overlayText ? 'none' : `1px solid ${THEME.colors.borderFaint}`,
             }}>
