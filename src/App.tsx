@@ -3,12 +3,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { supabase } from '@/integrations/supabase/client';
 import { THEME } from '@/styles/theme';
-import { VAULTS } from '@/lib/gameData';
+import { VAULTS, CHAOS_CARDS } from '@/lib/gameData';
 import AuthScreen from '@/screens/AuthScreen';
 import SafehouseScreen from '@/screens/SafehouseScreen';
 import PlaceholderScreen from '@/screens/PlaceholderScreen';
 import JobBoardScreen from '@/screens/JobBoardScreen';
 import VaultSelectScreen from '@/screens/heist/VaultSelectScreen';
+import CrewHireScreen from '@/screens/heist/CrewHireScreen';
+import ChaosCardReveal from '@/screens/heist/ChaosCardReveal';
 import type { Session } from '@supabase/supabase-js';
 
 const queryClient = new QueryClient();
@@ -18,6 +20,9 @@ const AppContent = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('home');
   const [selectedVault, setSelectedVault] = useState<typeof VAULTS[number] | null>(null);
+  const [heistPhase, setHeistPhase] = useState<'vault' | 'crew' | 'chaos' | null>(null);
+  const [selectedCrewIds, setSelectedCrewIds] = useState<string[]>([]);
+  const [chaosCard, setChaosCard] = useState<typeof CHAOS_CARDS[number] | null>(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -47,17 +52,44 @@ const AppContent = () => {
     return <AuthScreen onAuth={() => {}} />;
   }
 
-  // If a vault is selected, show vault detail
-  if (selectedVault) {
+  // Heist flow phases
+  if (selectedVault && heistPhase === 'chaos') {
+    return (
+      <ChaosCardReveal
+        onComplete={(card) => {
+          setChaosCard(card);
+          // For now, return to jobs after chaos card (heist execution in next prompt)
+          setHeistPhase(null);
+          setSelectedVault(null);
+          setSelectedCrewIds([]);
+          setActiveTab('jobs');
+        }}
+      />
+    );
+  }
+
+  if (selectedVault && heistPhase === 'crew') {
+    return (
+      <CrewHireScreen
+        vault={selectedVault}
+        onLaunch={(crewIds) => {
+          setSelectedCrewIds(crewIds);
+          setHeistPhase('chaos');
+        }}
+        onBack={() => setHeistPhase('vault')}
+      />
+    );
+  }
+
+  if (selectedVault && heistPhase === 'vault') {
     return (
       <VaultSelectScreen
         vault={selectedVault}
-        onCommit={() => {
-          // Will connect to CrewHire in Prompt 4
+        onCommit={() => setHeistPhase('crew')}
+        onBack={() => {
           setSelectedVault(null);
-          setActiveTab('jobs');
+          setHeistPhase(null);
         }}
-        onBack={() => setSelectedVault(null)}
       />
     );
   }
@@ -71,7 +103,7 @@ const AppContent = () => {
         <JobBoardScreen
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          onSelectVault={(vault) => setSelectedVault(vault)}
+          onSelectVault={(vault) => { setSelectedVault(vault); setHeistPhase('vault'); }}
         />
       );
     case 'city':
