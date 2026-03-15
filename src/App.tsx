@@ -7,6 +7,8 @@ import { VAULTS, CHAOS_CARDS } from '@/lib/gameData';
 import AuthScreen from '@/screens/AuthScreen';
 import SafehouseScreen from '@/screens/SafehouseScreen';
 import PlaceholderScreen from '@/screens/PlaceholderScreen';
+import CityMapScreen from '@/screens/CityMapScreen';
+import CrewScreen from '@/screens/CrewScreen';
 import JobBoardScreen from '@/screens/JobBoardScreen';
 import VaultSelectScreen from '@/screens/heist/VaultSelectScreen';
 import CrewHireScreen from '@/screens/heist/CrewHireScreen';
@@ -142,9 +144,9 @@ const AppContent = () => {
         />
       );
     case 'city':
-      return <PlaceholderScreen title="City Map" activeTab={activeTab} onTabChange={setActiveTab} />;
+      return <CityMapScreen activeTab={activeTab} onTabChange={setActiveTab} />;
     case 'crew':
-      return <PlaceholderScreen title="Crew" activeTab={activeTab} onTabChange={setActiveTab} />;
+      return <CrewScreen activeTab={activeTab} onTabChange={setActiveTab} />;
     case 'profile':
       return <PlaceholderScreen title="Profile" activeTab={activeTab} onTabChange={setActiveTab} />;
     default:
