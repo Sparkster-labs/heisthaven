@@ -28,6 +28,35 @@ interface CityProgressRow {
 
 const formatDistrict = (d: string) => d.replace(/_/g, ' ');
 
+const jewelEmojis: Record<string, string> = {
+  pearl: '🤍', sapphire: '💙', emerald: '💚', ruby: '❤️', diamond: '💎',
+};
+
+const canAffordCity = (profile: ProfileData, city: typeof CITIES[keyof typeof CITIES]) => {
+  if (profile.cash < city.unlockCost) return false;
+  if (profile.rep_level < city.repRequired) return false;
+  if (city.jewelCost) {
+    const jc = city.jewelCost;
+    if ((profile.jewels[jc.type] || 0) < jc.count) return false;
+    if ('extra' in jc && jc.extra) {
+      const extra = jc.extra as { type: string; count: number };
+      if ((profile.jewels[extra.type] || 0) < extra.count) return false;
+    }
+  }
+  return true;
+};
+
+const formatJewelCost = (city: typeof CITIES[keyof typeof CITIES]) => {
+  if (!city.jewelCost) return '';
+  const jc = city.jewelCost;
+  let str = `${jc.count} ${jewelEmojis[jc.type] || jc.type}`;
+  if ('extra' in jc && jc.extra) {
+    const extra = jc.extra as { type: string; count: number };
+    str += ` + ${extra.count} ${jewelEmojis[extra.type] || extra.type}`;
+  }
+  return str;
+};
+
 const districtEmojis: Record<string, string> = {
   docks: '⚓', market_square: '🏪', old_quarter: '🏛️', financial_row: '🏦',
   harborfront: '🌊', neon_strip: '🎰', the_undercity: '🕳️', clocktower_district: '🕰️',
@@ -100,15 +129,26 @@ const CityMapScreen = ({ activeTab, onTabChange }: CityMapScreenProps) => {
   const handleUnlockCity = async (cityId: string) => {
     if (!profile || acting) return;
     const city = CITIES[cityId as keyof typeof CITIES];
-    if (profile.cash < city.unlockCost || profile.rep_level < city.repRequired) return;
+    if (!canAffordCity(profile, city)) return;
 
     setActing(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setActing(false); return; }
 
+    // Deduct jewels if needed
+    const updatedJewels = { ...profile.jewels };
+    if (city.jewelCost) {
+      updatedJewels[city.jewelCost.type] = (updatedJewels[city.jewelCost.type] || 0) - city.jewelCost.count;
+      if ('extra' in city.jewelCost && city.jewelCost.extra) {
+        const extra = city.jewelCost.extra as { type: string; count: number };
+        updatedJewels[extra.type] = (updatedJewels[extra.type] || 0) - extra.count;
+      }
+    }
+
     await supabase.from('profiles').update({
       cash: profile.cash - city.unlockCost,
       unlocked_cities: [...profile.unlocked_cities, cityId],
+      jewels: updatedJewels as unknown as Json,
     }).eq('id', user.id);
 
     await supabase.from('city_progress').insert({
@@ -331,15 +371,21 @@ const CityMapScreen = ({ activeTab, onTabChange }: CityMapScreenProps) => {
               Requires: Rep Level {viewCity.repRequired}
               {profile.rep_level >= viewCity.repRequired ? ' ✓' : ` (You: ${profile.rep_level})`}
             </div>
-            <div style={{ fontSize: 12, fontFamily: THEME.fonts.mono, color: THEME.colors.gold, marginBottom: THEME.space.lg }}>
+            <div style={{ fontSize: 12, fontFamily: THEME.fonts.mono, color: THEME.colors.gold, marginBottom: THEME.space.xs }}>
               Cost: ${viewCity.unlockCost.toLocaleString()}
             </div>
+            {viewCity.jewelCost && (
+              <div style={{ fontSize: 12, fontFamily: THEME.fonts.mono, color: THEME.colors.textSecondary, marginBottom: THEME.space.lg }}>
+                + {formatJewelCost(viewCity)}
+              </div>
+            )}
+            {!viewCity.jewelCost && <div style={{ marginBottom: THEME.space.lg }} />}
             <button
               onClick={() => setUnlockModal(selectedCity)}
-              disabled={profile.cash < viewCity.unlockCost || profile.rep_level < viewCity.repRequired}
+              disabled={!canAffordCity(profile, viewCity)}
               style={{
                 ...S.btnPrimary,
-                opacity: profile.cash >= viewCity.unlockCost && profile.rep_level >= viewCity.repRequired ? 1 : 0.4,
+                opacity: canAffordCity(profile, viewCity) ? 1 : 0.4,
               }}
             >
               UNLOCK CITY
@@ -374,7 +420,7 @@ const CityMapScreen = ({ activeTab, onTabChange }: CityMapScreenProps) => {
       {unlockModal && (() => {
         const city = CITIES[unlockModal as keyof typeof CITIES];
         if (!city) return null;
-        const canAfford = profile.cash >= city.unlockCost && profile.rep_level >= city.repRequired;
+        const affordable = canAffordCity(profile, city);
         return (
           <div
             style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: THEME.space.lg }}
@@ -391,16 +437,21 @@ const CityMapScreen = ({ activeTab, onTabChange }: CityMapScreenProps) => {
               <div style={{ fontSize: 11, fontFamily: THEME.fonts.mono, color: THEME.colors.textMuted, marginBottom: 4 }}>
                 Rep Required: {city.repRequired} {profile.rep_level >= city.repRequired ? '✓' : '✗'}
               </div>
-              <div style={{ fontSize: 14, fontFamily: THEME.fonts.mono, color: THEME.colors.gold, marginBottom: THEME.space.lg }}>
+              <div style={{ fontSize: 14, fontFamily: THEME.fonts.mono, color: THEME.colors.gold, marginBottom: city.jewelCost ? 4 : THEME.space.lg }}>
                 ${city.unlockCost.toLocaleString()}
               </div>
-              {canAfford ? (
+              {city.jewelCost && (
+                <div style={{ fontSize: 12, fontFamily: THEME.fonts.mono, color: THEME.colors.textSecondary, marginBottom: THEME.space.lg }}>
+                  + {formatJewelCost(city)}
+                </div>
+              )}
+              {affordable ? (
                 <button onClick={() => handleUnlockCity(unlockModal)} disabled={acting} style={{ ...S.btnPrimary, marginBottom: THEME.space.sm }}>
                   {acting ? 'UNLOCKING...' : 'UNLOCK'}
                 </button>
               ) : (
                 <div style={{ fontSize: 11, color: THEME.colors.danger, fontFamily: THEME.fonts.mono, marginBottom: THEME.space.sm }}>
-                  {profile.rep_level < city.repRequired ? 'REP TOO LOW' : 'INSUFFICIENT FUNDS'}
+                  {profile.rep_level < city.repRequired ? 'REP TOO LOW' : profile.cash < city.unlockCost ? 'INSUFFICIENT FUNDS' : 'INSUFFICIENT JEWELS'}
                 </div>
               )}
               <button onClick={() => setUnlockModal(null)} style={S.btnGhost}>CANCEL</button>

@@ -250,6 +250,16 @@ const ProfileScreen = ({ activeTab, onTabChange }: ProfileScreenProps) => {
         {/* ══════ JEWEL INVENTORY ══════ */}
         <div style={{ ...S.card, marginBottom: THEME.space.lg }}>
           <div style={{ ...S.eyebrow, marginBottom: THEME.space.md }}>JEWEL COLLECTION</div>
+          {Object.values(profile.jewels).every(v => v === 0) && (
+            <div style={{ textAlign: 'center', padding: `${THEME.space.md}px 0`, marginBottom: THEME.space.md }}>
+              <div style={{ fontFamily: THEME.fonts.display, fontSize: 14, color: THEME.colors.textSecondary, letterSpacing: 2, marginBottom: THEME.space.xs }}>
+                YOUR COLLECTION AWAITS
+              </div>
+              <div style={{ fontFamily: THEME.fonts.body, fontStyle: 'italic', fontSize: 11, color: THEME.colors.textMuted, lineHeight: 1.5 }}>
+                Run heists to find rare gems. Every stone tells a story.
+              </div>
+            </div>
+          )}
           <div style={{ display: 'flex', justifyContent: 'space-around' }}>
             {['pearl', 'sapphire', 'emerald', 'ruby', 'diamond'].map(jewel => {
               const count = profile.jewels[jewel] || 0;

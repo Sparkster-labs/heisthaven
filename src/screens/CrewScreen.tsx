@@ -106,6 +106,17 @@ const CrewScreen = ({ activeTab, onTabChange }: CrewScreenProps) => {
 
         {/* Active crew */}
         <div style={{ ...S.eyebrow, marginBottom: THEME.space.md }}>ACTIVE</div>
+        {unlockedMembers.length === 0 && (
+          <div style={{ ...S.card, textAlign: 'center', padding: THEME.space.xl, marginBottom: THEME.space.xl }}>
+            <div style={{ fontSize: 36, marginBottom: THEME.space.md }}>🐺</div>
+            <div style={{ fontFamily: THEME.fonts.display, fontSize: 16, color: THEME.colors.textSecondary, letterSpacing: 2, marginBottom: THEME.space.sm }}>
+              YOU'RE FLYING SOLO
+            </div>
+            <div style={{ fontFamily: THEME.fonts.body, fontStyle: 'italic', fontSize: 12, color: THEME.colors.textMuted, lineHeight: 1.6 }}>
+              Hire specialists to reduce your risk. Every legend needs a crew.
+            </div>
+          </div>
+        )}
         <div style={{ display: 'flex', flexDirection: 'column', gap: THEME.space.sm, marginBottom: THEME.space.xl }}>
           {unlockedMembers.map(member => {
             const state = crewStates.find(cs => cs.crew_id === member.id);
