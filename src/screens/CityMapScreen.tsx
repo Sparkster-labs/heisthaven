@@ -371,15 +371,21 @@ const CityMapScreen = ({ activeTab, onTabChange }: CityMapScreenProps) => {
               Requires: Rep Level {viewCity.repRequired}
               {profile.rep_level >= viewCity.repRequired ? ' ✓' : ` (You: ${profile.rep_level})`}
             </div>
-            <div style={{ fontSize: 12, fontFamily: THEME.fonts.mono, color: THEME.colors.gold, marginBottom: THEME.space.lg }}>
+            <div style={{ fontSize: 12, fontFamily: THEME.fonts.mono, color: THEME.colors.gold, marginBottom: THEME.space.xs }}>
               Cost: ${viewCity.unlockCost.toLocaleString()}
             </div>
+            {viewCity.jewelCost && (
+              <div style={{ fontSize: 12, fontFamily: THEME.fonts.mono, color: THEME.colors.textSecondary, marginBottom: THEME.space.lg }}>
+                + {formatJewelCost(viewCity)}
+              </div>
+            )}
+            {!viewCity.jewelCost && <div style={{ marginBottom: THEME.space.lg }} />}
             <button
               onClick={() => setUnlockModal(selectedCity)}
-              disabled={profile.cash < viewCity.unlockCost || profile.rep_level < viewCity.repRequired}
+              disabled={!canAffordCity(profile, viewCity)}
               style={{
                 ...S.btnPrimary,
-                opacity: profile.cash >= viewCity.unlockCost && profile.rep_level >= viewCity.repRequired ? 1 : 0.4,
+                opacity: canAffordCity(profile, viewCity) ? 1 : 0.4,
               }}
             >
               UNLOCK CITY
