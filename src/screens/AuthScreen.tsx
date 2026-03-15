@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface AuthScreenProps {
   onAuth: () => void;
+  onSkip?: () => void;
 }
 
 const AuthScreen = ({ onAuth }: AuthScreenProps) => {
