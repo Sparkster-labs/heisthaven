@@ -322,7 +322,26 @@ const SafehouseRoomModal = ({ roomId, currentTier, playerCash, playerJewels, onU
           </div>
         )}
 
-        <button onClick={onClose} style={{ ...S.btnGhost, marginTop: THEME.space.md }}>
+        {/* War Room: Black Market shortcut */}
+        {roomId === 'war_room' && onOpenBlackMarket && (
+          <button
+            onClick={() => { onClose(); onOpenBlackMarket(); }}
+            style={{
+              ...S.btnGhost,
+              marginTop: THEME.space.md,
+              borderColor: `${THEME.colors.gold}30`,
+              color: THEME.colors.goldMid,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
+            }}
+          >
+            🏪 VISIT BLACK MARKET
+          </button>
+        )}
+
+        <button onClick={onClose} style={{ ...S.btnGhost, marginTop: THEME.space.sm }}>
           CLOSE
         </button>
       </div>
