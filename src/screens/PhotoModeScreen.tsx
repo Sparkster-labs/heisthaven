@@ -397,7 +397,7 @@ const PhotoModeScreen = ({
           disabled={capturing}
           style={{
             width: '100%', height: 52, borderRadius: 8, border: 'none', cursor: capturing ? 'wait' : 'pointer',
-            background: capturing ? THEME.colors.cardBg : THEME.colors.goldMid,
+            background: capturing ? THEME.colors.dusk : THEME.colors.goldMid,
             color: capturing ? THEME.colors.textMuted : THEME.colors.void,
             fontFamily: THEME.fonts.display, fontSize: 15, letterSpacing: 3,
           }}
