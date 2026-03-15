@@ -3,12 +3,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { supabase } from '@/integrations/supabase/client';
 import { THEME } from '@/styles/theme';
-import { VAULTS } from '@/lib/gameData';
+import { VAULTS, CHAOS_CARDS } from '@/lib/gameData';
 import AuthScreen from '@/screens/AuthScreen';
 import SafehouseScreen from '@/screens/SafehouseScreen';
 import PlaceholderScreen from '@/screens/PlaceholderScreen';
 import JobBoardScreen from '@/screens/JobBoardScreen';
 import VaultSelectScreen from '@/screens/heist/VaultSelectScreen';
+import CrewHireScreen from '@/screens/heist/CrewHireScreen';
+import ChaosCardReveal from '@/screens/heist/ChaosCardReveal';
 import type { Session } from '@supabase/supabase-js';
 
 const queryClient = new QueryClient();
