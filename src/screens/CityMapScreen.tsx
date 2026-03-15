@@ -420,7 +420,7 @@ const CityMapScreen = ({ activeTab, onTabChange }: CityMapScreenProps) => {
       {unlockModal && (() => {
         const city = CITIES[unlockModal as keyof typeof CITIES];
         if (!city) return null;
-        const canAfford = profile.cash >= city.unlockCost && profile.rep_level >= city.repRequired;
+        const affordable = canAffordCity(profile, city);
         return (
           <div
             style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: THEME.space.lg }}
@@ -437,10 +437,15 @@ const CityMapScreen = ({ activeTab, onTabChange }: CityMapScreenProps) => {
               <div style={{ fontSize: 11, fontFamily: THEME.fonts.mono, color: THEME.colors.textMuted, marginBottom: 4 }}>
                 Rep Required: {city.repRequired} {profile.rep_level >= city.repRequired ? '✓' : '✗'}
               </div>
-              <div style={{ fontSize: 14, fontFamily: THEME.fonts.mono, color: THEME.colors.gold, marginBottom: THEME.space.lg }}>
+              <div style={{ fontSize: 14, fontFamily: THEME.fonts.mono, color: THEME.colors.gold, marginBottom: city.jewelCost ? 4 : THEME.space.lg }}>
                 ${city.unlockCost.toLocaleString()}
               </div>
-              {canAfford ? (
+              {city.jewelCost && (
+                <div style={{ fontSize: 12, fontFamily: THEME.fonts.mono, color: THEME.colors.textSecondary, marginBottom: THEME.space.lg }}>
+                  + {formatJewelCost(city)}
+                </div>
+              )}
+              {affordable ? (
                 <button onClick={() => handleUnlockCity(unlockModal)} disabled={acting} style={{ ...S.btnPrimary, marginBottom: THEME.space.sm }}>
                   {acting ? 'UNLOCKING...' : 'UNLOCK'}
                 </button>
