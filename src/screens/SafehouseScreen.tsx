@@ -117,36 +117,37 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom, onOpenIAP, onOpen
           padding: `calc(${THEME.space.md}px + env(safe-area-inset-top)) ${THEME.space.md}px ${THEME.space.sm}px`,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: 480, margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
-            <AvatarMini avatarConfig={profile.avatar} equippedItems={profile.equippedItems} size={36} />
-            <div>
-              <div style={{ fontSize: 11, color: THEME.colors.gold, fontFamily: THEME.fonts.display, letterSpacing: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {profile.display_name}
-              </div>
-              <div style={{ fontSize: 9, color: THEME.colors.textMuted, fontFamily: THEME.fonts.mono, letterSpacing: 2, textTransform: 'uppercase' }}>
-                {profile.notoriety_title}
-              </div>
-            </div>
-          </div>
-
-          <div style={{ fontFamily: THEME.fonts.display, fontSize: 13, color: THEME.colors.textPrimary, letterSpacing: 3, textTransform: 'uppercase', textAlign: 'center' }}>
+        <div style={{ maxWidth: 480, margin: '0 auto' }}>
+          <div style={{ fontFamily: THEME.fonts.display, fontSize: 11, color: THEME.colors.textPrimary, letterSpacing: 3, textTransform: 'uppercase', textAlign: 'center', marginBottom: 6 }}>
             THE SAFEHOUSE
           </div>
-
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', minWidth: 0 }}>
-            <div style={{ fontSize: 13, color: THEME.colors.gold, fontFamily: THEME.fonts.mono, fontWeight: 700 }}>
-              {formatCash(profile.cash)}
-            </div>
-            {jewelsWithCount.length > 0 && (
-              <div style={{ display: 'flex', gap: 4, marginTop: 2 }}>
-                {jewelsWithCount.map(([type, count]) => (
-                  <span key={type} style={{ fontSize: 10 }}>
-                    {jewelEmojis[type]}{count}
-                  </span>
-                ))}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, flex: 1 }}>
+              <AvatarMini avatarConfig={profile.avatar} equippedItems={profile.equippedItems} size={28} />
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 10, color: THEME.colors.gold, fontFamily: THEME.fonts.display, letterSpacing: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 100 }}>
+                  {profile.display_name}
+                </div>
+                <div style={{ fontSize: 8, color: THEME.colors.textMuted, fontFamily: THEME.fonts.mono, letterSpacing: 1, textTransform: 'uppercase' }}>
+                  {profile.notoriety_title}
+                </div>
               </div>
-            )}
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', minWidth: 0 }}>
+              <div style={{ fontSize: 12, color: THEME.colors.gold, fontFamily: THEME.fonts.mono, fontWeight: 700 }}>
+                {formatCash(profile.cash)}
+              </div>
+              {jewelsWithCount.length > 0 && (
+                <div style={{ display: 'flex', gap: 3, marginTop: 1 }}>
+                  {jewelsWithCount.map(([type, count]) => (
+                    <span key={type} style={{ fontSize: 9 }}>
+                      {jewelEmojis[type]}{count}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
