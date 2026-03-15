@@ -7,7 +7,7 @@ interface AuthScreenProps {
   onSkip?: () => void;
 }
 
-const AuthScreen = ({ onAuth }: AuthScreenProps) => {
+const AuthScreen = ({ onAuth, onSkip }: AuthScreenProps) => {
   const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
