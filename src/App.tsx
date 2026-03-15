@@ -60,6 +60,11 @@ const AppContent = () => {
     return <AuthScreen onAuth={() => {}} />;
   }
 
+  // Sub-screens
+  if (subScreen === 'held_loot') {
+    return <HeldLootScreen onBack={() => setSubScreen(null)} />;
+  }
+
   // Heist results
   if (selectedVault && heistPhase === 'results' && chaosCard && heistOutcome) {
     return (
