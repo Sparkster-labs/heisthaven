@@ -377,7 +377,7 @@ const PhotoModeScreen = ({
               placeholder="Add a line..."
               style={{
                 marginTop: 8, width: '100%', padding: '8px 12px', borderRadius: 6,
-                background: THEME.colors.cardBg, border: `1px solid ${THEME.colors.borderFaint}`,
+                background: THEME.colors.dusk, border: `1px solid ${THEME.colors.borderFaint}`,
                 color: THEME.colors.textPrimary, fontFamily: THEME.fonts.body, fontSize: 13,
                 outline: 'none',
               }}
