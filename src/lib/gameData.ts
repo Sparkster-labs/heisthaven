@@ -180,6 +180,7 @@ export const SAFEHOUSE_ROOMS = [
   { id: 'war_room', name: 'The War Room', emoji: '🎯', cost: 0, jewel: null, description: 'Plan your heists and manage your crew.' },
   { id: 'vault', name: 'The Vault', emoji: '🏦', cost: 1000, jewel: null, description: 'Store jewels and track your fortune.' },
   { id: 'garage', name: 'The Garage', emoji: '🚗', cost: 2500, jewel: null, description: 'Getaway vehicles for faster escapes.' },
+  { id: 'dressing_room', name: 'The Dressing Room', emoji: '🪞', cost: 3500, jewel: null, description: 'Customize your avatar and wardrobe.' },
   { id: 'study', name: 'The Study', emoji: '📚', cost: 5000, jewel: null, description: 'Research targets for better intel.' },
   { id: 'infirmary', name: 'The Infirmary', emoji: '💉', cost: 8000, jewel: null, description: 'Heal injured crew faster.' },
   { id: 'signal_room', name: 'The Signal Room', emoji: '📡', cost: 15000, jewel: null, description: 'Intercept communications for tips.' },
