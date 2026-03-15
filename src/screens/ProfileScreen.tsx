@@ -96,7 +96,7 @@ const ProfileScreen = ({ activeTab, onTabChange }: ProfileScreenProps) => {
   const memberSince = profile.created_at ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '—';
 
   return (
-    <div style={S.page}>
+    <div style={S.page} className="screen-enter">
       <div style={{ paddingTop: THEME.space.xl, paddingBottom: 100, maxWidth: 480, margin: '0 auto', padding: `${THEME.space.xl}px ${THEME.space.md}px 100px` }}>
 
         {/* Identity card */}
