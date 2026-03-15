@@ -335,7 +335,7 @@ const PhotoModeScreen = ({
                 <button key={c.id} onClick={() => toggleCrew(c.id)} style={{
                   flexShrink: 0, width: 56, height: 72, borderRadius: 6, cursor: 'pointer',
                   display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                  background: THEME.colors.cardBg, position: 'relative',
+                  background: THEME.colors.dusk, position: 'relative',
                   border: active ? `2px solid ${THEME.colors.goldMid}` : `1px solid ${THEME.colors.borderFaint}`,
                 }}>
                   <span style={{ fontSize: 24 }}>{c.emoji}</span>
