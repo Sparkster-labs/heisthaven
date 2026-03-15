@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { CHAOS_CARDS } from '@/lib/gameData';
+import { SFX } from '@/lib/sounds';
 
 interface ChaosCardRevealProps {
   onComplete: (card: typeof CHAOS_CARDS[number]) => void;
@@ -37,8 +38,7 @@ const ChaosCardReveal = ({ onComplete }: ChaosCardRevealProps) => {
   const [phase, setPhase] = useState<'intro' | 'flipping' | 'revealed'>('intro');
 
   useEffect(() => {
-    // Auto-start flip after dramatic pause
-    const t1 = setTimeout(() => setPhase('flipping'), 1500);
+    const t1 = setTimeout(() => { setPhase('flipping'); SFX.chaosFlip(); }, 1500);
     const t2 = setTimeout(() => setPhase('revealed'), 2800);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);

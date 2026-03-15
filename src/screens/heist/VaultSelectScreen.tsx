@@ -1,5 +1,6 @@
 import { THEME, S } from '@/styles/theme';
 import { VAULTS, CITIES } from '@/lib/gameData';
+import { SFX } from '@/lib/sounds';
 
 interface VaultSelectScreenProps {
   vault: typeof VAULTS[number];
@@ -186,7 +187,7 @@ const VaultSelectScreen = ({ vault, onCommit, onBack }: VaultSelectScreenProps) 
         </div>
 
         {/* Action buttons */}
-        <button onClick={onCommit} style={{ ...S.btnPrimary, marginBottom: THEME.space.md, boxShadow: THEME.shadows.gold }}>
+        <button onClick={() => { SFX.vaultSelect(); onCommit(); }} style={{ ...S.btnPrimary, marginBottom: THEME.space.md, boxShadow: THEME.shadows.gold }}>
           COMMIT TO THE JOB
         </button>
         <button onClick={onBack} style={S.btnGhost}>

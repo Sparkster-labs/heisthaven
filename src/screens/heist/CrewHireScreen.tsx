@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { CREW_MEMBERS, VAULTS } from '@/lib/gameData';
 import { supabase } from '@/integrations/supabase/client';
+import { SFX } from '@/lib/sounds';
 
 interface CrewHireScreenProps {
   vault: typeof VAULTS[number];
@@ -64,6 +65,7 @@ const CrewHireScreen = ({ vault, onLaunch, onBack }: CrewHireScreenProps) => {
     if (selectedIds.includes(crewId)) {
       setSelectedIds(selectedIds.filter(id => id !== crewId));
     } else if (selectedIds.length < maxSlots) {
+      SFX.crewHire();
       setSelectedIds([...selectedIds, crewId]);
     }
   };

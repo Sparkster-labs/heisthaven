@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { VAULTS, CHAOS_CARDS } from '@/lib/gameData';
 import { LockPickGame, WireCutGame, SafeComboGame, PressureValveGame, TailGame, InterrogationGame } from './MiniGames';
+import { SFX, Haptics } from '@/lib/sounds';
 
 interface HeistExecutionProps {
   vault: typeof VAULTS[number];
@@ -133,6 +134,14 @@ const HeistExecution = ({ vault, crewIds, chaosCard, onComplete }: HeistExecutio
   }, [phase]);
 
   const handleGameResult = useCallback((success: boolean) => {
+    if (success) {
+      SFX.miniGameSuccess();
+      Haptics.success();
+    } else {
+      SFX.miniGameFail();
+      Haptics.fail();
+    }
+
     const newResults = [...results, success];
     setResults(newResults);
 
