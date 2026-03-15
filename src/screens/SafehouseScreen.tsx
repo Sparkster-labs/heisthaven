@@ -114,7 +114,7 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom, onOpenIAP, onOpen
           zIndex: 100,
           background: THEME.colors.void,
           borderBottom: `1px solid ${THEME.colors.borderFaint}`,
-          padding: `${THEME.space.md}px ${THEME.space.md}px ${THEME.space.sm}px`,
+          padding: `calc(${THEME.space.md}px + env(safe-area-inset-top)) ${THEME.space.md}px ${THEME.space.sm}px`,
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: 480, margin: '0 auto' }}>

@@ -25,7 +25,7 @@ const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
         borderTop: `1px solid ${THEME.colors.borderFaint}`,
         display: 'flex',
         justifyContent: 'space-around',
-        padding: `${THEME.space.sm}px 0 ${THEME.space.md}px`,
+        padding: `${THEME.space.sm}px 0 calc(${THEME.space.md}px + env(safe-area-inset-bottom))`,
         zIndex: 100,
       }}
     >
