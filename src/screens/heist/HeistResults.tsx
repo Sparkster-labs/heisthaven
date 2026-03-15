@@ -85,7 +85,7 @@ const HeistResults = ({ vault, crewIds, chaosCard, miniGameResults, onFinish }: 
     }, 600));
 
     // Payout phase
-    timers.push(setTimeout(() => setPhase('payout'), 1800));
+    timers.push(setTimeout(() => { setPhase('payout'); if (success && payout > 0) SFX.cashPayout(); }, 1800));
 
     // Jewels phase
     if (hasJewels) {
