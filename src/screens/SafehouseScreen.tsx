@@ -8,6 +8,7 @@ import BottomNav from '@/components/BottomNav';
 interface SafehouseScreenProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  onOpenRoom?: (roomId: string) => void;
 }
 
 interface ProfileData {
@@ -23,7 +24,7 @@ interface SafehouseData {
   rooms: Record<string, number>;
 }
 
-const SafehouseScreen = ({ activeTab, onTabChange }: SafehouseScreenProps) => {
+const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreenProps) => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [safehouse, setSafehouse] = useState<SafehouseData | null>(null);
   const [unlockModal, setUnlockModal] = useState<typeof SAFEHOUSE_ROOMS[number] | null>(null);
@@ -221,7 +222,7 @@ const SafehouseScreen = ({ activeTab, onTabChange }: SafehouseScreenProps) => {
                 key={room.id}
                 onClick={() => {
                   if (isUnlocked) {
-                    // Navigate to placeholder for now
+                    onOpenRoom?.(room.id);
                   } else {
                     setUnlockModal(room);
                   }

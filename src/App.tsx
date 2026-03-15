@@ -10,6 +10,7 @@ import PlaceholderScreen from '@/screens/PlaceholderScreen';
 import CityMapScreen from '@/screens/CityMapScreen';
 import CrewScreen from '@/screens/CrewScreen';
 import ProfileScreen from '@/screens/ProfileScreen';
+import HeldLootScreen from '@/screens/HeldLootScreen';
 import JobBoardScreen from '@/screens/JobBoardScreen';
 import VaultSelectScreen from '@/screens/heist/VaultSelectScreen';
 import CrewHireScreen from '@/screens/heist/CrewHireScreen';
@@ -29,6 +30,7 @@ const AppContent = () => {
   const [selectedCrewIds, setSelectedCrewIds] = useState<string[]>([]);
   const [chaosCard, setChaosCard] = useState<typeof CHAOS_CARDS[number] | null>(null);
   const [heistOutcome, setHeistOutcome] = useState<{ success: boolean; miniGameResults: boolean[] } | null>(null);
+  const [subScreen, setSubScreen] = useState<string | null>(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -56,6 +58,11 @@ const AppContent = () => {
 
   if (!session) {
     return <AuthScreen onAuth={() => {}} />;
+  }
+
+  // Sub-screens
+  if (subScreen === 'held_loot') {
+    return <HeldLootScreen onBack={() => setSubScreen(null)} />;
   }
 
   // Heist results
@@ -135,7 +142,9 @@ const AppContent = () => {
   // Tab routing
   switch (activeTab) {
     case 'home':
-      return <SafehouseScreen activeTab={activeTab} onTabChange={setActiveTab} />;
+      return <SafehouseScreen activeTab={activeTab} onTabChange={setActiveTab} onOpenRoom={(roomId) => {
+        if (roomId === 'vault') setSubScreen('held_loot');
+      }} />;
     case 'jobs':
       return (
         <JobBoardScreen
