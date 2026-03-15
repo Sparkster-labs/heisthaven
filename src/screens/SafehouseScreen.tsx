@@ -184,17 +184,12 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom }: SafehouseScreen
           }}
         >
           {SAFEHOUSE_ROOMS.map((room) => {
-            const isUnlocked = safehouse.rooms[room.id] === 1;
+            const roomTier = safehouse.rooms[room.id] || 0;
+            const isUnlocked = roomTier >= 1;
             return (
               <div
                 key={room.id}
-                onClick={() => {
-                  if (isUnlocked) {
-                    onOpenRoom?.(room.id);
-                  } else {
-                    setUnlockModal(room);
-                  }
-                }}
+                onClick={() => setSelectedRoom(room.id)}
                 style={{
                   ...S.card,
                   textAlign: 'center',
