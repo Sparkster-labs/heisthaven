@@ -32,6 +32,7 @@ const AppContent = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('home');
+  const [skipAuth, setSkipAuth] = useState(false);
   const [selectedVault, setSelectedVault] = useState<typeof VAULTS[number] | null>(null);
   const [heistPhase, setHeistPhase] = useState<'vault' | 'crew' | 'chaos' | 'execution' | 'results' | null>(null);
   const [selectedCrewIds, setSelectedCrewIds] = useState<string[]>([]);
@@ -69,8 +70,8 @@ const AppContent = () => {
     return <ResetPasswordScreen />;
   }
 
-  if (!session) {
-    return <AuthScreen onAuth={() => {}} />;
+  if (!session && !skipAuth) {
+    return <AuthScreen onAuth={() => {}} onSkip={() => setSkipAuth(true)} />;
   }
 
   // Sub-screens

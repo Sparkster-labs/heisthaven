@@ -4,9 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface AuthScreenProps {
   onAuth: () => void;
+  onSkip?: () => void;
 }
 
-const AuthScreen = ({ onAuth }: AuthScreenProps) => {
+const AuthScreen = ({ onAuth, onSkip }: AuthScreenProps) => {
   const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -179,6 +180,23 @@ const AuthScreen = ({ onAuth }: AuthScreenProps) => {
                 style={{ ...S.btnGhost, fontSize: 10 }}
               >
                 {mode === 'signup' ? 'ALREADY HAVE AN ACCOUNT? SIGN IN' : mode === 'forgot' ? 'BACK TO SIGN IN' : 'NEW HERE? CREATE ACCOUNT'}
+              </button>
+            </>
+          )}
+
+          {onSkip && (
+            <>
+              <div style={S.divider} />
+              <button
+                onClick={onSkip}
+                style={{
+                  ...S.btnGhost,
+                  fontSize: 9,
+                  color: THEME.colors.textMuted,
+                  letterSpacing: 2,
+                }}
+              >
+                ⚠️ SKIP SIGN IN (DEV MODE)
               </button>
             </>
           )}
