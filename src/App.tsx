@@ -64,6 +64,11 @@ const AppContent = () => {
     );
   }
 
+  // Reset password route (must be accessible without session)
+  if (window.location.pathname === '/reset-password') {
+    return <ResetPasswordScreen />;
+  }
+
   if (!session) {
     return <AuthScreen onAuth={() => {}} />;
   }
