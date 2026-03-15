@@ -161,7 +161,7 @@ const LeaderboardScreen = ({ activeTab, onTabChange }: LeaderboardScreenProps) =
         const userIds = sorted.map(([id]) => id);
         const { data: profiles } = await supabase
           .from('profiles')
-          .select('id, display_name, notoriety_title, rep_level, jewels')
+          .select('id, display_name, notoriety_title, rep_level, jewels, avatar, equippedItems')
           .in('id', userIds);
         const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
         enriched = sorted.map(([uid, total]) => {
@@ -173,6 +173,8 @@ const LeaderboardScreen = ({ activeTab, onTabChange }: LeaderboardScreenProps) =
             notoriety_title: p?.notoriety_title || 'Street Rat',
             rep_level: p?.rep_level || 1,
             jewels: p?.jewels as Record<string, number> || {},
+            avatar: (p?.avatar as any) || DEFAULT_AVATAR,
+            equippedItems: (p?.equippedItems as any) || DEFAULT_EQUIPPED,
           };
         });
       }
