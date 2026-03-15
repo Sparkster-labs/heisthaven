@@ -50,6 +50,15 @@ const ROOM_DEFS: RoomDef[] = [
     ],
   },
   {
+    id: 'dressing_room', name: 'The Dressing Room', emoji: '🪞',
+    lore: 'Mirrors and mannequins. Every heist deserves a signature look.',
+    tiers: [
+      { cost: 3500, effect: 'Access avatar customization and wardrobe.' },
+      { cost: 8000, effect: 'Unlock Photo Mode for shareable heist cards.' },
+      { cost: 20000, jewel: { type: 'sapphire', count: 1 }, effect: 'Preview any shop item on avatar before buying.' },
+    ],
+  },
+  {
     id: 'study', name: 'The Study', emoji: '📚',
     lore: 'Leather-bound journals and stolen blueprints. Knowledge is the sharpest weapon.',
     tiers: [

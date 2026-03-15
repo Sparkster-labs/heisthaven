@@ -24,6 +24,7 @@ import ChaosCardReveal from '@/screens/heist/ChaosCardReveal';
 import HeistExecution from '@/screens/heist/HeistExecution';
 import HeistResults from '@/screens/heist/HeistResults';
 import ResetPasswordScreen from '@/screens/ResetPasswordScreen';
+import DressingRoomScreen from '@/screens/DressingRoomScreen';
 import type { Session } from '@supabase/supabase-js';
 
 const queryClient = new QueryClient();
@@ -86,6 +87,9 @@ const AppContent = () => {
   }
   if (subScreen === 'iap') {
     return <IAPScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} onBack={() => navigate(() => setSubScreen(null))} />;
+  }
+  if (subScreen === 'dressing_room') {
+    return <DressingRoomScreen onBack={() => navigate(() => setSubScreen(null))} />;
   }
 
   // Heist results
@@ -176,6 +180,7 @@ const AppContent = () => {
             onOpenRoom={(roomId) => {
               if (roomId === 'vault') navigate(() => setSubScreen('held_loot'));
               if (roomId === 'war_room') navigate(() => setSubScreen('leaderboard'));
+              if (roomId === 'dressing_room') navigate(() => setSubScreen('dressing_room'));
             }}
             onOpenIAP={() => navigate(() => setSubScreen('iap'))}
             onOpenBlackMarket={() => navigate(() => setSubScreen('black_market'))}
