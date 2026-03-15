@@ -8,6 +8,7 @@ import BottomNav from '@/components/BottomNav';
 interface SafehouseScreenProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  onOpenRoom?: (roomId: string) => void;
 }
 
 interface ProfileData {
