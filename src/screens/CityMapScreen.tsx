@@ -451,7 +451,7 @@ const CityMapScreen = ({ activeTab, onTabChange }: CityMapScreenProps) => {
                 </button>
               ) : (
                 <div style={{ fontSize: 11, color: THEME.colors.danger, fontFamily: THEME.fonts.mono, marginBottom: THEME.space.sm }}>
-                  {profile.rep_level < city.repRequired ? 'REP TOO LOW' : 'INSUFFICIENT FUNDS'}
+                  {profile.rep_level < city.repRequired ? 'REP TOO LOW' : profile.cash < city.unlockCost ? 'INSUFFICIENT FUNDS' : 'INSUFFICIENT JEWELS'}
                 </div>
               )}
               <button onClick={() => setUnlockModal(null)} style={S.btnGhost}>CANCEL</button>
