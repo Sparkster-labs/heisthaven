@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { REP_THRESHOLDS, CREW_MEMBERS } from '@/lib/gameData';
 import { supabase } from '@/integrations/supabase/client';
+import { useDemo } from '@/contexts/DemoContext';
 import BottomNav from '@/components/BottomNav';
 
 interface ProfileScreenProps {
