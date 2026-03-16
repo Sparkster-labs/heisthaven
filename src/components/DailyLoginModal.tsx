@@ -49,13 +49,6 @@ const DailyLoginModal = () => {
   }, []);
 
   const handleClaim = async () => {
-    if (demo?.isDemo) {
-      demo.updateProfile({ cash: demo.profile.cash + reward });
-      setClaimed(true);
-      toast({ title: '💰 Daily Bonus', description: `$${reward} added to your wallet.` });
-      setTimeout(() => setShow(false), 1200);
-      return;
-    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
