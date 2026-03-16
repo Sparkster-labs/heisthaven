@@ -54,7 +54,6 @@ const LeaderboardScreen = ({ activeTab, onTabChange }: LeaderboardScreenProps) =
   const [myEntry, setMyEntry] = useState<LeaderboardEntry | null>(null);
   const [selectedCity, setSelectedCity] = useState('new_cavendish');
   const [countdown, setCountdown] = useState('');
-  const demo = useDemo();
 
   // Week countdown
   useEffect(() => {
