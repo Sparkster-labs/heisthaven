@@ -18,7 +18,7 @@ const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
   return (
     <div
       style={{
-        position: 'fixed',
+        position: 'relative',
         bottom: 0,
         left: 0,
         right: 0,
