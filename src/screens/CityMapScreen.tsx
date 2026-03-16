@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { CITIES } from '@/lib/gameData';
 import { supabase } from '@/integrations/supabase/client';
+import { useDemo } from '@/contexts/DemoContext';
 import type { Json } from '@/integrations/supabase/types';
 import { toast } from '@/hooks/use-toast';
 import BottomNav from '@/components/BottomNav';
