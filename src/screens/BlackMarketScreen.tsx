@@ -89,7 +89,6 @@ const BlackMarketScreen = ({ activeTab, onTabChange }: BlackMarketScreenProps) =
   const [purchased, setPurchased] = useState<Record<string, number>>({});
   const [purchasing, setPurchasing] = useState<string | null>(null);
   const [countdown, setCountdown] = useState('');
-  const demo = useDemo();
 
   useEffect(() => {
     fetchProfile();
