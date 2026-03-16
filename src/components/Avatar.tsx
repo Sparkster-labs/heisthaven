@@ -5,7 +5,6 @@ import {
 } from '@/lib/avatarData';
 import { THEME } from '@/styles/theme';
 
-// ─── Helper: find item color by id ───
 const getItemColor = (itemId: string | null): string | null => {
   if (!itemId) return null;
   const ci = CLOTHING_ITEMS.find(i => i.id === itemId);
@@ -13,6 +12,15 @@ const getItemColor = (itemId: string | null): string | null => {
   const li = LEGENDARY_ITEMS.find(i => i.id === itemId);
   if (li) return li.color;
   return null;
+};
+
+// Darken/lighten helpers
+const shade = (hex: string, amt: number): string => {
+  const num = parseInt(hex.replace('#', ''), 16);
+  const r = Math.max(0, Math.min(255, (num >> 16) + amt));
+  const g = Math.max(0, Math.min(255, ((num >> 8) & 0xff) + amt));
+  const b = Math.max(0, Math.min(255, (num & 0xff) + amt));
+  return `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
 };
 
 interface AvatarProps {
@@ -35,15 +43,18 @@ const Avatar = ({
     return tone?.hex || SKIN_TONES[0].hex;
   }, [avatarConfig.skinTone]);
 
+  const skinShadow = useMemo(() => shade(skinHex, -30), [skinHex]);
+  const skinHighlight = useMemo(() => shade(skinHex, 25), [skinHex]);
+
   const eyeHex = useMemo(() => {
     const ec = EYE_COLORS.find(e => e.id === avatarConfig.eyeColor);
     return ec?.hex || EYE_COLORS[0].hex;
   }, [avatarConfig.eyeColor]);
 
   const hairColor = avatarConfig.hairColor || '#1a1a1a';
+  const hairHighlight = useMemo(() => shade(hairColor, 30), [hairColor]);
   const height = size * 1.33;
 
-  // Resolve equipped item colors
   const fullOutfitColor = getItemColor(equippedItems.fullOutfit);
   const topColor = fullOutfitColor || getItemColor(equippedItems.top);
   const coatColor = getItemColor(equippedItems.coat);
@@ -56,7 +67,6 @@ const Avatar = ({
   const accessoryColor = getItemColor(equippedItems.accessory);
   const weaponColor = getItemColor(equippedItems.weapon);
 
-  // Pose offsets (subtle body angle changes)
   const poseTransform = useMemo(() => {
     switch (pose) {
       case 'arms_crossed': return 'translate(0, -1)';
@@ -66,6 +76,8 @@ const Avatar = ({
       default: return '';
     }
   }, [pose]);
+
+  const uid = useMemo(() => Math.random().toString(36).slice(2, 8), []);
 
   return (
     <div style={{
@@ -78,207 +90,341 @@ const Avatar = ({
       } : {}),
     }}>
       <svg viewBox="0 0 100 133" width={size} height={height} xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          {/* Skin gradient */}
+          <radialGradient id={`skin-${uid}`} cx="45%" cy="35%" r="60%">
+            <stop offset="0%" stopColor={skinHighlight} />
+            <stop offset="70%" stopColor={skinHex} />
+            <stop offset="100%" stopColor={skinShadow} />
+          </radialGradient>
+          {/* Hair sheen */}
+          <linearGradient id={`hair-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={hairHighlight} />
+            <stop offset="50%" stopColor={hairColor} />
+            <stop offset="100%" stopColor={shade(hairColor, -20)} />
+          </linearGradient>
+          {/* Cloth sheen */}
+          <linearGradient id={`cloth-${uid}`} x1="0%" y1="0%" x2="50%" y2="100%">
+            <stop offset="0%" stopColor="white" stopOpacity="0.12" />
+            <stop offset="100%" stopColor="white" stopOpacity="0" />
+          </linearGradient>
+          {/* Drop shadow */}
+          <filter id={`shadow-${uid}`}>
+            <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#000" floodOpacity="0.4" />
+          </filter>
+          {/* Ambient occlusion for face */}
+          <radialGradient id={`face-ao-${uid}`} cx="50%" cy="60%" r="50%">
+            <stop offset="0%" stopColor={skinHex} stopOpacity="0" />
+            <stop offset="85%" stopColor="#000" stopOpacity="0.08" />
+          </radialGradient>
+        </defs>
+
         <g transform={poseTransform}>
-          {/* Layer 1: Body silhouette */}
-          <g id="layer-body">
+          {/* ── BODY ── */}
+          <g id="body" filter={`url(#shadow-${uid})`}>
             {/* Head */}
-            <ellipse cx={50} cy={28} rx={16} ry={18} fill={skinHex} />
+            <ellipse cx={50} cy={28} rx={15} ry={17} fill={`url(#skin-${uid})`} />
+            {/* Ears */}
+            <ellipse cx={35.5} cy={30} rx={3} ry={4.5} fill={skinHex} />
+            <ellipse cx={35.5} cy={30} rx={1.5} ry={2.5} fill={skinShadow} opacity={0.3} />
+            <ellipse cx={64.5} cy={30} rx={3} ry={4.5} fill={skinHex} />
+            <ellipse cx={64.5} cy={30} rx={1.5} ry={2.5} fill={skinShadow} opacity={0.3} />
             {/* Neck */}
-            <rect x={45} y={44} width={10} height={6} rx={2} fill={skinHex} />
+            <rect x={44} y={43} width={12} height={8} rx={3} fill={skinHex} />
+            <rect x={44} y={43} width={6} height={8} rx={3} fill={skinHighlight} opacity={0.15} />
             {/* Torso */}
-            <rect x={32} y={48} width={36} height={34} rx={4} fill={skinHex} />
-            {/* Left arm */}
-            <rect x={16} y={50} width={16} height={28} rx={6} fill={skinHex} />
-            {/* Right arm */}
-            <rect x={68} y={50} width={16} height={28} rx={6} fill={skinHex} />
-            {/* Left leg */}
-            <rect x={34} y={80} width={14} height={32} rx={4} fill={skinHex} />
-            {/* Right leg */}
-            <rect x={52} y={80} width={14} height={32} rx={4} fill={skinHex} />
+            <path d="M 32 50 Q 30 48 34 46 L 66 46 Q 70 48 68 50 L 70 82 L 30 82 Z" fill={skinHex} />
+            {/* Arms */}
+            <rect x={16} y={49} width={14} height={30} rx={7} fill={skinHex} />
+            <rect x={16} y={49} width={7} height={30} rx={5} fill={skinHighlight} opacity={0.1} />
+            <rect x={70} y={49} width={14} height={30} rx={7} fill={skinHex} />
+            {/* Hands */}
+            <ellipse cx={23} cy={81} rx={5.5} ry={4} fill={skinHex} />
+            <ellipse cx={77} cy={81} rx={5.5} ry={4} fill={skinHex} />
+            {/* Legs */}
+            <rect x={34} y={80} width={14} height={32} rx={5} fill={skinHex} />
+            <rect x={52} y={80} width={14} height={32} rx={5} fill={skinHex} />
           </g>
 
-          {/* Layer 2: Bottoms */}
+          {/* ── BOTTOMS ── */}
           {bottomsColor && (
-            <g id="layer-bottoms">
-              <rect x={34} y={80} width={14} height={28} rx={4} fill={bottomsColor} />
-              <rect x={52} y={80} width={14} height={28} rx={4} fill={bottomsColor} />
+            <g id="bottoms">
+              <rect x={34} y={80} width={14} height={28} rx={5} fill={bottomsColor} />
+              <rect x={52} y={80} width={14} height={28} rx={5} fill={bottomsColor} />
+              {/* Crease highlights */}
+              <rect x={39} y={82} width={2} height={24} rx={1} fill="white" opacity={0.06} />
+              <rect x={57} y={82} width={2} height={24} rx={1} fill="white" opacity={0.06} />
+              {/* Waistband */}
+              <rect x={30} y={78} width={40} height={4} rx={2} fill={shade(bottomsColor, -20)} />
             </g>
           )}
 
-          {/* Layer 3: Shoes */}
+          {/* ── SHOES ── */}
           {shoesColor && (
-            <g id="layer-shoes">
-              <rect x={32} y={106} width={18} height={8} rx={3} fill={shoesColor} />
-              <rect x={50} y={106} width={18} height={8} rx={3} fill={shoesColor} />
+            <g id="shoes">
+              <path d="M 31 107 L 31 112 Q 31 115 34 115 L 50 115 Q 52 115 52 112 L 52 110 Q 52 107 48 107 Z" fill={shoesColor} />
+              <path d="M 49 107 L 49 112 Q 49 115 52 115 L 68 115 Q 70 115 70 112 L 70 110 Q 70 107 66 107 Z" fill={shoesColor} />
+              {/* Sole */}
+              <rect x={31} y={113} width={21} height={2} rx={1} fill={shade(shoesColor, -30)} />
+              <rect x={49} y={113} width={21} height={2} rx={1} fill={shade(shoesColor, -30)} />
+              {/* Sheen */}
+              <ellipse cx={40} cy={110} rx={6} ry={2} fill="white" opacity={0.06} />
+              <ellipse cx={58} cy={110} rx={6} ry={2} fill="white" opacity={0.06} />
             </g>
           )}
 
-          {/* Layer 4: Top */}
+          {/* ── TOP ── */}
           {topColor && !fullOutfitColor && (
-            <g id="layer-top">
-              <rect x={32} y={48} width={36} height={34} rx={4} fill={topColor} />
+            <g id="top">
+              <path d="M 32 50 Q 30 48 34 46 L 66 46 Q 70 48 68 50 L 70 82 L 30 82 Z" fill={topColor} />
               {/* Collar */}
-              <path d="M 42 48 L 50 54 L 58 48" stroke={topColor} strokeWidth={2} fill="none" opacity={0.6} />
+              <path d="M 42 46 L 50 54 L 58 46" stroke={shade(topColor, -25)} strokeWidth={1.5} fill="none" />
+              {/* Shoulder seams */}
+              <line x1={34} y1={48} x2={30} y2={52} stroke={shade(topColor, -15)} strokeWidth={0.6} opacity={0.5} />
+              <line x1={66} y1={48} x2={70} y2={52} stroke={shade(topColor, -15)} strokeWidth={0.6} opacity={0.5} />
+              {/* Cloth sheen */}
+              <path d="M 32 50 Q 30 48 34 46 L 50 46 L 50 82 L 30 82 Z" fill={`url(#cloth-${uid})`} />
+              {/* Sleeves */}
+              <rect x={16} y={49} width={14} height={22} rx={7} fill={topColor} />
+              <rect x={70} y={49} width={14} height={22} rx={7} fill={topColor} />
             </g>
           )}
 
-          {/* Full outfit override */}
+          {/* ── FULL OUTFIT ── */}
           {fullOutfitColor && (
-            <g id="layer-fulloutfit">
-              <rect x={30} y={46} width={40} height={38} rx={4} fill={fullOutfitColor} />
-              <rect x={34} y={80} width={14} height={28} rx={4} fill={fullOutfitColor} />
-              <rect x={52} y={80} width={14} height={28} rx={4} fill={fullOutfitColor} />
+            <g id="fulloutfit">
+              <path d="M 30 46 L 70 46 L 72 82 L 28 82 Z" fill={fullOutfitColor} />
+              <rect x={34} y={80} width={14} height={28} rx={5} fill={fullOutfitColor} />
+              <rect x={52} y={80} width={14} height={28} rx={5} fill={fullOutfitColor} />
+              <rect x={16} y={49} width={14} height={24} rx={7} fill={fullOutfitColor} />
+              <rect x={70} y={49} width={14} height={24} rx={7} fill={fullOutfitColor} />
+              {/* Lapel line */}
+              <path d="M 44 46 L 50 58 L 56 46" stroke={shade(fullOutfitColor, -25)} strokeWidth={1.2} fill="none" />
+              {/* Buttons */}
+              <circle cx={50} cy={60} r={1.2} fill={shade(fullOutfitColor, 40)} opacity={0.5} />
+              <circle cx={50} cy={66} r={1.2} fill={shade(fullOutfitColor, 40)} opacity={0.5} />
+              <circle cx={50} cy={72} r={1.2} fill={shade(fullOutfitColor, 40)} opacity={0.5} />
+              <path d="M 30 46 L 50 46 L 50 82 L 28 82 Z" fill={`url(#cloth-${uid})`} />
             </g>
           )}
 
-          {/* Layer 5: Coat */}
+          {/* ── COAT ── */}
           {coatColor && !fullOutfitColor && (
-            <g id="layer-coat">
-              <rect x={28} y={46} width={44} height={38} rx={4} fill={coatColor} opacity={0.9} />
+            <g id="coat">
+              <path d="M 26 46 L 74 46 L 76 86 L 24 86 Z" fill={coatColor} />
               {/* Lapels */}
-              <path d="M 40 46 L 50 58 L 60 46" stroke={`${coatColor}80`} strokeWidth={1.5} fill="none" />
+              <path d="M 40 46 L 50 60 L 60 46" stroke={shade(coatColor, -20)} strokeWidth={1.2} fill="none" />
+              {/* Buttons */}
+              <circle cx={50} cy={62} r={1.3} fill={shade(coatColor, 50)} opacity={0.4} />
+              <circle cx={50} cy={70} r={1.3} fill={shade(coatColor, 50)} opacity={0.4} />
+              {/* Pockets */}
+              <rect x={32} y={70} width={8} height={1} rx={0.5} fill={shade(coatColor, -15)} opacity={0.5} />
+              <rect x={60} y={70} width={8} height={1} rx={0.5} fill={shade(coatColor, -15)} opacity={0.5} />
+              {/* Sleeves */}
+              <rect x={14} y={48} width={14} height={28} rx={7} fill={coatColor} />
+              <rect x={72} y={48} width={14} height={28} rx={7} fill={coatColor} />
+              {/* Cloth sheen */}
+              <path d="M 26 46 L 50 46 L 50 86 L 24 86 Z" fill={`url(#cloth-${uid})`} />
             </g>
           )}
 
-          {/* Layer 6: Gloves */}
+          {/* ── GLOVES ── */}
           {glovesColor && (
-            <g id="layer-gloves">
-              <ellipse cx={20} cy={80} rx={6} ry={4} fill={glovesColor} />
-              <ellipse cx={80} cy={80} rx={6} ry={4} fill={glovesColor} />
+            <g id="gloves">
+              <ellipse cx={23} cy={81} rx={6} ry={4.5} fill={glovesColor} />
+              <ellipse cx={77} cy={81} rx={6} ry={4.5} fill={glovesColor} />
+              {/* Finger details */}
+              <path d="M 18 79 Q 17 76 19 76" stroke={shade(glovesColor, -20)} strokeWidth={0.5} fill="none" />
+              <path d="M 82 79 Q 83 76 81 76" stroke={shade(glovesColor, -20)} strokeWidth={0.5} fill="none" />
             </g>
           )}
 
-          {/* Layer 7: Accessory */}
+          {/* ── ACCESSORY ── */}
           {accessoryColor && (
-            <g id="layer-accessory">
+            <g id="accessory">
               <circle cx={50} cy={52} r={3} fill={accessoryColor} />
-              <rect x={48} y={52} width={4} height={8} rx={1} fill={accessoryColor} opacity={0.7} />
+              <rect x={48.5} y={52} width={3} height={8} rx={1} fill={accessoryColor} opacity={0.7} />
+              {/* Sparkle */}
+              <circle cx={50} cy={52} r={1.2} fill="white" opacity={0.3} />
             </g>
           )}
 
-          {/* Layer 8: Weapon */}
+          {/* ── WEAPON ── */}
           {weaponColor && (
-            <g id="layer-weapon">
-              <rect x={72} y={64} width={4} height={20} rx={1} fill={weaponColor} transform="rotate(15, 74, 74)" />
-              <rect x={70} y={62} width={8} height={4} rx={1} fill={weaponColor} transform="rotate(15, 74, 64)" />
+            <g id="weapon" transform="rotate(15, 74, 74)">
+              <rect x={72} y={62} width={4} height={20} rx={1} fill={weaponColor} />
+              <rect x={70} y={60} width={8} height={4} rx={1} fill={weaponColor} />
+              {/* Barrel sheen */}
+              <rect x={73} y={64} width={1.5} height={16} rx={0.5} fill="white" opacity={0.1} />
             </g>
           )}
 
-          {/* Layer 9: Face */}
-          <g id="layer-face">
-            <ellipse cx={50} cy={30} rx={13} ry={15} fill={skinHex} />
-            {/* Nose */}
-            <ellipse cx={50} cy={33} rx={2} ry={2.5} fill={`${skinHex}CC`} stroke={`${skinHex}80`} strokeWidth={0.5} />
+          {/* ── FACE ── */}
+          <g id="face">
+            <ellipse cx={50} cy={30} rx={13} ry={15} fill={`url(#skin-${uid})`} />
+            {/* Ambient occlusion */}
+            <ellipse cx={50} cy={30} rx={13} ry={15} fill={`url(#face-ao-${uid})`} />
+            {/* Nose - more defined */}
+            <path d="M 49 28 L 48 33 Q 50 35 52 33 L 51 28" fill={skinShadow} opacity={0.2} />
+            <ellipse cx={50} cy={33.5} rx={2.5} ry={1.8} fill={skinHex} stroke={skinShadow} strokeWidth={0.3} opacity={0.6} />
+            {/* Nostrils */}
+            <circle cx={48.5} cy={34} r={0.6} fill={skinShadow} opacity={0.3} />
+            <circle cx={51.5} cy={34} r={0.6} fill={skinShadow} opacity={0.3} />
             {/* Mouth */}
-            <path d="M 45 38 Q 50 41 55 38" stroke="#00000030" strokeWidth={0.8} fill="none" />
+            <path d="M 45 38 Q 47 39 50 39.5 Q 53 39 55 38" stroke={skinShadow} strokeWidth={0.8} fill="none" opacity={0.4} />
+            {/* Upper lip shadow */}
+            <path d="M 46 37.5 Q 48 36.5 50 37 Q 52 36.5 54 37.5" stroke={skinShadow} strokeWidth={0.4} fill="none" opacity={0.2} />
+            {/* Chin definition */}
+            <ellipse cx={50} cy={42} rx={6} ry={2} fill={skinShadow} opacity={0.06} />
+            {/* Cheek highlights */}
+            <ellipse cx={42} cy={33} rx={3} ry={2} fill={skinHighlight} opacity={0.12} />
+            <ellipse cx={58} cy={33} rx={3} ry={2} fill={skinHighlight} opacity={0.12} />
           </g>
 
-          {/* Layer 10: Eyes */}
-          <g id="layer-eyes">
-            <ellipse cx={43} cy={28} rx={3} ry={2.5} fill="white" />
-            <ellipse cx={57} cy={28} rx={3} ry={2.5} fill="white" />
-            <circle cx={43} cy={28} r={1.8} fill={eyeHex} />
-            <circle cx={57} cy={28} r={1.8} fill={eyeHex} />
-            <circle cx={43} cy={27.5} r={0.6} fill="white" />
-            <circle cx={57} cy={27.5} r={0.6} fill="white" />
+          {/* ── EYES ── */}
+          <g id="eyes">
+            {/* Eye whites with subtle shadow */}
+            <ellipse cx={43} cy={28} rx={3.5} ry={2.8} fill="white" />
+            <ellipse cx={57} cy={28} rx={3.5} ry={2.8} fill="white" />
+            {/* Upper eyelid shadow */}
+            <ellipse cx={43} cy={26.5} rx={3.5} ry={1.2} fill={skinShadow} opacity={0.15} />
+            <ellipse cx={57} cy={26.5} rx={3.5} ry={1.2} fill={skinShadow} opacity={0.15} />
+            {/* Iris */}
+            <circle cx={43} cy={28.2} r={2} fill={eyeHex} />
+            <circle cx={57} cy={28.2} r={2} fill={eyeHex} />
+            {/* Iris detail ring */}
+            <circle cx={43} cy={28.2} r={2} fill="none" stroke={shade(eyeHex, -30)} strokeWidth={0.3} />
+            <circle cx={57} cy={28.2} r={2} fill="none" stroke={shade(eyeHex, -30)} strokeWidth={0.3} />
+            {/* Pupil */}
+            <circle cx={43} cy={28.2} r={1} fill="#0a0a0a" />
+            <circle cx={57} cy={28.2} r={1} fill="#0a0a0a" />
+            {/* Catch light */}
+            <circle cx={42} cy={27.2} r={0.8} fill="white" opacity={0.9} />
+            <circle cx={56} cy={27.2} r={0.8} fill="white" opacity={0.9} />
+            <circle cx={44} cy={29} r={0.4} fill="white" opacity={0.5} />
+            <circle cx={58} cy={29} r={0.4} fill="white" opacity={0.5} />
+            {/* Eyelashes / upper lid line */}
+            <path d="M 39.5 26 Q 43 24.5 46.5 26" stroke="#1a1a1a" strokeWidth={0.8} fill="none" opacity={0.6} />
+            <path d="M 53.5 26 Q 57 24.5 60.5 26" stroke="#1a1a1a" strokeWidth={0.8} fill="none" opacity={0.6} />
             {/* Brows */}
-            <path d="M 39 24 Q 43 22 47 24" stroke="#00000060" strokeWidth={1} fill="none" />
-            <path d="M 53 24 Q 57 22 61 24" stroke="#00000060" strokeWidth={1} fill="none" />
+            <path d="M 38.5 23 Q 43 21 47.5 23" stroke={shade(hairColor, -10)} strokeWidth={1.2} fill="none" opacity={0.7} />
+            <path d="M 52.5 23 Q 57 21 61.5 23" stroke={shade(hairColor, -10)} strokeWidth={1.2} fill="none" opacity={0.7} />
           </g>
 
-          {/* Layer 11: Facial hair */}
+          {/* ── FACIAL HAIR ── */}
           {avatarConfig.facialHair !== 'none' && (
-            <g id="layer-facial-hair">
+            <g id="facial-hair">
               {avatarConfig.facialHair === 'stubble' && (
-                <rect x={42} y={35} width={16} height={6} rx={3} fill="#00000020" />
+                <>
+                  <rect x={41} y={35} width={18} height={7} rx={4} fill={hairColor} opacity={0.12} />
+                  {/* Stubble dots */}
+                  {[...Array(12)].map((_, i) => (
+                    <circle key={i} cx={42 + (i % 4) * 4.5} cy={36 + Math.floor(i / 4) * 2.5} r={0.4} fill={hairColor} opacity={0.2} />
+                  ))}
+                </>
               )}
               {avatarConfig.facialHair === 'full_beard' && (
-                <path d="M 40 34 Q 40 46 50 48 Q 60 46 60 34" fill={hairColor} opacity={0.7} />
+                <path d="M 39 34 Q 38 46 50 49 Q 62 46 61 34" fill={`url(#hair-${uid})`} opacity={0.7} />
               )}
               {avatarConfig.facialHair === 'short_beard' && (
-                <path d="M 42 35 Q 42 42 50 44 Q 58 42 58 35" fill={hairColor} opacity={0.6} />
+                <path d="M 41 35 Q 40 43 50 45 Q 60 43 59 35" fill={`url(#hair-${uid})`} opacity={0.6} />
               )}
               {avatarConfig.facialHair === 'goatee' && (
-                <path d="M 46 36 Q 46 42 50 44 Q 54 42 54 36" fill={hairColor} opacity={0.6} />
+                <path d="M 45 36 Q 45 43 50 45 Q 55 43 55 36" fill={`url(#hair-${uid})`} opacity={0.6} />
               )}
               {(avatarConfig.facialHair === 'handlebar' || avatarConfig.facialHair === 'pencil') && (
-                <path d="M 44 34 Q 50 36 56 34" stroke={hairColor} strokeWidth={avatarConfig.facialHair === 'handlebar' ? 2 : 0.8} fill="none" />
+                <path d="M 43 34 Q 50 36.5 57 34" stroke={hairColor} strokeWidth={avatarConfig.facialHair === 'handlebar' ? 2 : 0.8} fill="none" strokeLinecap="round" />
               )}
               {avatarConfig.facialHair === 'five_oclock' && (
-                <rect x={40} y={33} width={20} height={8} rx={4} fill="#00000015" />
+                <rect x={39} y={33} width={22} height={9} rx={5} fill={hairColor} opacity={0.1} />
               )}
             </g>
           )}
 
-          {/* Layer 12: Eyewear */}
+          {/* ── EYEWEAR ── */}
           {eyewearColor && (
-            <g id="layer-eyewear">
-              <rect x={37} y={25.5} width={26} height={6} rx={3} fill={eyewearColor} opacity={0.8} />
-              <rect x={48} y={26} width={4} height={2} rx={1} fill={eyewearColor} />
+            <g id="eyewear">
+              <rect x={37} y={25} width={12} height={7} rx={3} fill={eyewearColor} opacity={0.85} />
+              <rect x={51} y={25} width={12} height={7} rx={3} fill={eyewearColor} opacity={0.85} />
+              <rect x={49} y={27} width={2} height={2} rx={1} fill={eyewearColor} />
+              {/* Lens reflection */}
+              <line x1={39} y1={27} x2={42} y2={30} stroke="white" strokeWidth={0.4} opacity={0.3} />
+              <line x1={53} y1={27} x2={56} y2={30} stroke="white" strokeWidth={0.4} opacity={0.3} />
             </g>
           )}
 
-          {/* Layer 13: Mask */}
+          {/* ── MASK ── */}
           {maskColor && (
-            <g id="layer-mask">
-              <ellipse cx={50} cy={36} rx={14} ry={10} fill={maskColor} opacity={0.85} />
+            <g id="mask">
+              <ellipse cx={50} cy={36} rx={14} ry={10} fill={maskColor} opacity={0.88} />
+              <ellipse cx={50} cy={36} rx={14} ry={10} fill={`url(#cloth-${uid})`} />
+              {/* Fabric fold lines */}
+              <path d="M 40 34 Q 50 38 60 34" stroke={shade(maskColor, -20)} strokeWidth={0.4} fill="none" opacity={0.3} />
             </g>
           )}
 
-          {/* Layer 14: Hair */}
-          <g id="layer-hair">
+          {/* ── HAIR ── */}
+          <g id="hair">
             {avatarConfig.hairStyle !== 'bald' && avatarConfig.hairStyle !== 'bald_stubble' && (
               <>
-                {/* Base hair shape */}
-                <ellipse cx={50} cy={20} rx={17} ry={12} fill={hairColor} />
+                <ellipse cx={50} cy={20} rx={16} ry={12} fill={`url(#hair-${uid})`} />
                 {/* Side hair */}
-                <rect x={33} y={18} width={6} height={14} rx={3} fill={hairColor} />
-                <rect x={61} y={18} width={6} height={14} rx={3} fill={hairColor} />
-                {/* Style variations */}
+                <rect x={34} y={18} width={5} height={14} rx={2.5} fill={hairColor} />
+                <rect x={61} y={18} width={5} height={14} rx={2.5} fill={hairColor} />
+                {/* Hair highlight */}
+                <ellipse cx={46} cy={16} rx={6} ry={4} fill={hairHighlight} opacity={0.15} />
+
                 {(avatarConfig.hairStyle === 'pompadour' || avatarConfig.hairStyle === 'victory_rolls') && (
-                  <ellipse cx={50} cy={14} rx={14} ry={8} fill={hairColor} />
+                  <ellipse cx={50} cy={13} rx={14} ry={9} fill={`url(#hair-${uid})`} />
                 )}
                 {(avatarConfig.hairStyle === 'long_straight' || avatarConfig.hairStyle === 'long_waves' || avatarConfig.hairStyle === 'curly_long' || avatarConfig.hairStyle === 'locs_long') && (
                   <>
-                    <rect x={33} y={18} width={6} height={28} rx={3} fill={hairColor} />
-                    <rect x={61} y={18} width={6} height={28} rx={3} fill={hairColor} />
+                    <rect x={33} y={18} width={5} height={30} rx={2.5} fill={hairColor} />
+                    <rect x={62} y={18} width={5} height={30} rx={2.5} fill={hairColor} />
                   </>
                 )}
                 {(avatarConfig.hairStyle === 'afro_small' || avatarConfig.hairStyle === 'afro_large') && (
-                  <ellipse cx={50} cy={20} rx={avatarConfig.hairStyle === 'afro_large' ? 22 : 19} ry={avatarConfig.hairStyle === 'afro_large' ? 16 : 14} fill={hairColor} />
+                  <>
+                    <ellipse cx={50} cy={20} rx={avatarConfig.hairStyle === 'afro_large' ? 22 : 19} ry={avatarConfig.hairStyle === 'afro_large' ? 16 : 14} fill={`url(#hair-${uid})`} />
+                    {/* Texture */}
+                    <ellipse cx={44} cy={16} rx={4} ry={3} fill={hairHighlight} opacity={0.1} />
+                  </>
                 )}
                 {avatarConfig.hairStyle === 'mohawk' && (
-                  <rect x={44} y={8} width={12} height={14} rx={3} fill={hairColor} />
+                  <rect x={44} y={6} width={12} height={16} rx={4} fill={`url(#hair-${uid})`} />
                 )}
                 {(avatarConfig.hairStyle === 'bob' || avatarConfig.hairStyle === 'pixie') && (
                   <>
-                    <rect x={33} y={18} width={6} height={16} rx={3} fill={hairColor} />
-                    <rect x={61} y={18} width={6} height={16} rx={3} fill={hairColor} />
+                    <rect x={33} y={18} width={5} height={16} rx={2.5} fill={hairColor} />
+                    <rect x={62} y={18} width={5} height={16} rx={2.5} fill={hairColor} />
                   </>
                 )}
                 {avatarConfig.hairStyle === 'space_buns' && (
                   <>
-                    <circle cx={35} cy={16} r={6} fill={hairColor} />
-                    <circle cx={65} cy={16} r={6} fill={hairColor} />
+                    <circle cx={35} cy={16} r={6} fill={`url(#hair-${uid})`} />
+                    <circle cx={65} cy={16} r={6} fill={`url(#hair-${uid})`} />
                   </>
                 )}
                 {avatarConfig.hairStyle === 'high_pony' && (
-                  <rect x={52} y={10} width={6} height={20} rx={3} fill={hairColor} transform="rotate(30, 55, 20)" />
+                  <rect x={52} y={10} width={5} height={22} rx={2.5} fill={hairColor} transform="rotate(30, 55, 20)" />
                 )}
               </>
             )}
             {avatarConfig.hairStyle === 'bald_stubble' && (
-              <ellipse cx={50} cy={20} rx={16} ry={11} fill={hairColor} opacity={0.15} />
+              <ellipse cx={50} cy={20} rx={15} ry={11} fill={hairColor} opacity={0.12} />
             )}
           </g>
 
-          {/* Layer 15: Hat */}
+          {/* ── HAT ── */}
           {hatColor && (
-            <g id="layer-hat">
-              {/* Hat crown */}
-              <rect x={35} y={8} width={30} height={14} rx={3} fill={hatColor} />
-              {/* Hat brim */}
-              <rect x={28} y={20} width={44} height={4} rx={2} fill={hatColor} />
+            <g id="hat">
+              <rect x={35} y={7} width={30} height={14} rx={4} fill={hatColor} />
+              {/* Hat band */}
+              <rect x={35} y={18} width={30} height={3} rx={1} fill={shade(hatColor, -25)} opacity={0.6} />
+              {/* Brim */}
+              <ellipse cx={50} cy={22} rx={24} ry={3.5} fill={hatColor} />
+              {/* Top sheen */}
+              <ellipse cx={46} cy={12} rx={8} ry={3} fill="white" opacity={0.06} />
             </g>
           )}
         </g>
@@ -311,17 +457,22 @@ export const AvatarMini = ({
   return (
     <div style={{ width: size, height }}>
       <svg viewBox="0 0 100 133" width={size} height={height}>
-        <ellipse cx={50} cy={28} rx={16} ry={18} fill={skinHex} />
-        <rect x={32} y={48} width={36} height={34} rx={4} fill={topColor || skinHex} />
-        <rect x={34} y={80} width={14} height={32} rx={4} fill={skinHex} />
-        <rect x={52} y={80} width={14} height={32} rx={4} fill={skinHex} />
+        <ellipse cx={50} cy={28} rx={15} ry={17} fill={skinHex} />
+        <ellipse cx={35.5} cy={30} rx={2.5} ry={3.5} fill={skinHex} />
+        <ellipse cx={64.5} cy={30} rx={2.5} ry={3.5} fill={skinHex} />
+        <path d="M 32 50 L 68 50 L 70 82 L 30 82 Z" fill={topColor || skinHex} />
+        <rect x={34} y={80} width={14} height={32} rx={5} fill={skinHex} />
+        <rect x={52} y={80} width={14} height={32} rx={5} fill={skinHex} />
         {avatarConfig.hairStyle !== 'bald' && (
-          <ellipse cx={50} cy={20} rx={17} ry={12} fill={hairColor} />
+          <ellipse cx={50} cy={20} rx={16} ry={12} fill={hairColor} />
         )}
+        {/* Simple eyes */}
+        <circle cx={43} cy={28} r={1.5} fill="#1a1a1a" />
+        <circle cx={57} cy={28} r={1.5} fill="#1a1a1a" />
         {hatColor && (
           <>
-            <rect x={35} y={8} width={30} height={14} rx={3} fill={hatColor} />
-            <rect x={28} y={20} width={44} height={4} rx={2} fill={hatColor} />
+            <rect x={35} y={7} width={30} height={14} rx={4} fill={hatColor} />
+            <ellipse cx={50} cy={22} rx={24} ry={3.5} fill={hatColor} />
           </>
         )}
       </svg>
