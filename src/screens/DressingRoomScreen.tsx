@@ -9,6 +9,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import Avatar from '@/components/Avatar';
+import ItemThumbnail from '@/components/ItemThumbnail';
 
 interface DressingRoomScreenProps {
   onBack: () => void;
@@ -415,9 +416,9 @@ const DressingRoomScreen = ({ onBack, onOpenPhotoMode }: DressingRoomScreenProps
                                 background: THEME.colors.ink, border: `2px solid ${isEquipped ? THEME.colors.gold : THEME.colors.borderFaint}`,
                                 borderRadius: 6, padding: 8, cursor: 'pointer', textAlign: 'center', position: 'relative',
                               }}>
-                                <div style={{
-                                  width: 60, height: 60, borderRadius: 4, background: item.color, margin: '0 auto 6px',
-                                }} />
+                                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 6 }}>
+                                  <ItemThumbnail category={cat.key} color={item.color} size={60} goldAccent={'goldAccent' in item && !!(item as any).goldAccent} />
+                                </div>
                                 {isEquipped && (
                                   <div style={{
                                     position: 'absolute', top: 4, right: 4, width: 18, height: 18, borderRadius: '50%',
@@ -473,13 +474,11 @@ const DressingRoomScreen = ({ onBack, onOpenPhotoMode }: DressingRoomScreenProps
                         background: THEME.colors.ink, border: `1px solid ${THEME.colors.borderFaint}`,
                         borderRadius: 6, padding: 8, textAlign: 'center',
                       }}>
-                        <div style={{
-                          width: 60, height: 60, borderRadius: 4, background: item.color, margin: '0 auto 6px',
-                          position: 'relative',
-                        }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 6, position: 'relative' }}>
+                          <ItemThumbnail category={item.cat} color={item.color} size={60} />
                           {owned && (
                             <div style={{
-                              position: 'absolute', inset: 0, background: `${THEME.colors.emerald}30`,
+                              position: 'absolute', inset: 0, background: `${THEME.colors.emerald}20`,
                               borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center',
                               fontSize: 10, fontFamily: THEME.fonts.display, color: THEME.colors.emerald, letterSpacing: 1,
                             }}>OWNED</div>
@@ -535,14 +534,12 @@ const DressingRoomScreen = ({ onBack, onOpenPhotoMode }: DressingRoomScreenProps
                         borderRadius: 6, padding: 8, textAlign: 'center', position: 'relative',
                         animation: owned ? undefined : 'none',
                       }}>
-                        <div style={{
-                          width: 60, height: 60, borderRadius: 4, margin: '0 auto 6px', position: 'relative',
-                          background: item.color, filter: owned ? 'none' : 'saturate(0.3)',
-                        }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 6, position: 'relative' }}>
+                          <ItemThumbnail category={item.cat} color={item.color} size={60} goldAccent={item.goldAccent} />
                           {!owned && (
                             <div style={{
                               position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              fontSize: 18, opacity: 0.6,
+                              fontSize: 18, opacity: 0.6, filter: 'saturate(0.3)',
                             }}>🔒</div>
                           )}
                         </div>
