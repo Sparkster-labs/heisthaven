@@ -74,7 +74,7 @@ const AppContent = () => {
   }
 
   if (!session && !skipAuth) {
-    return <AuthScreen onAuth={() => {}} onSkip={() => setSkipAuth(true)} />;
+    return <AuthScreen onAuth={() => {}} onDemo={() => setSkipAuth(true)} />;
   }
 
   // Sub-screens
