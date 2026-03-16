@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { supabase } from '@/integrations/supabase/client';
+import { useDemo } from '@/contexts/DemoContext';
 import { toast } from '@/hooks/use-toast';
 
 interface HeldLootScreenProps {
@@ -26,8 +27,15 @@ const HeldLootScreen = ({ onBack }: HeldLootScreenProps) => {
   const [stashAmount, setStashAmount] = useState('');
   const [acting, setActing] = useState(false);
   const [now, setNow] = useState(Date.now());
+  const demo = useDemo();
 
   const fetchData = async () => {
+    if (demo?.isDemo) {
+      setCash(demo.profile.cash);
+      setHeldLoot(demo.heldLoot);
+      setLoading(false);
+      return;
+    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
@@ -44,7 +52,7 @@ const HeldLootScreen = ({ onBack }: HeldLootScreenProps) => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); }, [demo?.heldLoot, demo?.profile.cash]);
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(interval);
@@ -55,6 +63,19 @@ const HeldLootScreen = ({ onBack }: HeldLootScreenProps) => {
     if (!amount || amount <= 0 || amount > cash || acting) return;
 
     setActing(true);
+    if (demo?.isDemo) {
+      demo.updateProfile({ cash: cash - amount });
+      demo.addHeldLoot({
+        id: crypto.randomUUID(),
+        amount,
+        held_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + HOLD_HOURS * 60 * 60 * 1000).toISOString(),
+        raid_chance: BASE_RAID_CHANCE,
+      });
+      setStashAmount('');
+      setActing(false);
+      return;
+    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setActing(false); return; }
 
@@ -76,22 +97,31 @@ const HeldLootScreen = ({ onBack }: HeldLootScreenProps) => {
   const handleWithdraw = async (loot: HeldLootRow) => {
     if (acting) return;
     setActing(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setActing(false); return; }
 
     const isMatured = new Date(loot.expires_at).getTime() <= now;
-
-    // Raid check
     const raided = Math.random() < loot.raid_chance;
     let withdrawAmount = loot.amount;
 
     if (raided && !isMatured) {
-      // Lose 50% to raid
       withdrawAmount = Math.round(loot.amount * 0.5);
     } else if (isMatured) {
-      // Bonus for holding to maturity
       withdrawAmount = Math.round(loot.amount * (1 + BONUS_RATE));
     }
+
+    if (demo?.isDemo) {
+      demo.updateProfile({ cash: demo.profile.cash + withdrawAmount });
+      demo.removeHeldLoot(loot.id);
+      setActing(false);
+      if (raided && !isMatured) {
+        toast({ title: '🏴‍☠️ RAIDED!', description: `Lost ${Math.round(loot.amount * 0.5)} to raiders. Recovered $${withdrawAmount}.` });
+      } else if (isMatured) {
+        toast({ title: '✅ Matured!', description: `Collected $${withdrawAmount} (+${Math.round(BONUS_RATE * 100)}% bonus).` });
+      }
+      return;
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setActing(false); return; }
 
     await supabase.from('profiles').update({ cash: cash + withdrawAmount }).eq('id', user.id);
     await supabase.from('held_loot').delete().eq('id', loot.id);

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { supabase } from '@/integrations/supabase/client';
+import { useDemo } from '@/contexts/DemoContext';
 import type { Json } from '@/integrations/supabase/types';
 import { toast } from '@/hooks/use-toast';
 import BottomNav from '@/components/BottomNav';
@@ -89,6 +90,7 @@ const BlackMarketScreen = ({ activeTab, onTabChange }: BlackMarketScreenProps) =
   const [purchased, setPurchased] = useState<Record<string, number>>({});
   const [purchasing, setPurchasing] = useState<string | null>(null);
   const [countdown, setCountdown] = useState('');
+  const demo = useDemo();
 
   useEffect(() => {
     fetchProfile();
@@ -112,6 +114,10 @@ const BlackMarketScreen = ({ activeTab, onTabChange }: BlackMarketScreenProps) =
   }, []);
 
   const fetchProfile = async () => {
+    if (demo?.isDemo) {
+      setProfile({ cash: demo.profile.cash, jewels: demo.profile.jewels });
+      return;
+    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     const { data } = await supabase.from('profiles').select('cash, jewels').eq('id', user.id).single();
@@ -127,11 +133,32 @@ const BlackMarketScreen = ({ activeTab, onTabChange }: BlackMarketScreenProps) =
     if (item.costType === 'jewel' && item.jewelType && (profile.jewels[item.jewelType] || 0) < item.costAmount) return;
 
     setPurchasing(item.id);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setPurchasing(null); return; }
 
     let newCash = profile.cash;
     let newJewels = { ...profile.jewels };
+
+    if (item.costType === 'cash') {
+      newCash -= item.costAmount;
+    } else if (item.costType === 'jewel' && item.jewelType) {
+      newJewels[item.jewelType] = (newJewels[item.jewelType] || 0) - item.costAmount;
+    }
+
+    // Apply jewel exchange effects locally
+    if (item.effect === 'pearl_to_sapphire') newJewels.sapphire = (newJewels.sapphire || 0) + 1;
+    if (item.effect === 'sapphire_to_emerald') newJewels.emerald = (newJewels.emerald || 0) + 1;
+
+    if (demo?.isDemo) {
+      demo.updateProfile({ cash: newCash, jewels: newJewels });
+      if (item.effect === 'crew_insurance') demo.updateProfile({ crew_insurance: true });
+      setPurchased(prev => ({ ...prev, [item.id]: (prev[item.id] || 0) + 1 }));
+      setProfile({ cash: newCash, jewels: newJewels });
+      setPurchasing(null);
+      toast({ title: `${item.emoji} ${item.name}`, description: 'Purchased!' });
+      return;
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setPurchasing(null); return; }
 
     if (item.costType === 'cash') {
       newCash -= item.costAmount;

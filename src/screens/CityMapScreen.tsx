@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { CITIES } from '@/lib/gameData';
 import { supabase } from '@/integrations/supabase/client';
+import { useDemo } from '@/contexts/DemoContext';
 import type { Json } from '@/integrations/supabase/types';
 import { toast } from '@/hooks/use-toast';
 import BottomNav from '@/components/BottomNav';
@@ -72,8 +73,27 @@ const CityMapScreen = ({ activeTab, onTabChange }: CityMapScreenProps) => {
   const [unlockModal, setUnlockModal] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState(false);
+  const demo = useDemo();
 
   const fetchData = async () => {
+    if (demo?.isDemo) {
+      setProfile({
+        cash: demo.profile.cash,
+        rep_level: demo.profile.rep_level,
+        current_city: demo.profile.current_city,
+        unlocked_cities: demo.profile.unlocked_cities,
+        jewels: demo.profile.jewels,
+      });
+      setSelectedCity(demo.profile.current_city);
+      setCityProgress([{
+        city_id: 'new_cavendish',
+        unlocked_districts: ['docks'],
+        district_heat: {},
+        boss_vault_cleared: false,
+      }]);
+      setLoading(false);
+      return;
+    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 

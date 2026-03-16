@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { supabase } from '@/integrations/supabase/client';
+import { useDemo } from '@/contexts/DemoContext';
 import { toast } from '@/hooks/use-toast';
 
 const FLAVOR_MESSAGES = [
@@ -18,9 +19,18 @@ const DailyLoginModal = () => {
   const [reward, setReward] = useState(0);
   const [flavor, setFlavor] = useState('');
   const [claimed, setClaimed] = useState(false);
+  const demo = useDemo();
 
   useEffect(() => {
     const checkDailyLogin = async () => {
+      if (demo?.isDemo) {
+        // In demo mode, always show daily login
+        const dailyReward = 50 + Math.floor(Math.random() * 50);
+        setReward(dailyReward);
+        setFlavor(FLAVOR_MESSAGES[Math.floor(Math.random() * FLAVOR_MESSAGES.length)]);
+        setShow(true);
+        return;
+      }
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
@@ -34,9 +44,8 @@ const DailyLoginModal = () => {
       const today = new Date().toISOString().split('T')[0];
       const lastLogin = profile.last_login as string | null;
 
-      if (lastLogin === today) return; // Already claimed today
+      if (lastLogin === today) return;
 
-      // Calculate reward based on rep level
       const baseReward = 50;
       const repBonus = (profile.rep_level - 1) * 15;
       const dailyReward = baseReward + repBonus + Math.floor(Math.random() * 50);
@@ -46,11 +55,17 @@ const DailyLoginModal = () => {
       setShow(true);
     };
 
-    // Small delay so the app renders first
     setTimeout(checkDailyLogin, 800);
   }, []);
 
   const handleClaim = async () => {
+    if (demo?.isDemo) {
+      demo.updateProfile({ cash: demo.profile.cash + reward });
+      setClaimed(true);
+      toast({ title: '💰 Daily Bonus', description: `$${reward} added to your wallet.` });
+      setTimeout(() => setShow(false), 1200);
+      return;
+    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 

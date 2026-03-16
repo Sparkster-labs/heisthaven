@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { THEME } from '@/styles/theme';
 import { VAULTS, CHAOS_CARDS } from '@/lib/gameData';
 import { TransitionProvider, useTransition } from '@/contexts/TransitionContext';
+import { DemoProvider } from '@/contexts/DemoContext';
 import DailyLoginModal from '@/components/DailyLoginModal';
 import OnboardingOverlay from '@/components/OnboardingOverlay';
 import AuthScreen from '@/screens/AuthScreen';
@@ -30,7 +31,7 @@ import type { Session } from '@supabase/supabase-js';
 
 const queryClient = new QueryClient();
 
-const AppContent = () => {
+const AppInner = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('home');
@@ -44,6 +45,7 @@ const AppContent = () => {
   const { triggerTransition } = useTransition();
 
   const navigate = (cb: () => void) => triggerTransition(cb);
+  const isDemo = !session && skipAuth;
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -73,8 +75,49 @@ const AppContent = () => {
   }
 
   if (!session && !skipAuth) {
-    return <AuthScreen onAuth={() => {}} onSkip={() => setSkipAuth(true)} />;
+    return <AuthScreen onAuth={() => {}} onDemo={() => setSkipAuth(true)} />;
   }
+
+  const content = <AppGameContent
+    activeTab={activeTab} setActiveTab={setActiveTab}
+    selectedVault={selectedVault} setSelectedVault={setSelectedVault}
+    heistPhase={heistPhase} setHeistPhase={setHeistPhase}
+    selectedCrewIds={selectedCrewIds} setSelectedCrewIds={setSelectedCrewIds}
+    chaosCard={chaosCard} setChaosCard={setChaosCard}
+    heistOutcome={heistOutcome} setHeistOutcome={setHeistOutcome}
+    subScreen={subScreen} setSubScreen={setSubScreen}
+    navigate={navigate} isDemo={isDemo}
+  />;
+
+  return (
+    <DemoProvider enabled={isDemo}>
+      {content}
+    </DemoProvider>
+  );
+};
+
+interface AppGameContentProps {
+  activeTab: string; setActiveTab: (t: string) => void;
+  selectedVault: typeof VAULTS[number] | null; setSelectedVault: (v: typeof VAULTS[number] | null) => void;
+  heistPhase: 'vault' | 'crew' | 'chaos' | 'execution' | 'results' | null; setHeistPhase: (p: 'vault' | 'crew' | 'chaos' | 'execution' | 'results' | null) => void;
+  selectedCrewIds: string[]; setSelectedCrewIds: (ids: string[]) => void;
+  chaosCard: typeof CHAOS_CARDS[number] | null; setChaosCard: (c: typeof CHAOS_CARDS[number] | null) => void;
+  heistOutcome: { miniGameResults: boolean[] } | null; setHeistOutcome: (o: { miniGameResults: boolean[] } | null) => void;
+  subScreen: string | null; setSubScreen: (s: string | null) => void;
+  navigate: (cb: () => void) => void;
+  isDemo: boolean;
+}
+
+const AppGameContent = ({
+  activeTab, setActiveTab,
+  selectedVault, setSelectedVault,
+  heistPhase, setHeistPhase,
+  selectedCrewIds, setSelectedCrewIds,
+  chaosCard, setChaosCard,
+  heistOutcome, setHeistOutcome,
+  subScreen, setSubScreen,
+  navigate,
+}: AppGameContentProps) => {
 
   // Sub-screens
   if (subScreen === 'held_loot') {
@@ -209,6 +252,13 @@ const AppContent = () => {
     default:
       return <SafehouseScreen activeTab={activeTab} onTabChange={handleTabChange} />;
   }
+};
+
+const AppContent = () => {
+  // Check if we're in demo mode (no session, skipAuth active)
+  // This is determined by AppInner's skipAuth state, but we need to know from outside
+  // Instead, let's just wrap AppInner with DemoProvider based on its internal state
+  return <AppInner />;
 };
 
 const App = () => (

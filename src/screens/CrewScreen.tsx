@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { CREW_MEMBERS } from '@/lib/gameData';
 import { supabase } from '@/integrations/supabase/client';
+import { useDemo } from '@/contexts/DemoContext';
 import { toast } from '@/hooks/use-toast';
 import BottomNav from '@/components/BottomNav';
 
@@ -37,8 +38,15 @@ const CrewScreen = ({ activeTab, onTabChange }: CrewScreenProps) => {
   const [loading, setLoading] = useState(true);
   const [recruitModal, setRecruitModal] = useState<typeof CREW_MEMBERS[number] | null>(null);
   const [acting, setActing] = useState(false);
+  const demo = useDemo();
 
   const fetchData = async () => {
+    if (demo?.isDemo) {
+      setCrewStates(demo.crewStates);
+      setCash(demo.profile.cash);
+      setLoading(false);
+      return;
+    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
@@ -52,19 +60,26 @@ const CrewScreen = ({ activeTab, onTabChange }: CrewScreenProps) => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); }, [demo?.crewStates, demo?.profile.cash]);
 
   const handleRecruit = async (member: typeof CREW_MEMBERS[number]) => {
     if (cash < member.baseCost || acting) return;
     setActing(true);
 
+    if (demo?.isDemo) {
+      demo.updateProfile({ cash: cash - member.baseCost });
+      demo.updateCrewState(member.id, { unlocked: true });
+      setRecruitModal(null);
+      setActing(false);
+      toast({ title: `${member.emoji} ${member.name} Recruited!`, description: `${member.role} has joined your crew.` });
+      return;
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setActing(false); return; }
 
-    // Deduct cash
     await supabase.from('profiles').update({ cash: cash - member.baseCost }).eq('id', user.id);
 
-    // Check if crew_state row exists
     const existing = crewStates.find(cs => cs.crew_id === member.id);
     if (existing) {
       await supabase.from('crew_state').update({ unlocked: true }).eq('user_id', user.id).eq('crew_id', member.id);
