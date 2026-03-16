@@ -45,6 +45,7 @@ const AppInner = () => {
   const { triggerTransition } = useTransition();
 
   const navigate = (cb: () => void) => triggerTransition(cb);
+  const isDemo = !session && skipAuth;
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -76,6 +77,47 @@ const AppInner = () => {
   if (!session && !skipAuth) {
     return <AuthScreen onAuth={() => {}} onDemo={() => setSkipAuth(true)} />;
   }
+
+  const content = <AppGameContent
+    activeTab={activeTab} setActiveTab={setActiveTab}
+    selectedVault={selectedVault} setSelectedVault={setSelectedVault}
+    heistPhase={heistPhase} setHeistPhase={setHeistPhase}
+    selectedCrewIds={selectedCrewIds} setSelectedCrewIds={setSelectedCrewIds}
+    chaosCard={chaosCard} setChaosCard={setChaosCard}
+    heistOutcome={heistOutcome} setHeistOutcome={setHeistOutcome}
+    subScreen={subScreen} setSubScreen={setSubScreen}
+    navigate={navigate} isDemo={isDemo}
+  />;
+
+  return (
+    <DemoProvider enabled={isDemo}>
+      {content}
+    </DemoProvider>
+  );
+};
+
+interface AppGameContentProps {
+  activeTab: string; setActiveTab: (t: string) => void;
+  selectedVault: typeof VAULTS[number] | null; setSelectedVault: (v: typeof VAULTS[number] | null) => void;
+  heistPhase: 'vault' | 'crew' | 'chaos' | 'execution' | 'results' | null; setHeistPhase: (p: 'vault' | 'crew' | 'chaos' | 'execution' | 'results' | null) => void;
+  selectedCrewIds: string[]; setSelectedCrewIds: (ids: string[]) => void;
+  chaosCard: typeof CHAOS_CARDS[number] | null; setChaosCard: (c: typeof CHAOS_CARDS[number] | null) => void;
+  heistOutcome: { miniGameResults: boolean[] } | null; setHeistOutcome: (o: { miniGameResults: boolean[] } | null) => void;
+  subScreen: string | null; setSubScreen: (s: string | null) => void;
+  navigate: (cb: () => void) => void;
+  isDemo: boolean;
+}
+
+const AppGameContent = ({
+  activeTab, setActiveTab,
+  selectedVault, setSelectedVault,
+  heistPhase, setHeistPhase,
+  selectedCrewIds, setSelectedCrewIds,
+  chaosCard, setChaosCard,
+  heistOutcome, setHeistOutcome,
+  subScreen, setSubScreen,
+  navigate,
+}: AppGameContentProps) => {
 
   // Sub-screens
   if (subScreen === 'held_loot') {
