@@ -3,6 +3,7 @@ import { THEME, S } from '@/styles/theme';
 import { VAULTS, CHAOS_CARDS, CREW_MEMBERS, REP_THRESHOLDS } from '@/lib/gameData';
 import { resolveHeist, calculateRepLevel, calculateFenceOffer } from '@/lib/heistEngine';
 import { supabase } from '@/integrations/supabase/client';
+import { useDemo } from '@/contexts/DemoContext';
 import { useToast } from '@/hooks/use-toast';
 import type { Json } from '@/integrations/supabase/types';
 import { SFX, Haptics } from '@/lib/sounds';
