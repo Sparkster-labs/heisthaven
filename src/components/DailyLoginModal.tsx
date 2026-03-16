@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { supabase } from '@/integrations/supabase/client';
+import { useDemo } from '@/contexts/DemoContext';
 import { toast } from '@/hooks/use-toast';
 
 const FLAVOR_MESSAGES = [
