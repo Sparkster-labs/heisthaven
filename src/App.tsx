@@ -31,7 +31,7 @@ import type { Session } from '@supabase/supabase-js';
 
 const queryClient = new QueryClient();
 
-const AppContent = () => {
+const AppInner = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('home');
