@@ -38,8 +38,15 @@ const CrewScreen = ({ activeTab, onTabChange }: CrewScreenProps) => {
   const [loading, setLoading] = useState(true);
   const [recruitModal, setRecruitModal] = useState<typeof CREW_MEMBERS[number] | null>(null);
   const [acting, setActing] = useState(false);
+  const demo = useDemo();
 
   const fetchData = async () => {
+    if (demo?.isDemo) {
+      setCrewStates(demo.crewStates);
+      setCash(demo.profile.cash);
+      setLoading(false);
+      return;
+    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
@@ -53,7 +60,7 @@ const CrewScreen = ({ activeTab, onTabChange }: CrewScreenProps) => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); }, [demo?.crewStates, demo?.profile.cash]);
 
   const handleRecruit = async (member: typeof CREW_MEMBERS[number]) => {
     if (cash < member.baseCost || acting) return;
