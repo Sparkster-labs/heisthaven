@@ -130,16 +130,6 @@ const DressingRoomScreen = ({ onBack, onOpenPhotoMode }: DressingRoomScreenProps
       newJewels[item.jewel] = (newJewels[item.jewel] || 0) - item.jewelCost;
     }
 
-    if (demo?.isDemo) {
-      demo.updateProfile({ cash: newCash, jewels: newJewels });
-      demo.addOwnedItem(item.id);
-      setPlayerCash(newCash);
-      setPlayerJewels(newJewels);
-      setOwnedItemIds(new Set([...ownedItemIds, item.id]));
-      toast({ title: 'Purchased!', description: item.label });
-      return;
-    }
-
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
