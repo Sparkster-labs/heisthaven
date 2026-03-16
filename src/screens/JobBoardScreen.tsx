@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { VAULTS, CITIES } from '@/lib/gameData';
 import { supabase } from '@/integrations/supabase/client';
-import { useDemo } from '@/contexts/DemoContext';
 import BottomNav from '@/components/BottomNav';
 
 interface JobBoardScreenProps {
