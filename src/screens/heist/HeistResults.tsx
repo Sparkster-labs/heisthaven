@@ -50,7 +50,6 @@ type Phase = 'flash' | 'headline' | 'payout' | 'jewels' | 'ledger' | 'fence' | '
 
 const HeistResults = ({ vault, crewIds, chaosCard, miniGameResults, onFinish }: HeistResultsProps) => {
   const { toast } = useToast();
-  const demo = useDemo();
 
   // Resolve heist outcome using engine
   const [outcome] = useState(() => resolveHeist({
