@@ -66,13 +66,20 @@ const CrewScreen = ({ activeTab, onTabChange }: CrewScreenProps) => {
     if (cash < member.baseCost || acting) return;
     setActing(true);
 
+    if (demo?.isDemo) {
+      demo.updateProfile({ cash: cash - member.baseCost });
+      demo.updateCrewState(member.id, { unlocked: true });
+      setRecruitModal(null);
+      setActing(false);
+      toast({ title: `${member.emoji} ${member.name} Recruited!`, description: `${member.role} has joined your crew.` });
+      return;
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setActing(false); return; }
 
-    // Deduct cash
     await supabase.from('profiles').update({ cash: cash - member.baseCost }).eq('id', user.id);
 
-    // Check if crew_state row exists
     const existing = crewStates.find(cs => cs.crew_id === member.id);
     if (existing) {
       await supabase.from('crew_state').update({ unlocked: true }).eq('user_id', user.id).eq('crew_id', member.id);

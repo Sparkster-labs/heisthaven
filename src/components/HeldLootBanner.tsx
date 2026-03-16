@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { THEME } from '@/styles/theme';
 import { supabase } from '@/integrations/supabase/client';
+import { useDemo } from '@/contexts/DemoContext';
 import { toast } from '@/hooks/use-toast';
 
 interface HeldLootBannerProps {
@@ -16,9 +17,19 @@ const HeldLootBanner = ({ onNavigateToLoot }: HeldLootBannerProps) => {
   const [loot, setLoot] = useState<LootSummary | null>(null);
   const [now, setNow] = useState(Date.now());
   const [acting, setActing] = useState(false);
+  const demo = useDemo();
 
   useEffect(() => {
     const fetchLoot = async () => {
+      if (demo?.isDemo) {
+        if (demo.heldLoot.length > 0) {
+          const totalAmount = demo.heldLoot.reduce((s, r) => s + r.amount, 0);
+          const earliestExpiry = demo.heldLoot.reduce((min, r) =>
+            r.expires_at < min ? r.expires_at : min, demo.heldLoot[0].expires_at);
+          setLoot({ totalAmount, earliestExpiry });
+        }
+        return;
+      }
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       const { data } = await supabase.from('held_loot').select('amount, expires_at')
@@ -31,7 +42,7 @@ const HeldLootBanner = ({ onNavigateToLoot }: HeldLootBannerProps) => {
       }
     };
     fetchLoot();
-  }, []);
+  }, [demo?.heldLoot]);
 
   useEffect(() => {
     const i = setInterval(() => setNow(Date.now()), 1000);
