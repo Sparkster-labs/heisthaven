@@ -534,14 +534,12 @@ const DressingRoomScreen = ({ onBack, onOpenPhotoMode }: DressingRoomScreenProps
                         borderRadius: 6, padding: 8, textAlign: 'center', position: 'relative',
                         animation: owned ? undefined : 'none',
                       }}>
-                        <div style={{
-                          width: 60, height: 60, borderRadius: 4, margin: '0 auto 6px', position: 'relative',
-                          background: item.color, filter: owned ? 'none' : 'saturate(0.3)',
-                        }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 6, position: 'relative' }}>
+                          <ItemThumbnail category={item.cat} color={item.color} size={60} goldAccent={item.goldAccent} />
                           {!owned && (
                             <div style={{
                               position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              fontSize: 18, opacity: 0.6,
+                              fontSize: 18, opacity: 0.6, filter: 'saturate(0.3)',
                             }}>🔒</div>
                           )}
                         </div>
