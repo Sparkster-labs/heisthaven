@@ -41,9 +41,16 @@ const CrewHireScreen = ({ vault, onLaunch, onBack }: CrewHireScreenProps) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [cash, setCash] = useState(0);
   const [loading, setLoading] = useState(true);
+  const demo = useDemo();
 
   useEffect(() => {
     const load = async () => {
+      if (demo?.isDemo) {
+        setCrewStates(demo.crewStates);
+        setCash(demo.profile.cash);
+        setLoading(false);
+        return;
+      }
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
