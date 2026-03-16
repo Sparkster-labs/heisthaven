@@ -212,6 +212,13 @@ const AppInner = () => {
   }
 };
 
+const AppContent = () => {
+  // Check if we're in demo mode (no session, skipAuth active)
+  // This is determined by AppInner's skipAuth state, but we need to know from outside
+  // Instead, let's just wrap AppInner with DemoProvider based on its internal state
+  return <AppInner />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
