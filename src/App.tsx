@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { THEME } from '@/styles/theme';
 import { VAULTS, CHAOS_CARDS } from '@/lib/gameData';
 import { TransitionProvider, useTransition } from '@/contexts/TransitionContext';
+import { DemoProvider } from '@/contexts/DemoContext';
 import DailyLoginModal from '@/components/DailyLoginModal';
 import OnboardingOverlay from '@/components/OnboardingOverlay';
 import AuthScreen from '@/screens/AuthScreen';
