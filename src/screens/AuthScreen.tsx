@@ -184,20 +184,25 @@ const AuthScreen = ({ onAuth, onDemo }: AuthScreenProps) => {
             </>
           )}
 
-          {onSkip && (
+          {onDemo && (
             <>
               <div style={S.divider} />
               <button
-                onClick={onSkip}
+                onClick={onDemo}
                 style={{
                   ...S.btnGhost,
-                  fontSize: 9,
-                  color: THEME.colors.textMuted,
+                  fontSize: 10,
+                  color: THEME.colors.goldDim,
                   letterSpacing: 2,
+                  border: `1px solid ${THEME.colors.borderFaint}`,
+                  padding: '10px 16px',
                 }}
               >
-                ⚠️ SKIP SIGN IN (DEV MODE)
+                🎮 PLAY DEMO
               </button>
+              <div style={{ fontFamily: THEME.fonts.mono, fontSize: 9, color: THEME.colors.textMuted, textAlign: 'center', marginTop: 4 }}>
+                No account required — progress won't be saved
+              </div>
             </>
           )}
         </div>
