@@ -141,16 +141,6 @@ const BlackMarketScreen = ({ activeTab, onTabChange }: BlackMarketScreenProps) =
     if (item.effect === 'pearl_to_sapphire') newJewels.sapphire = (newJewels.sapphire || 0) + 1;
     if (item.effect === 'sapphire_to_emerald') newJewels.emerald = (newJewels.emerald || 0) + 1;
 
-    if (demo?.isDemo) {
-      demo.updateProfile({ cash: newCash, jewels: newJewels });
-      if (item.effect === 'crew_insurance') demo.updateProfile({ crew_insurance: true });
-      setPurchased(prev => ({ ...prev, [item.id]: (prev[item.id] || 0) + 1 }));
-      setProfile({ cash: newCash, jewels: newJewels });
-      setPurchasing(null);
-      toast({ title: `${item.emoji} ${item.name}`, description: 'Purchased!' });
-      return;
-    }
-
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setPurchasing(null); return; }
 

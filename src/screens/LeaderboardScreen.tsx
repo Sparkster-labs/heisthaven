@@ -75,28 +75,6 @@ const LeaderboardScreen = ({ activeTab, onTabChange }: LeaderboardScreenProps) =
 
   const loadData = async () => {
     setLoading(true);
-    if (demo?.isDemo) {
-      // Show demo player as the only entry
-      setCurrentUserId('demo');
-      setEntries([{
-        user_id: 'demo',
-        net_cash_earned: demo.profile.cash,
-        display_name: demo.profile.display_name,
-        notoriety_title: demo.profile.notoriety_title,
-        rep_level: demo.profile.rep_level,
-        jewels: demo.profile.jewels,
-        avatar: demo.profile.avatar,
-        equippedItems: demo.profile.equippedItems,
-      }]);
-      setMyRank(1);
-      setMyEntry({
-        user_id: 'demo',
-        net_cash_earned: demo.profile.cash,
-        display_name: demo.profile.display_name,
-      });
-      setLoading(false);
-      return;
-    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     setCurrentUserId(user.id);

@@ -129,51 +129,6 @@ const HeistResults = ({ vault, crewIds, chaosCard, miniGameResults, onFinish }: 
     setPhase('saving');
     setFenceChoice(choice);
 
-    if (demo?.isDemo) {
-      // Demo mode: update local state
-      const currentJewels = { ...demo.profile.jewels };
-      Object.entries(jewelDrops).forEach(([jewel, count]) => {
-        currentJewels[jewel] = (currentJewels[jewel] || 0) + count;
-      });
-      const { newXp, newLevel, newTitle } = calculateRepLevel(demo.profile.rep_xp, xpGained);
-      if (newLevel > demo.profile.rep_level) {
-        setLeveledUp(true);
-        setNewLevelInfo({ level: newLevel, title: newTitle });
-      }
-      let cashDelta = -vault.buyIn;
-      if (choice === 'cash') cashDelta += payout;
-      demo.updateProfile({
-        cash: Math.max(0, demo.profile.cash + cashDelta),
-        jewels: currentJewels,
-        rep_xp: newXp,
-        rep_level: newLevel,
-        notoriety_title: newTitle,
-      });
-      if (choice === 'hold' && fenceOffer) {
-        demo.addHeldLoot({
-          id: crypto.randomUUID(),
-          amount: fenceOffer.holdPayout,
-          held_at: new Date().toISOString(),
-          expires_at: new Date(Date.now() + fenceOffer.holdHours * 60 * 60 * 1000).toISOString(),
-          raid_chance: fenceOffer.raidChance,
-        });
-      }
-      demo.addHeist({
-        vault_name: vault.name, vault_tier: vault.tier, city_id: vault.city,
-        crew_ids: crewIds, success, payout: choice === 'cash' ? payout : 0,
-        cash_spent: vault.buyIn, jewel_drops: jewelDrops, created_at: new Date().toISOString(),
-      });
-      if (success && choice === 'cash' && payout > 0) {
-        toast({ title: `⬆ +$${payout.toLocaleString()}`, description: 'Cash secured.' });
-      }
-      Object.entries(jewelDrops).forEach(([jewel, count]) => {
-        if (count > 0) toast({ title: `${jewelEmojis[jewel]} ${jewelLabels[jewel]} FOUND`, description: `×${count}` });
-      });
-      setSaving(false);
-      setPhase('done');
-      return;
-    }
-
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 

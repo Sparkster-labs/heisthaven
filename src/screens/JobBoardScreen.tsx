@@ -112,15 +112,10 @@ const JobBoardScreen = ({ activeTab, onTabChange, onSelectVault }: JobBoardScree
   const handleRefresh = async () => {
     if (cash < REFRESH_COST || refreshing) return;
     setRefreshing(true);
-    if (demo?.isDemo) {
-      demo.updateProfile({ cash: cash - REFRESH_COST });
-      setCash(cash - REFRESH_COST);
-    } else {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      await supabase.from('profiles').update({ cash: cash - REFRESH_COST }).eq('id', user.id);
-      setCash(cash - REFRESH_COST);
-    }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    await supabase.from('profiles').update({ cash: cash - REFRESH_COST }).eq('id', user.id);
+    setCash(cash - REFRESH_COST);
     setJobs(generateJobs(repLevel, currentCity));
     setRefreshing(false);
   };

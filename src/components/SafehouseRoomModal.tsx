@@ -121,7 +121,6 @@ const jewelEmojis: Record<string, string> = {
 
 const SafehouseRoomModal = ({ roomId, currentTier, playerCash, playerJewels, onUpgrade, onClose, onOpenBlackMarket }: SafehouseRoomModalProps) => {
   const [upgrading, setUpgrading] = useState(false);
-  const demo = useDemo();
   const room = ROOM_DEFS.find(r => r.id === roomId);
   if (!room) return null;
 
@@ -142,17 +141,6 @@ const SafehouseRoomModal = ({ roomId, currentTier, playerCash, playerJewels, onU
     let newJewels = { ...playerJewels };
     if (nextTier.jewel) {
       newJewels[nextTier.jewel.type] = (newJewels[nextTier.jewel.type] || 0) - nextTier.jewel.count;
-    }
-
-    if (demo?.isDemo) {
-      demo.updateProfile({ cash: newCash, jewels: newJewels });
-      const newRooms = { ...demo.safehouse.rooms };
-      newRooms[roomId] = currentTier + 1;
-      demo.updateSafehouse({ rooms: newRooms });
-      setUpgrading(false);
-      toast({ title: `${room.emoji} ${room.name} Upgraded!`, description: nextTier.effect });
-      onUpgrade();
-      return;
     }
 
     const { data: { user } } = await supabase.auth.getUser();

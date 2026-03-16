@@ -81,26 +81,9 @@ const ProfileScreen = ({ activeTab, onTabChange }: ProfileScreenProps) => {
   const [showTitles, setShowTitles] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState('');
-  const demo = useDemo();
 
   useEffect(() => {
     const load = async () => {
-      if (demo?.isDemo) {
-        setProfile({
-          display_name: demo.profile.display_name,
-          cash: demo.profile.cash,
-          rep_level: demo.profile.rep_level,
-          rep_xp: demo.profile.rep_xp,
-          notoriety_title: demo.profile.notoriety_title,
-          jewels: demo.profile.jewels,
-          unlocked_cities: demo.profile.unlocked_cities,
-          created_at: demo.profile.created_at,
-        });
-        setEditName(demo.profile.display_name);
-        setHeists(demo.heistHistory as HeistRow[]);
-        setLoading(false);
-        return;
-      }
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       const [profileRes, heistRes] = await Promise.all([
@@ -116,25 +99,15 @@ const ProfileScreen = ({ activeTab, onTabChange }: ProfileScreenProps) => {
       setLoading(false);
     };
     load();
-  }, [demo?.profile, demo?.heistHistory]);
+  }, []);
 
   const handleSignOut = async () => {
-    if (demo?.isDemo) {
-      window.location.reload();
-      return;
-    }
     setSigningOut(true);
     await supabase.auth.signOut();
   };
 
   const handleSaveName = async () => {
     if (!profile || !editName.trim()) return;
-    if (demo?.isDemo) {
-      demo.updateProfile({ display_name: editName.trim() });
-      setProfile({ ...profile, display_name: editName.trim() });
-      setEditing(false);
-      return;
-    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     await supabase.from('profiles').update({ display_name: editName.trim() }).eq('id', user.id);

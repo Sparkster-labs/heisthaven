@@ -39,23 +39,8 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom, onOpenIAP, onOpen
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [safehouse, setSafehouse] = useState<SafehouseData | null>(null);
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
-  const demo = useDemo();
 
   const fetchData = async () => {
-    if (demo?.isDemo) {
-      setProfile({
-        display_name: demo.profile.display_name,
-        cash: demo.profile.cash,
-        rep_level: demo.profile.rep_level,
-        rep_xp: demo.profile.rep_xp,
-        notoriety_title: demo.profile.notoriety_title,
-        jewels: demo.profile.jewels,
-        avatar: demo.profile.avatar,
-        equippedItems: demo.profile.equippedItems,
-      });
-      setSafehouse({ rooms: demo.safehouse.rooms });
-      return;
-    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
@@ -83,7 +68,7 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom, onOpenIAP, onOpen
     }
   };
 
-  useEffect(() => { fetchData(); }, [demo?.profile.cash, demo?.profile.rep_level, demo?.safehouse.rooms]);
+  useEffect(() => { fetchData(); }, []);
 
   const getRepProgress = () => {
     if (!profile) return 0;
