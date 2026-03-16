@@ -71,15 +71,8 @@ const JobBoardScreen = ({ activeTab, onTabChange, onSelectVault }: JobBoardScree
   const [now, setNow] = useState(Date.now());
   const [pressedIdx, setPressedIdx] = useState<number | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const demo = useDemo();
 
   const loadProfile = useCallback(async () => {
-    if (demo?.isDemo) {
-      setCash(demo.profile.cash);
-      setRepLevel(demo.profile.rep_level);
-      setCurrentCity(demo.profile.current_city);
-      return { cash: demo.profile.cash, rep_level: demo.profile.rep_level, current_city: demo.profile.current_city };
-    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     const { data } = await supabase.from('profiles').select('cash, rep_level, current_city').eq('id', user.id).single();
@@ -90,7 +83,7 @@ const JobBoardScreen = ({ activeTab, onTabChange, onSelectVault }: JobBoardScree
       return data;
     }
     return null;
-  }, [demo?.profile.cash, demo?.profile.rep_level, demo?.profile.current_city]);
+  }, []);
 
   useEffect(() => {
     loadProfile().then((data) => {
