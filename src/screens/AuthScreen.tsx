@@ -4,10 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface AuthScreenProps {
   onAuth: () => void;
-  onSkip?: () => void;
+  onDemo?: () => void;
 }
 
-const AuthScreen = ({ onAuth, onSkip }: AuthScreenProps) => {
+const AuthScreen = ({ onAuth, onDemo }: AuthScreenProps) => {
   const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
