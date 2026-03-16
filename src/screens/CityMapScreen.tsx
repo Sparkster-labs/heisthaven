@@ -331,6 +331,21 @@ const CityMapScreen = ({ activeTab, onTabChange, onOpenDistrict }: CityMapScreen
                           )}
                         </div>
                       </div>
+                      {districtUnlocked && onOpenDistrict && viewCity && (
+                        <button
+                          onClick={() => onOpenDistrict(districtId, formatDistrict(districtId), viewCity.accentColor)}
+                          style={{
+                            fontSize: 8, fontFamily: THEME.fonts.display, letterSpacing: 1,
+                            padding: '4px 10px', borderRadius: THEME.radius.sm,
+                            background: `${viewCity.accentColor}15`,
+                            color: viewCity.accentColor,
+                            border: `1px solid ${viewCity.accentColor}40`,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          EXPLORE →
+                        </button>
+                      )}
                       {!districtUnlocked && (
                         <button
                           onClick={() => handleUnlockDistrict(selectedCity, districtId)}
