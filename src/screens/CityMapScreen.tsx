@@ -10,6 +10,7 @@ import BottomNav from '@/components/BottomNav';
 interface CityMapScreenProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  onOpenDistrict?: (districtId: string, districtName: string, cityColor: string) => void;
 }
 
 interface ProfileData {
