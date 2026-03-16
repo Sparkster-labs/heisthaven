@@ -90,6 +90,7 @@ const BlackMarketScreen = ({ activeTab, onTabChange }: BlackMarketScreenProps) =
   const [purchased, setPurchased] = useState<Record<string, number>>({});
   const [purchasing, setPurchasing] = useState<string | null>(null);
   const [countdown, setCountdown] = useState('');
+  const demo = useDemo();
 
   useEffect(() => {
     fetchProfile();
@@ -113,6 +114,10 @@ const BlackMarketScreen = ({ activeTab, onTabChange }: BlackMarketScreenProps) =
   }, []);
 
   const fetchProfile = async () => {
+    if (demo?.isDemo) {
+      setProfile({ cash: demo.profile.cash, jewels: demo.profile.jewels });
+      return;
+    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     const { data } = await supabase.from('profiles').select('cash, jewels').eq('id', user.id).single();
