@@ -65,7 +65,7 @@ const districtEmojis: Record<string, string> = {
   crystal_promenade: '💎', the_spires: '🗼', palace_grounds: '🏰', the_sanctum: '⛩️',
 };
 
-const CityMapScreen = ({ activeTab, onTabChange }: CityMapScreenProps) => {
+const CityMapScreen = ({ activeTab, onTabChange, onOpenDistrict }: CityMapScreenProps) => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [cityProgress, setCityProgress] = useState<CityProgressRow[]>([]);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
@@ -73,27 +73,8 @@ const CityMapScreen = ({ activeTab, onTabChange }: CityMapScreenProps) => {
   const [unlockModal, setUnlockModal] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState(false);
-  const demo = useDemo();
 
   const fetchData = async () => {
-    if (demo?.isDemo) {
-      setProfile({
-        cash: demo.profile.cash,
-        rep_level: demo.profile.rep_level,
-        current_city: demo.profile.current_city,
-        unlocked_cities: demo.profile.unlocked_cities,
-        jewels: demo.profile.jewels,
-      });
-      setSelectedCity(demo.profile.current_city);
-      setCityProgress([{
-        city_id: 'new_cavendish',
-        unlocked_districts: ['docks'],
-        district_heat: {},
-        boss_vault_cleared: false,
-      }]);
-      setLoading(false);
-      return;
-    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
