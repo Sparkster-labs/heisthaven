@@ -143,14 +143,24 @@ const DressingRoomScreen = ({ onBack, onOpenPhotoMode }: DressingRoomScreenProps
       }
     }
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
     const newCash = playerCash - item.cashCost;
     const newJewels = { ...playerJewels };
     if (item.jewel && item.jewelCost > 0) {
       newJewels[item.jewel] = (newJewels[item.jewel] || 0) - item.jewelCost;
     }
+
+    if (demo?.isDemo) {
+      demo.updateProfile({ cash: newCash, jewels: newJewels });
+      demo.addOwnedItem(item.id);
+      setPlayerCash(newCash);
+      setPlayerJewels(newJewels);
+      setOwnedItemIds(new Set([...ownedItemIds, item.id]));
+      toast({ title: 'Purchased!', description: item.label });
+      return;
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
     const [, insertRes] = await Promise.all([
       supabase.from('profiles').update({ cash: newCash, jewels: newJewels as any }).eq('id', user.id),
