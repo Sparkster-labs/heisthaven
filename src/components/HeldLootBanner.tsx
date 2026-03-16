@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { THEME } from '@/styles/theme';
 import { supabase } from '@/integrations/supabase/client';
-import { useDemo } from '@/contexts/DemoContext';
 import { toast } from '@/hooks/use-toast';
 
 interface HeldLootBannerProps {
