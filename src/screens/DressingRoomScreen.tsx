@@ -474,13 +474,11 @@ const DressingRoomScreen = ({ onBack, onOpenPhotoMode }: DressingRoomScreenProps
                         background: THEME.colors.ink, border: `1px solid ${THEME.colors.borderFaint}`,
                         borderRadius: 6, padding: 8, textAlign: 'center',
                       }}>
-                        <div style={{
-                          width: 60, height: 60, borderRadius: 4, background: item.color, margin: '0 auto 6px',
-                          position: 'relative',
-                        }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 6, position: 'relative' }}>
+                          <ItemThumbnail category={item.cat} color={item.color} size={60} />
                           {owned && (
                             <div style={{
-                              position: 'absolute', inset: 0, background: `${THEME.colors.emerald}30`,
+                              position: 'absolute', inset: 0, background: `${THEME.colors.emerald}20`,
                               borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center',
                               fontSize: 10, fontFamily: THEME.fonts.display, color: THEME.colors.emerald, letterSpacing: 1,
                             }}>OWNED</div>
