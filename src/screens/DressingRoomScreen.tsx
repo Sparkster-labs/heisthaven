@@ -7,7 +7,6 @@ import {
   type AvatarConfig, type EquippedItems, DEFAULT_AVATAR, DEFAULT_EQUIPPED,
 } from '@/lib/avatarData';
 import { supabase } from '@/integrations/supabase/client';
-import { useDemo } from '@/contexts/DemoContext';
 import { toast } from '@/hooks/use-toast';
 import Avatar from '@/components/Avatar';
 import ItemThumbnail from '@/components/ItemThumbnail';
