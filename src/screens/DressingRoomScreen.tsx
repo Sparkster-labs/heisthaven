@@ -416,9 +416,9 @@ const DressingRoomScreen = ({ onBack, onOpenPhotoMode }: DressingRoomScreenProps
                                 background: THEME.colors.ink, border: `2px solid ${isEquipped ? THEME.colors.gold : THEME.colors.borderFaint}`,
                                 borderRadius: 6, padding: 8, cursor: 'pointer', textAlign: 'center', position: 'relative',
                               }}>
-                                <div style={{
-                                  width: 60, height: 60, borderRadius: 4, background: item.color, margin: '0 auto 6px',
-                                }} />
+                                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 6 }}>
+                                  <ItemThumbnail category={cat.key} color={item.color} size={60} goldAccent={'goldAccent' in item && !!(item as any).goldAccent} />
+                                </div>
                                 {isEquipped && (
                                   <div style={{
                                     position: 'absolute', top: 4, right: 4, width: 18, height: 18, borderRadius: '50%',
