@@ -232,9 +232,7 @@ const App = () => (
         }}
       />
       <TransitionProvider>
-        <DemoProvider enabled={false}>
-          <AppContent />
-        </DemoProvider>
+        <AppContent />
       </TransitionProvider>
       <Toaster />
     </TooltipProvider>
