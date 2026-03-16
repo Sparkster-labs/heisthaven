@@ -122,10 +122,11 @@ const jewelEmojis: Record<string, string> = {
 
 const SafehouseRoomModal = ({ roomId, currentTier, playerCash, playerJewels, onUpgrade, onClose, onOpenBlackMarket }: SafehouseRoomModalProps) => {
   const [upgrading, setUpgrading] = useState(false);
+  const demo = useDemo();
   const room = ROOM_DEFS.find(r => r.id === roomId);
   if (!room) return null;
 
-  const nextTierIdx = currentTier; // currentTier 0 → upgrade to tier 1 (index 0), etc.
+  const nextTierIdx = currentTier;
   const isMaxed = currentTier >= 3;
   const nextTier = !isMaxed ? room.tiers[nextTierIdx] : null;
 
@@ -138,22 +139,31 @@ const SafehouseRoomModal = ({ roomId, currentTier, playerCash, playerJewels, onU
     if (!nextTier || upgrading || !canAfford) return;
     setUpgrading(true);
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setUpgrading(false); return; }
-
-    // Deduct cash + jewels
     let newCash = playerCash - nextTier.cost;
     let newJewels = { ...playerJewels };
     if (nextTier.jewel) {
       newJewels[nextTier.jewel.type] = (newJewels[nextTier.jewel.type] || 0) - nextTier.jewel.count;
     }
 
+    if (demo?.isDemo) {
+      demo.updateProfile({ cash: newCash, jewels: newJewels });
+      const newRooms = { ...demo.safehouse.rooms };
+      newRooms[roomId] = currentTier + 1;
+      demo.updateSafehouse({ rooms: newRooms });
+      setUpgrading(false);
+      toast({ title: `${room.emoji} ${room.name} Upgraded!`, description: nextTier.effect });
+      onUpgrade();
+      return;
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setUpgrading(false); return; }
+
     await supabase.from('profiles').update({
       cash: newCash,
       jewels: newJewels as unknown as Json,
     }).eq('id', user.id);
 
-    // Update safehouse room tier
     const { data: sh } = await supabase.from('safehouse').select('rooms').eq('user_id', user.id).single();
     if (sh) {
       const rooms = sh.rooms as Record<string, number>;
