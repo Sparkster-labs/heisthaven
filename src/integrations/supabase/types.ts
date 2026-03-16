@@ -239,6 +239,44 @@ export type Database = {
           },
         ]
       }
+      owned_assets: {
+        Row: {
+          asset_id: string
+          asset_type: string
+          id: string
+          last_collected: string | null
+          level: number | null
+          purchased_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          asset_id: string
+          asset_type?: string
+          id?: string
+          last_collected?: string | null
+          level?: number | null
+          purchased_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          asset_id?: string
+          asset_type?: string
+          id?: string
+          last_collected?: string | null
+          level?: number | null
+          purchased_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "owned_assets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar: Json
