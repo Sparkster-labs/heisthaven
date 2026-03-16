@@ -7,7 +7,6 @@ import {
   type AvatarConfig, type EquippedItems, DEFAULT_AVATAR, DEFAULT_EQUIPPED,
 } from '@/lib/avatarData';
 import { supabase } from '@/integrations/supabase/client';
-import { useDemo } from '@/contexts/DemoContext';
 import { toast } from '@/hooks/use-toast';
 import Avatar from '@/components/Avatar';
 import ItemThumbnail from '@/components/ItemThumbnail';
@@ -48,20 +47,10 @@ const DressingRoomScreen = ({ onBack, onOpenPhotoMode }: DressingRoomScreenProps
   const [selectedBackdrop, setSelectedBackdrop] = useState(0);
   const [loading, setLoading] = useState(true);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
-  const demo = useDemo();
 
   // ─── Load data from DB ───
   useEffect(() => {
     const load = async () => {
-      if (demo?.isDemo) {
-        setAvatarConfig(demo.profile.avatar);
-        setEquippedItems(demo.profile.equippedItems);
-        setOwnedItemIds(demo.ownedItemIds);
-        setPlayerCash(demo.profile.cash);
-        setPlayerJewels(demo.profile.jewels);
-        setLoading(false);
-        return;
-      }
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setLoading(false); return; }
 
@@ -87,17 +76,13 @@ const DressingRoomScreen = ({ onBack, onOpenPhotoMode }: DressingRoomScreenProps
 
   // ─── Debounced save for avatar config ───
   const saveAvatarConfig = useCallback((config: AvatarConfig) => {
-    if (demo?.isDemo) {
-      demo.updateProfile({ avatar: config });
-      return;
-    }
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       await supabase.from('profiles').update({ avatar: config as any }).eq('id', user.id);
     }, 600);
-  }, [demo]);
+  }, []);
 
   const updateAvatar = (patch: Partial<AvatarConfig>) => {
     const newConfig = { ...avatarConfig, ...patch };
@@ -108,10 +93,6 @@ const DressingRoomScreen = ({ onBack, onOpenPhotoMode }: DressingRoomScreenProps
   // ─── Save equipped items ───
   const saveEquipped = async (items: EquippedItems) => {
     setEquippedItems(items);
-    if (demo?.isDemo) {
-      demo.updateProfile({ equippedItems: items });
-      return;
-    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     await supabase.from('profiles').update({ equippedItems: items as any }).eq('id', user.id);
@@ -147,16 +128,6 @@ const DressingRoomScreen = ({ onBack, onOpenPhotoMode }: DressingRoomScreenProps
     const newJewels = { ...playerJewels };
     if (item.jewel && item.jewelCost > 0) {
       newJewels[item.jewel] = (newJewels[item.jewel] || 0) - item.jewelCost;
-    }
-
-    if (demo?.isDemo) {
-      demo.updateProfile({ cash: newCash, jewels: newJewels });
-      demo.addOwnedItem(item.id);
-      setPlayerCash(newCash);
-      setPlayerJewels(newJewels);
-      setOwnedItemIds(new Set([...ownedItemIds, item.id]));
-      toast({ title: 'Purchased!', description: item.label });
-      return;
     }
 
     const { data: { user } } = await supabase.auth.getUser();

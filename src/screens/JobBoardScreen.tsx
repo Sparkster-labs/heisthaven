@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { VAULTS, CITIES } from '@/lib/gameData';
 import { supabase } from '@/integrations/supabase/client';
-import { useDemo } from '@/contexts/DemoContext';
 import BottomNav from '@/components/BottomNav';
 
 interface JobBoardScreenProps {
@@ -72,15 +71,8 @@ const JobBoardScreen = ({ activeTab, onTabChange, onSelectVault }: JobBoardScree
   const [now, setNow] = useState(Date.now());
   const [pressedIdx, setPressedIdx] = useState<number | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const demo = useDemo();
 
   const loadProfile = useCallback(async () => {
-    if (demo?.isDemo) {
-      setCash(demo.profile.cash);
-      setRepLevel(demo.profile.rep_level);
-      setCurrentCity(demo.profile.current_city);
-      return { cash: demo.profile.cash, rep_level: demo.profile.rep_level, current_city: demo.profile.current_city };
-    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     const { data } = await supabase.from('profiles').select('cash, rep_level, current_city').eq('id', user.id).single();
@@ -91,7 +83,7 @@ const JobBoardScreen = ({ activeTab, onTabChange, onSelectVault }: JobBoardScree
       return data;
     }
     return null;
-  }, [demo?.profile.cash, demo?.profile.rep_level, demo?.profile.current_city]);
+  }, []);
 
   useEffect(() => {
     loadProfile().then((data) => {
@@ -120,15 +112,10 @@ const JobBoardScreen = ({ activeTab, onTabChange, onSelectVault }: JobBoardScree
   const handleRefresh = async () => {
     if (cash < REFRESH_COST || refreshing) return;
     setRefreshing(true);
-    if (demo?.isDemo) {
-      demo.updateProfile({ cash: cash - REFRESH_COST });
-      setCash(cash - REFRESH_COST);
-    } else {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      await supabase.from('profiles').update({ cash: cash - REFRESH_COST }).eq('id', user.id);
-      setCash(cash - REFRESH_COST);
-    }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    await supabase.from('profiles').update({ cash: cash - REFRESH_COST }).eq('id', user.id);
+    setCash(cash - REFRESH_COST);
     setJobs(generateJobs(repLevel, currentCity));
     setRefreshing(false);
   };

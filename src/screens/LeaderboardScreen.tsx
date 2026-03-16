@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { supabase } from '@/integrations/supabase/client';
-import { useDemo } from '@/contexts/DemoContext';
 import BottomNav from '@/components/BottomNav';
 import { AvatarMini } from '@/components/Avatar';
 import { type AvatarConfig, type EquippedItems, DEFAULT_AVATAR, DEFAULT_EQUIPPED } from '@/lib/avatarData';
@@ -55,7 +54,6 @@ const LeaderboardScreen = ({ activeTab, onTabChange }: LeaderboardScreenProps) =
   const [myEntry, setMyEntry] = useState<LeaderboardEntry | null>(null);
   const [selectedCity, setSelectedCity] = useState('new_cavendish');
   const [countdown, setCountdown] = useState('');
-  const demo = useDemo();
 
   // Week countdown
   useEffect(() => {
@@ -77,28 +75,6 @@ const LeaderboardScreen = ({ activeTab, onTabChange }: LeaderboardScreenProps) =
 
   const loadData = async () => {
     setLoading(true);
-    if (demo?.isDemo) {
-      // Show demo player as the only entry
-      setCurrentUserId('demo');
-      setEntries([{
-        user_id: 'demo',
-        net_cash_earned: demo.profile.cash,
-        display_name: demo.profile.display_name,
-        notoriety_title: demo.profile.notoriety_title,
-        rep_level: demo.profile.rep_level,
-        jewels: demo.profile.jewels,
-        avatar: demo.profile.avatar,
-        equippedItems: demo.profile.equippedItems,
-      }]);
-      setMyRank(1);
-      setMyEntry({
-        user_id: 'demo',
-        net_cash_earned: demo.profile.cash,
-        display_name: demo.profile.display_name,
-      });
-      setLoading(false);
-      return;
-    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     setCurrentUserId(user.id);
