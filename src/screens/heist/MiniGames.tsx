@@ -286,6 +286,7 @@ export const WireCutGame = ({ difficulty, onResult }: WireCutProps) => {
         setTimeout(() => onResult(true), 1200);
       }
     } else {
+      SFX.fail();
       setResult(false);
       setPhase('done');
       if (navigator.vibrate) navigator.vibrate(200);
