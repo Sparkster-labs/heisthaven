@@ -28,6 +28,8 @@ interface ActivityResult {
 interface CrewStateRow {
   crew_id: string;
   unlocked: boolean;
+  level: number;
+  loyalty: number;
 }
 
 interface PokerCard {
@@ -226,6 +228,7 @@ const DistrictActivityScreen = ({ districtId, districtName, cityColor, onBack, o
   const [fightMatchup, setFightMatchup] = useState<Fighter[]>([]);
   const [selectedFighterId, setSelectedFighterId] = useState<string | null>(null);
   const [fightWinnerId, setFightWinnerId] = useState<string | null>(null);
+  const [selectedTrainCrewId, setSelectedTrainCrewId] = useState<string | null>(null);
 
   const activities = DISTRICT_ACTIVITIES[districtId] || [];
   const gamblingConfig = GAMBLING_CONFIG[districtId];
@@ -305,7 +308,7 @@ const DistrictActivityScreen = ({ districtId, districtName, cityColor, onBack, o
       if (!user) return;
       const [profileRes, crewRes] = await Promise.all([
         supabase.from('profiles').select('cash, jewels').eq('id', user.id).single(),
-        supabase.from('crew_state').select('crew_id, unlocked').eq('user_id', user.id),
+        supabase.from('crew_state').select('crew_id, unlocked, level, loyalty').eq('user_id', user.id),
       ]);
 
       if (profileRes.data) {
@@ -523,6 +526,7 @@ const DistrictActivityScreen = ({ districtId, districtName, cityColor, onBack, o
 
   const handleTraining = async (type: 'level_up' | 'loyalty_boost') => {
     if (acting) return;
+    if (!selectedTrainCrewId) { toast({ title: 'Select a crew member first' }); return; }
     const cost = type === 'level_up' ? TRAINING_COST.level_up : TRAINING_COST.loyalty_boost;
     if (cash < cost) { toast({ title: 'Insufficient funds' }); return; }
 
@@ -531,19 +535,26 @@ const DistrictActivityScreen = ({ districtId, districtName, cityColor, onBack, o
     if (!user) { setActing(false); return; }
 
     await supabase.from('profiles').update({ cash: cash - cost }).eq('id', user.id);
-    const { data: crewData } = await supabase.from('crew_state').select('id, level, loyalty').eq('user_id', user.id);
-    if (crewData && crewData.length > 0) {
-      const target = crewData[Math.floor(Math.random() * crewData.length)];
+
+    const crewState = crewStates.find(cs => cs.crew_id === selectedTrainCrewId);
+    if (crewState) {
       if (type === 'level_up') {
-        await supabase.from('crew_state').update({ level: target.level + 1 }).eq('id', target.id);
+        await supabase.from('crew_state').update({ level: (crewState.level || 1) + 1 }).eq('user_id', user.id).eq('crew_id', selectedTrainCrewId);
       } else {
-        await supabase.from('crew_state').update({ loyalty: Math.min(100, target.loyalty + 5) }).eq('id', target.id);
+        await supabase.from('crew_state').update({ loyalty: Math.min(100, (crewState.loyalty || 60) + 5) }).eq('user_id', user.id).eq('crew_id', selectedTrainCrewId);
       }
     }
+
+    // Refresh crew states
+    const { data: freshCrew } = await supabase.from('crew_state').select('crew_id, unlocked, level, loyalty').eq('user_id', user.id);
+    if (freshCrew) setCrewStates(freshCrew);
+
+    const member = CREW_MEMBERS.find(m => m.id === selectedTrainCrewId);
+    const memberName = member ? member.name : selectedTrainCrewId;
     setCash(cash - cost);
     setActing(false);
     Haptics.success();
-    toast({ title: type === 'level_up' ? '⬆ Crew Member Leveled Up!' : '❤️ Loyalty Boosted!', description: `Cost: $${cost}` });
+    toast({ title: type === 'level_up' ? `⬆ ${memberName} Leveled Up!` : `❤️ ${memberName}'s Loyalty Boosted!`, description: `Cost: $${cost}` });
   };
 
   const handleIntel = async (type: string) => {
@@ -593,7 +604,7 @@ const DistrictActivityScreen = ({ districtId, districtName, cityColor, onBack, o
       setCrewStates((prev) => prev.map((row) => (row.crew_id === crewId ? { ...row, unlocked: true } : row)));
     } else {
       await supabase.from('crew_state').insert({ user_id: user.id, crew_id: crewId, unlocked: true, level: 1, loyalty: 60 });
-      setCrewStates((prev) => [...prev, { crew_id: crewId, unlocked: true }]);
+      setCrewStates((prev) => [...prev, { crew_id: crewId, unlocked: true, level: 1, loyalty: 60 }]);
     }
 
     setCash(nextCash);
@@ -843,14 +854,78 @@ const DistrictActivityScreen = ({ districtId, districtName, cityColor, onBack, o
                   </div>
                 )}
 
-                {activity.type === 'training' && (
-                  <div style={{ display: 'flex', gap: THEME.space.xs }}>
-                    <button onClick={() => handleTraining('level_up')} onPointerDown={() => pressFeedback(`train-level-${activity.id}`)} disabled={acting || cash < TRAINING_COST.level_up}
-                      style={{ ...S.btnPrimary, ...pressedStyle(`train-level-${activity.id}`), flex: 1, fontSize: 10, padding: '10px 8px', minHeight: 44, opacity: cash < TRAINING_COST.level_up ? 0.4 : 1 }}>⬆ LEVEL UP (${TRAINING_COST.level_up})</button>
-                    <button onClick={() => handleTraining('loyalty_boost')} onPointerDown={() => pressFeedback(`train-loyalty-${activity.id}`)} disabled={acting || cash < TRAINING_COST.loyalty_boost}
-                      style={{ ...S.btnGhost, ...pressedStyle(`train-loyalty-${activity.id}`), flex: 1, fontSize: 10, padding: '10px 8px', minHeight: 44, opacity: cash < TRAINING_COST.loyalty_boost ? 0.4 : 1 }}>❤️ LOYALTY (${TRAINING_COST.loyalty_boost})</button>
-                  </div>
-                )}
+                {activity.type === 'training' && (() => {
+                  const unlockedCrew = crewStates.filter(cs => cs.unlocked);
+                  const selectedState = unlockedCrew.find(cs => cs.crew_id === selectedTrainCrewId);
+                  const selectedMember = CREW_MEMBERS.find(m => m.id === selectedTrainCrewId);
+                  return (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: THEME.space.sm }}>
+                      {/* Crew selector */}
+                      <div style={{ fontSize: 10, fontFamily: THEME.fonts.mono, color: THEME.colors.textMuted, letterSpacing: 1 }}>SELECT CREW MEMBER</div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                        {unlockedCrew.map(cs => {
+                          const member = CREW_MEMBERS.find(m => m.id === cs.crew_id);
+                          if (!member) return null;
+                          const isSelected = selectedTrainCrewId === cs.crew_id;
+                          return (
+                            <button
+                              key={cs.crew_id}
+                              onClick={() => { setSelectedTrainCrewId(cs.crew_id); pressFeedback(`crew-sel-${cs.crew_id}`); }}
+                              style={{
+                                ...pressedStyle(`crew-sel-${cs.crew_id}`),
+                                background: isSelected ? `${cityColor}30` : THEME.colors.dusk,
+                                border: isSelected ? `1.5px solid ${cityColor}` : `1px solid ${THEME.colors.borderFaint}`,
+                                borderRadius: THEME.radius.md,
+                                padding: '8px 10px',
+                                display: 'flex', alignItems: 'center', gap: 6,
+                                cursor: 'pointer', minHeight: 44,
+                              }}
+                            >
+                              <span style={{ fontSize: 20 }}>{member.emoji}</span>
+                              <div style={{ textAlign: 'left' }}>
+                                <div style={{ fontFamily: THEME.fonts.display, fontSize: 11, color: THEME.colors.textPrimary, letterSpacing: 1 }}>{member.name}</div>
+                                <div style={{ fontFamily: THEME.fonts.mono, fontSize: 8, color: THEME.colors.textMuted }}>LVL {cs.level} · ❤️ {cs.loyalty}</div>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {unlockedCrew.length === 0 && (
+                        <div style={{ fontFamily: THEME.fonts.body, fontSize: 12, color: THEME.colors.textMuted, fontStyle: 'italic' }}>No crew members recruited yet.</div>
+                      )}
+
+                      {/* Selected crew detail + actions */}
+                      {selectedState && selectedMember && (
+                        <div style={{ ...S.card, padding: THEME.space.md, background: `${cityColor}08` }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: THEME.space.sm, marginBottom: THEME.space.sm }}>
+                            <span style={{ fontSize: 28 }}>{selectedMember.emoji}</span>
+                            <div>
+                              <div style={{ fontFamily: THEME.fonts.display, fontSize: 14, color: THEME.colors.textPrimary, letterSpacing: 1 }}>{selectedMember.name}</div>
+                              <div style={{ fontFamily: THEME.fonts.mono, fontSize: 9, color: THEME.colors.textMuted }}>{selectedMember.role}</div>
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', gap: THEME.space.sm, marginBottom: THEME.space.sm }}>
+                            <div style={{ flex: 1, textAlign: 'center' }}>
+                              <div style={{ fontFamily: THEME.fonts.mono, fontSize: 8, color: THEME.colors.textMuted, letterSpacing: 1 }}>LEVEL</div>
+                              <div style={{ fontFamily: THEME.fonts.display, fontSize: 20, color: THEME.colors.gold }}>{selectedState.level}</div>
+                            </div>
+                            <div style={{ width: 1, background: THEME.colors.borderFaint }} />
+                            <div style={{ flex: 1, textAlign: 'center' }}>
+                              <div style={{ fontFamily: THEME.fonts.mono, fontSize: 8, color: THEME.colors.textMuted, letterSpacing: 1 }}>LOYALTY</div>
+                              <div style={{ fontFamily: THEME.fonts.display, fontSize: 20, color: selectedState.loyalty >= 70 ? THEME.colors.emerald : selectedState.loyalty >= 40 ? THEME.colors.warning : THEME.colors.ruby }}>{selectedState.loyalty}%</div>
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', gap: THEME.space.xs }}>
+                            <button onClick={() => handleTraining('level_up')} onPointerDown={() => pressFeedback(`train-level-${activity.id}`)} disabled={acting || cash < TRAINING_COST.level_up}
+                              style={{ ...S.btnPrimary, ...pressedStyle(`train-level-${activity.id}`), flex: 1, fontSize: 10, padding: '10px 8px', minHeight: 44, opacity: cash < TRAINING_COST.level_up ? 0.4 : 1 }}>⬆ LEVEL UP (${TRAINING_COST.level_up})</button>
+                            <button onClick={() => handleTraining('loyalty_boost')} onPointerDown={() => pressFeedback(`train-loyalty-${activity.id}`)} disabled={acting || cash < TRAINING_COST.loyalty_boost}
+                              style={{ ...S.btnGhost, ...pressedStyle(`train-loyalty-${activity.id}`), flex: 1, fontSize: 10, padding: '10px 8px', minHeight: 44, opacity: cash < TRAINING_COST.loyalty_boost ? 0.4 : 1 }}>❤️ LOYALTY (${TRAINING_COST.loyalty_boost})</button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
 
                 {activity.type === 'intel' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: THEME.space.xs }}>
