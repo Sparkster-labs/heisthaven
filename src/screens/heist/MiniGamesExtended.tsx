@@ -534,6 +534,7 @@ export const WireTapGame = ({ difficulty, onResult, crewIds = [], chaosCard }: E
       return next;
     });
     setRotations(prev => prev + 1);
+    SFX.tick();
 
     // Simple win check: if we've made enough rotations, random success
     // (Full path-finding is complex; use simplified heuristic)
