@@ -416,10 +416,10 @@ const DressingRoomScreen = ({ onBack, onOpenPhotoMode }: DressingRoomScreenProps
                     }}>{item.label}</div>
                     {/* Tier dots */}
                     <div style={{ display: 'flex', justifyContent: 'center', gap: 2, marginTop: 2 }}>
-                      {Array.from({ length: isLegendary ? 4 : item.tier }).map((_, i) => (
+                      {Array.from({ length: isLegendary ? 4 : (clothingItem?.tier || 1) }).map((_, i) => (
                         <div key={i} style={{
                           width: 4, height: 4, borderRadius: '50%',
-                          background: isLegendary ? THEME.colors.gold : i < item.tier ? THEME.colors.textMuted : THEME.colors.borderFaint,
+                          background: isLegendary ? THEME.colors.gold : i < (clothingItem?.tier || 1) ? THEME.colors.textMuted : THEME.colors.borderFaint,
                         }} />
                       ))}
                     </div>
