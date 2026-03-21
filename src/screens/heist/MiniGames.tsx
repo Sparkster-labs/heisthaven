@@ -275,6 +275,7 @@ export const WireCutGame = ({ difficulty, onResult }: WireCutProps) => {
   const handleCut = (wire: typeof WIRE_COLORS[number]) => {
     if (phase !== 'cutting' || result !== null) return;
     if (wire.name === sequence[cutIndex].name) {
+      SFX.tick();
       setCutWires(prev => [...prev, wire.name]);
       const nextIdx = cutIndex + 1;
       setCutIndex(nextIdx);
