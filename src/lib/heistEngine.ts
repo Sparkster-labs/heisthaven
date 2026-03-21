@@ -51,8 +51,29 @@ const BASE_FAIL_BY_DIFFICULTY: Record<number, number> = {
   5: 0.60,
 };
 
-// Crew fail reduction per member hired
-const CREW_FAIL_REDUCTION = 0.07;
+// Crew fail reduction per member hired (generic)
+const CREW_FAIL_REDUCTION = 0.04;
+
+// Crew-specific ability modifiers applied during heist resolution
+const CREW_ABILITIES: Record<string, {
+  failReduction?: number;
+  payoutBonus?: number;
+  heatReduction?: number;
+  xpBonus?: number;
+  jewelBonus?: number;
+  miniGameForgive?: number;
+}> = {
+  fingers: { failReduction: 0.08 },           // Lockpick: reliable under pressure
+  echo:    { failReduction: 0.05, heatReduction: 3 }, // Hacker: covers digital tracks
+  brick:   { failReduction: 0.06, miniGameForgive: 1 }, // Muscle: brute-force backup
+  silk:    { failReduction: 0.04, payoutBonus: 0.15 }, // Grifter: negotiates better fence deals
+  ghost:   { failReduction: 0.12 },           // Infiltrator: massive stealth advantage
+  doc:     { miniGameForgive: 1, xpBonus: 15 }, // Medic: keeps crew operational + experience
+  raven:   { failReduction: 0.07, heatReduction: 5 }, // Scout: intel reduces risk & exposure
+  king:    { payoutBonus: 0.25, xpBonus: 25 },  // Mastermind: plans = profit + learning
+  static:  { failReduction: 0.05, heatReduction: 8 }, // Comms: jams frequencies, reduces heat
+  nitro:   { failReduction: 0.06, payoutBonus: 0.10 }, // Wheelman: fast getaway saves loot
+};
 
 export function resolveHeist(input: HeistInput): HeistOutcome {
   const { vault, crewIds, chaosCard, miniGameResults, safehouseRooms } = input;
@@ -60,8 +81,24 @@ export function resolveHeist(input: HeistInput): HeistOutcome {
   // --- FAIL CHANCE CALCULATION ---
   let failChance = BASE_FAIL_BY_DIFFICULTY[vault.difficulty] ?? 0.35;
 
-  // Crew reductions
+  // Generic crew reduction
   failChance -= crewIds.length * CREW_FAIL_REDUCTION;
+
+  // Crew-specific fail reductions
+  let totalPayoutBonus = 0;
+  let totalHeatReduction = 0;
+  let totalXpBonus = 0;
+  let totalMiniGameForgives = 0;
+
+  crewIds.forEach(id => {
+    const ability = CREW_ABILITIES[id];
+    if (!ability) return;
+    if (ability.failReduction) failChance -= ability.failReduction;
+    if (ability.payoutBonus) totalPayoutBonus += ability.payoutBonus;
+    if (ability.heatReduction) totalHeatReduction += ability.heatReduction;
+    if (ability.xpBonus) totalXpBonus += ability.xpBonus;
+    if (ability.miniGameForgive) totalMiniGameForgives += ability.miniGameForgive;
+  });
 
   // Chaos card modifier
   if (chaosCard.effect === 'heat_increase') failChance += 0.05;
