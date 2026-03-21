@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { THEME, S } from '@/styles/theme';
+import { calculateBailCost, JAIL_DURATION_MS } from '@/screens/JailScreen';
 import { VAULTS, CHAOS_CARDS, CREW_MEMBERS, REP_THRESHOLDS } from '@/lib/gameData';
 import { resolveHeist, calculateRepLevel, calculateFenceOffer } from '@/lib/heistEngine';
 import { supabase } from '@/integrations/supabase/client';
