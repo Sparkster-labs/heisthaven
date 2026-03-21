@@ -28,6 +28,8 @@ interface ActivityResult {
 interface CrewStateRow {
   crew_id: string;
   unlocked: boolean;
+  level: number;
+  loyalty: number;
 }
 
 interface PokerCard {
