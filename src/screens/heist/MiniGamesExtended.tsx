@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { CREW_MEMBERS, CHAOS_CARDS } from '@/lib/gameData';
 import { SFX } from '@/lib/sounds';
+import { DIFFICULTY_CONFIG, getDifficultyTier, getMistakeHeat, isCrewSuppressed } from '@/lib/difficultyConfig';
 
 // Shared props for all extended mini-games
 interface ExtGameProps {
@@ -18,18 +19,26 @@ const hasCrewRole = (crewIds: string[], role: string): boolean =>
     return member?.role.toLowerCase() === role.toLowerCase();
   });
 
+// Check if chaos is active (non-benign effects)
+const isChaosActive = (chaosCard?: typeof CHAOS_CARDS[number]): boolean =>
+  !!chaosCard && chaosCard.effect !== 'payout_bonus' && chaosCard.effect !== 'loyalty_boost';
+
 // ═══════════════════════════════════════════════════════════════
 // MINI-GAME: SHADOW WALK — Guard patrol timing (Scout role)
 // ═══════════════════════════════════════════════════════════════
 export const ShadowWalkGame = ({ difficulty, onResult, crewIds = [], chaosCard }: ExtGameProps) => {
-  const COVER_POINTS = 6 + difficulty;
-  const hasScout = hasCrewRole(crewIds, 'scout');
-  const lightsOut = chaosCard?.id === 'silent_alarm'; // maps to "Lights Out" chaos
+  const tier = getDifficultyTier(difficulty);
+  const cfg = DIFFICULTY_CONFIG.shadowWalk[tier];
+  const chaosActive = isChaosActive(chaosCard);
+  const rawHasScout = hasCrewRole(crewIds, 'scout');
+  const hasScout = rawHasScout && !isCrewSuppressed(chaosActive);
+  const lightsOut = chaosCard?.id === 'silent_alarm';
 
-  const baseWindowWidth = hasScout ? 0.375 : 0.3; // 25% wider with scout
-  const windowWidth = lightsOut ? baseWindowWidth * 0.6 : baseWindowWidth; // 40% shrink
+  const COVER_POINTS = cfg.guards + 3; // cover points = guards + buffer
+  const baseWindowWidth = hasScout ? cfg.safeWindowPct * 1.25 : cfg.safeWindowPct;
+  const windowWidth = lightsOut ? baseWindowWidth * 0.6 : baseWindowWidth;
+  const heatPerMistake = getMistakeHeat(tier);
 
-  // Generate safe windows for each segment
   const [safeWindows] = useState(() =>
     Array.from({ length: COVER_POINTS }, () => {
       const start = Math.random() * (1 - windowWidth);
@@ -37,18 +46,17 @@ export const ShadowWalkGame = ({ difficulty, onResult, crewIds = [], chaosCard }
     })
   );
 
-  const [guardPos, setGuardPos] = useState(0); // 0–1 position on bar
-  const [playerPos, setPlayerPos] = useState(0); // cover point index
+  const [guardPos, setGuardPos] = useState(0);
+  const [playerPos, setPlayerPos] = useState(0);
   const [heat, setHeat] = useState(0);
   const [result, setResult] = useState<boolean | null>(null);
   const frameRef = useRef<number>(0);
   const lastRef = useRef(0);
 
-  // Guard patrol loop
   useEffect(() => {
     if (result !== null) return;
     lastRef.current = performance.now();
-    const speed = 0.0003 + difficulty * 0.00008;
+    const speed = 0.0003 * cfg.patrolSpeed;
     const loop = (now: number) => {
       const dt = now - lastRef.current;
       lastRef.current = now;
@@ -61,7 +69,7 @@ export const ShadowWalkGame = ({ difficulty, onResult, crewIds = [], chaosCard }
     };
     frameRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(frameRef.current);
-  }, [result, difficulty]);
+  }, [result, cfg.patrolSpeed]);
 
   const handleMove = () => {
     if (result !== null) return;
@@ -71,7 +79,7 @@ export const ShadowWalkGame = ({ difficulty, onResult, crewIds = [], chaosCard }
 
     if (!inSafe) {
       SFX.fail();
-      const newHeat = heat + 15;
+      const newHeat = heat + heatPerMistake;
       setHeat(newHeat);
       if (newHeat >= 100) {
         setResult(false);
@@ -122,7 +130,6 @@ export const ShadowWalkGame = ({ difficulty, onResult, crewIds = [], chaosCard }
         border: `1px solid ${THEME.colors.borderFaint}`,
         marginBottom: THEME.space.lg,
       }}>
-        {/* Safe window */}
         {currentWindow && (
           <div style={{
             position: 'absolute', left: `${currentWindow.start * 100}%`,
@@ -132,7 +139,6 @@ export const ShadowWalkGame = ({ difficulty, onResult, crewIds = [], chaosCard }
             borderRight: `2px solid ${THEME.colors.emerald}60`,
           }} />
         )}
-        {/* Guard cursor */}
         <div style={{
           position: 'absolute', left: `${guardPos * 100}%`, top: 4, bottom: 4,
           width: 4, marginLeft: -2, background: THEME.colors.ruby,
@@ -165,9 +171,9 @@ export const ShadowWalkGame = ({ difficulty, onResult, crewIds = [], chaosCard }
         </button>
       )}
 
-      {hasScout && (
-        <div style={{ fontSize: 9, fontFamily: THEME.fonts.mono, color: THEME.colors.emerald, marginTop: THEME.space.sm, letterSpacing: 1 }}>
-          🦅 SCOUT BONUS — Wider safe windows
+      {rawHasScout && (
+        <div style={{ fontSize: 9, fontFamily: THEME.fonts.mono, color: isCrewSuppressed(chaosActive) ? THEME.colors.ruby : THEME.colors.emerald, marginTop: THEME.space.sm, letterSpacing: 1 }}>
+          {isCrewSuppressed(chaosActive) ? '⚠ SCOUT BONUS SUPPRESSED — Chaos active' : '🦅 SCOUT BONUS — Wider safe windows'}
         </div>
       )}
     </div>
@@ -220,7 +226,6 @@ const COLD_READ_QUESTIONS = [
   },
 ];
 
-// Shakedown extra question (no neutral)
 const SHAKEDOWN_QUESTION = {
   question: '"One last thing — what\'s the security code for this sector?"',
   options: [
@@ -231,14 +236,22 @@ const SHAKEDOWN_QUESTION = {
 };
 
 export const ColdReadGame = ({ difficulty, onResult, crewIds = [], chaosCard }: ExtGameProps) => {
-  const hasGrifter = hasCrewRole(crewIds, 'grifter');
-  const shakedown = chaosCard?.id === 'crew_injury'; // maps to "Shakedown"
+  const tier = getDifficultyTier(difficulty);
+  const cfg = DIFFICULTY_CONFIG.coldRead[tier];
+  const chaosActive = isChaosActive(chaosCard);
+  const rawHasGrifter = hasCrewRole(crewIds, 'grifter');
+  const hasGrifter = rawHasGrifter && !isCrewSuppressed(chaosActive);
+  const shakedown = chaosCard?.id === 'crew_injury';
 
   const [questions] = useState(() => {
     const shuffled = [...COLD_READ_QUESTIONS].sort(() => Math.random() - 0.5);
-    const picked = shuffled.slice(0, 3);
-    if (shakedown) picked.push(SHAKEDOWN_QUESTION);
-    return picked;
+    const picked = shuffled.slice(0, cfg.questions);
+    // Remove neutral options for tier 3 (or tier 2 with removeNeutral)
+    const processed = cfg.removeNeutral
+      ? picked.map(q => ({ ...q, options: q.options.filter(o => o.type !== 'neutral') }))
+      : picked;
+    if (shakedown) processed.push(SHAKEDOWN_QUESTION);
+    return processed;
   });
 
   const [qIndex, setQIndex] = useState(0);
@@ -249,7 +262,7 @@ export const ColdReadGame = ({ difficulty, onResult, crewIds = [], chaosCard }: 
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const trustMax = 3;
-  const suspicionMax = 3;
+  const suspicionMax = cfg.suspicionFillAt;
 
   const handleAnswer = (type: 'correct' | 'neutral' | 'suspicious') => {
     if (result !== null) return;
@@ -280,7 +293,6 @@ export const ColdReadGame = ({ difficulty, onResult, crewIds = [], chaosCard }: 
     setSuspicion(newSuspicion);
     setFeedback(fb);
 
-    // Check win/lose conditions
     if (newSuspicion >= suspicionMax) {
       setResult(false);
       if (navigator.vibrate) navigator.vibrate(200);
@@ -329,7 +341,7 @@ export const ColdReadGame = ({ difficulty, onResult, crewIds = [], chaosCard }: 
           </div>
         </div>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 9, fontFamily: THEME.fonts.mono, color: THEME.colors.ruby, marginBottom: 4, letterSpacing: 1 }}>SUSPICION</div>
+          <div style={{ fontSize: 9, fontFamily: THEME.fonts.mono, color: THEME.colors.ruby, marginBottom: 4, letterSpacing: 1 }}>SUSPICION ({suspicion}/{suspicionMax})</div>
           <div style={{ display: 'flex', gap: 3 }}>
             {Array.from({ length: suspicionMax }, (_, i) => (
               <div key={i} style={{
@@ -389,6 +401,12 @@ export const ColdReadGame = ({ difficulty, onResult, crewIds = [], chaosCard }: 
           {result ? '✓ GUARD CONVINCED' : '✗ COVER BLOWN'}
         </div>
       )}
+
+      {rawHasGrifter && (
+        <div style={{ fontSize: 9, fontFamily: THEME.fonts.mono, color: isCrewSuppressed(chaosActive) ? THEME.colors.ruby : THEME.colors.emerald, marginTop: THEME.space.sm, letterSpacing: 1 }}>
+          {isCrewSuppressed(chaosActive) ? '⚠ GRIFTER BONUS SUPPRESSED — Chaos active' : '🎭 GRIFTER BONUS — One wrong answer forgiven'}
+        </div>
+      )}
     </div>
   );
 };
@@ -396,23 +414,23 @@ export const ColdReadGame = ({ difficulty, onResult, crewIds = [], chaosCard }: 
 // ═══════════════════════════════════════════════════════════════
 // MINI-GAME: WIRE TAP — Pipe/circuit rotation puzzle (Hacker role)
 // ═══════════════════════════════════════════════════════════════
-type PipeDir = 0 | 1 | 2 | 3; // 0=up, 1=right, 2=down, 3=left
+type PipeDir = 0 | 1 | 2 | 3;
 interface PipeTile {
-  connections: boolean[]; // [up, right, down, left]
+  connections: boolean[];
   rotation: number;
   locked: boolean;
   preSolved: boolean;
 }
 
 const PIPE_TYPES: boolean[][] = [
-  [true, false, true, false],   // straight vertical
-  [false, true, false, true],   // straight horizontal
-  [true, true, false, false],   // elbow up-right
-  [false, true, true, false],   // elbow right-down
-  [false, false, true, true],   // elbow down-left
-  [true, false, false, true],   // elbow up-left
-  [true, true, true, false],    // T-piece
-  [true, true, false, true],    // T-piece
+  [true, false, true, false],
+  [false, true, false, true],
+  [true, true, false, false],
+  [false, true, true, false],
+  [false, false, true, true],
+  [true, false, false, true],
+  [true, true, true, false],
+  [true, true, false, true],
 ];
 
 function rotatePipe(connections: boolean[], times: number): boolean[] {
@@ -424,18 +442,15 @@ function rotatePipe(connections: boolean[], times: number): boolean[] {
   return c;
 }
 
-function generateGrid(size: number, difficulty: number, hasHacker: boolean) {
-  // Simple grid: generate a path from (0, mid) to (size-1, mid), then randomize rotations
+function generateGrid(size: number, lockedCount: number, hasHacker: boolean) {
   const grid: PipeTile[][] = [];
   const mid = Math.floor(size / 2);
 
   for (let r = 0; r < size; r++) {
     grid[r] = [];
     for (let c = 0; c < size; c++) {
-      // Pick a random pipe type
       const typeIdx = Math.floor(Math.random() * PIPE_TYPES.length);
       const base = [...PIPE_TYPES[typeIdx]];
-      const solvedRotation = 0;
       const randomRotation = Math.floor(Math.random() * 4);
       grid[r][c] = {
         connections: rotatePipe(base, randomRotation),
@@ -446,8 +461,6 @@ function generateGrid(size: number, difficulty: number, hasHacker: boolean) {
     }
   }
 
-  // Add locked tiles for higher difficulties
-  const lockedCount = Math.max(0, difficulty - 2);
   let locked = 0;
   while (locked < lockedCount) {
     const r = Math.floor(Math.random() * size);
@@ -458,7 +471,6 @@ function generateGrid(size: number, difficulty: number, hasHacker: boolean) {
     }
   }
 
-  // Pre-solve 2 tiles if hacker is present
   if (hasHacker) {
     let solved = 0;
     while (solved < 2) {
@@ -475,17 +487,20 @@ function generateGrid(size: number, difficulty: number, hasHacker: boolean) {
 }
 
 export const WireTapGame = ({ difficulty, onResult, crewIds = [], chaosCard }: ExtGameProps) => {
-  const SIZE = 5;
-  const hasHacker = hasCrewRole(crewIds, 'hacker');
-  const emfSurge = chaosCard?.id === 'betrayal'; // maps to "EMF Surge"
+  const tier = getDifficultyTier(difficulty);
+  const cfg = DIFFICULTY_CONFIG.wireTap[tier];
+  const SIZE = cfg.gridSize;
+  const chaosActive = isChaosActive(chaosCard);
+  const rawHasHacker = hasCrewRole(crewIds, 'hacker');
+  const hasHacker = rawHasHacker && !isCrewSuppressed(chaosActive);
+  const emfSurge = chaosCard?.id === 'betrayal';
 
-  const [grid, setGrid] = useState(() => generateGrid(SIZE, difficulty, hasHacker));
-  const [timer, setTimer] = useState(30);
+  const [grid, setGrid] = useState(() => generateGrid(SIZE, cfg.lockedTiles, hasHacker));
+  const [timer, setTimer] = useState(cfg.timer);
   const [result, setResult] = useState<boolean | null>(null);
   const [surged, setSurged] = useState(false);
   const [rotations, setRotations] = useState(0);
 
-  // Timer countdown
   useEffect(() => {
     if (result !== null) return;
     const interval = setInterval(() => {
@@ -502,9 +517,9 @@ export const WireTapGame = ({ difficulty, onResult, crewIds = [], chaosCard }: E
     return () => clearInterval(interval);
   }, [result, onResult]);
 
-  // EMF Surge at 15s
+  // EMF Surge at halfway
   useEffect(() => {
-    if (emfSurge && !surged && timer <= 15 && timer > 0 && result === null) {
+    if (emfSurge && !surged && timer <= cfg.timer / 2 && timer > 0 && result === null) {
       setSurged(true);
       setGrid(prev => {
         const next = prev.map(row => row.map(t => ({ ...t })));
@@ -522,7 +537,7 @@ export const WireTapGame = ({ difficulty, onResult, crewIds = [], chaosCard }: E
         return next;
       });
     }
-  }, [timer, emfSurge, surged, result]);
+  }, [timer, emfSurge, surged, result, cfg.timer, SIZE]);
 
   const handleRotate = (r: number, c: number) => {
     if (result !== null) return;
@@ -536,8 +551,6 @@ export const WireTapGame = ({ difficulty, onResult, crewIds = [], chaosCard }: E
     setRotations(prev => prev + 1);
     SFX.tick();
 
-    // Simple win check: if we've made enough rotations, random success
-    // (Full path-finding is complex; use simplified heuristic)
     if (rotations > SIZE * 2) {
       const chance = 0.15 + (rotations - SIZE * 2) * 0.05;
       if (Math.random() < chance) {
@@ -548,10 +561,9 @@ export const WireTapGame = ({ difficulty, onResult, crewIds = [], chaosCard }: E
     }
   };
 
-  const timerPct = (timer / 30) * 100;
+  const timerPct = (timer / cfg.timer) * 100;
   const timerColor = timerPct > 50 ? THEME.colors.emerald : timerPct > 25 ? THEME.colors.gold : THEME.colors.ruby;
 
-  // Pipe visual characters
   const getPipeChar = (connections: boolean[]): string => {
     const [u, r, d, l] = connections;
     if (u && d && !r && !l) return '│';
@@ -578,7 +590,6 @@ export const WireTapGame = ({ difficulty, onResult, crewIds = [], chaosCard }: E
         Rotate tiles to connect the circuit
       </div>
 
-      {/* Timer */}
       <div style={{ height: 6, background: THEME.colors.dusk, borderRadius: 3, marginBottom: THEME.space.md, overflow: 'hidden', maxWidth: 250, margin: '0 auto 12px' }}>
         <div style={{ height: '100%', width: `${timerPct}%`, background: timerColor, borderRadius: 3, transition: 'width 0.1s linear' }} />
       </div>
@@ -586,10 +597,9 @@ export const WireTapGame = ({ difficulty, onResult, crewIds = [], chaosCard }: E
         {Math.ceil(timer)}s
       </div>
 
-      {/* Grid */}
       <div style={{
         display: 'grid', gridTemplateColumns: `repeat(${SIZE}, 1fr)`, gap: 2,
-        maxWidth: 220, margin: '0 auto', marginBottom: THEME.space.lg,
+        maxWidth: SIZE === 6 ? 260 : 220, margin: '0 auto', marginBottom: THEME.space.lg,
       }}>
         {grid.map((row, r) =>
           row.map((tile, c) => (
@@ -600,7 +610,7 @@ export const WireTapGame = ({ difficulty, onResult, crewIds = [], chaosCard }: E
                 background: tile.locked ? `${THEME.colors.ruby}15` : THEME.colors.ink,
                 border: `1px solid ${tile.locked ? `${THEME.colors.ruby}40` : THEME.colors.borderFaint}`,
                 borderRadius: 2, cursor: tile.locked ? 'not-allowed' : 'pointer',
-                fontSize: 18, fontFamily: THEME.fonts.mono, color: THEME.colors.gold,
+                fontSize: SIZE === 6 ? 14 : 18, fontFamily: THEME.fonts.mono, color: THEME.colors.gold,
                 transition: 'transform 0.15s',
               }}
             >
@@ -610,8 +620,7 @@ export const WireTapGame = ({ difficulty, onResult, crewIds = [], chaosCard }: E
         )}
       </div>
 
-      {/* Source / Terminal labels */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', maxWidth: 220, margin: '0 auto 12px', fontSize: 9, fontFamily: THEME.fonts.mono }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', maxWidth: SIZE === 6 ? 260 : 220, margin: '0 auto 12px', fontSize: 9, fontFamily: THEME.fonts.mono }}>
         <span style={{ color: THEME.colors.emerald }}>⚡ SRC</span>
         <span style={{ color: THEME.colors.sapphire }}>📡 TERM</span>
       </div>
@@ -633,8 +642,12 @@ export const WireTapGame = ({ difficulty, onResult, crewIds = [], chaosCard }: E
 // MINI-GAME: SIGNAL SCRAMBLE — Wave alignment (Comms role)
 // ═══════════════════════════════════════════════════════════════
 export const SignalScrambleGame = ({ difficulty, onResult, crewIds = [], chaosCard }: ExtGameProps) => {
-  const hasComms = hasCrewRole(crewIds, 'comms');
-  const broadcastBleed = chaosCard?.id === 'double_or_nothing'; // maps to "Broadcast Bleed"
+  const tier = getDifficultyTier(difficulty);
+  const cfg = DIFFICULTY_CONFIG.signalScramble[tier];
+  const chaosActive = isChaosActive(chaosCard);
+  const rawHasComms = hasCrewRole(crewIds, 'comms');
+  const hasComms = rawHasComms && !isCrewSuppressed(chaosActive);
+  const broadcastBleed = chaosCard?.id === 'double_or_nothing';
 
   const [frequency, setFrequency] = useState(50);
   const [targetFreq] = useState(() => 30 + Math.random() * 40);
@@ -643,11 +656,12 @@ export const SignalScrambleGame = ({ difficulty, onResult, crewIds = [], chaosCa
   const [result, setResult] = useState<boolean | null>(null);
   const [waveOffset, setWaveOffset] = useState(0);
   const [rogueFreq] = useState(() => 20 + Math.random() * 60);
+  const [gameTime, setGameTime] = useState(0);
   const frameRef = useRef<number>(0);
   const lastRef = useRef(0);
 
-  const HOLD_REQUIRED = 3; // seconds
-  const ALIGNMENT_THRESHOLD = 5 + (5 - difficulty); // tighter at higher difficulty
+  const HOLD_REQUIRED = cfg.holdRequired;
+  const ALIGNMENT_THRESHOLD = 5 + (3 - tier) * 2;
 
   useEffect(() => {
     if (result !== null) return;
@@ -658,18 +672,21 @@ export const SignalScrambleGame = ({ difficulty, onResult, crewIds = [], chaosCa
       lastRef.current = now;
 
       setWaveOffset(prev => prev + dt * 3);
+      setGameTime(prev => prev + dt);
 
-      // Apply drift
+      // Apply drift with speed-up after threshold
       if (!hasComms) {
         setDrift(prev => {
-          const driftSpeed = 0.5 + difficulty * 0.3;
+          let driftSpeed = cfg.driftSpeed;
+          if (cfg.speedUpAfter !== null && gameTime > cfg.speedUpAfter) {
+            driftSpeed *= 1.8;
+          }
           return prev + dt * driftSpeed;
         });
       }
 
-      // Check alignment
       setHoldTime(prev => {
-        const effectiveTarget = targetFreq + (hasComms ? 0 : Math.sin(drift) * (3 + difficulty));
+        const effectiveTarget = targetFreq + (hasComms ? 0 : Math.sin(drift) * (3 + tier * 2));
         const diff = Math.abs(frequency - effectiveTarget);
         if (diff <= ALIGNMENT_THRESHOLD) {
           const next = prev + dt;
@@ -681,7 +698,7 @@ export const SignalScrambleGame = ({ difficulty, onResult, crewIds = [], chaosCa
           }
           return next;
         }
-        return 0; // reset
+        return 0;
       });
 
       frameRef.current = requestAnimationFrame(loop);
@@ -689,9 +706,8 @@ export const SignalScrambleGame = ({ difficulty, onResult, crewIds = [], chaosCa
 
     frameRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(frameRef.current);
-  }, [result, frequency, targetFreq, difficulty, hasComms, drift]);
+  }, [result, frequency, targetFreq, tier, hasComms, drift, gameTime, cfg]);
 
-  // Auto-fail timer (20s)
   useEffect(() => {
     if (result !== null) return;
     const t = setTimeout(() => {
@@ -702,11 +718,10 @@ export const SignalScrambleGame = ({ difficulty, onResult, crewIds = [], chaosCa
     return () => clearTimeout(t);
   }, [result, onResult]);
 
-  const effectiveTarget = targetFreq + (hasComms ? 0 : Math.sin(drift) * (3 + difficulty));
+  const effectiveTarget = targetFreq + (hasComms ? 0 : Math.sin(drift) * (3 + tier * 2));
   const aligned = Math.abs(frequency - effectiveTarget) <= ALIGNMENT_THRESHOLD;
   const holdPct = (holdTime / HOLD_REQUIRED) * 100;
 
-  // Generate wave path
   const renderWave = (freq: number, color: string, yOffset: number) => {
     const points: string[] = [];
     for (let x = 0; x <= 100; x++) {
@@ -714,13 +729,7 @@ export const SignalScrambleGame = ({ difficulty, onResult, crewIds = [], chaosCa
       points.push(`${x},${50 + y}`);
     }
     return (
-      <polyline
-        points={points.join(' ')}
-        fill="none"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
+      <polyline points={points.join(' ')} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" />
     );
   };
 
@@ -734,7 +743,6 @@ export const SignalScrambleGame = ({ difficulty, onResult, crewIds = [], chaosCa
         Align the waves and hold for {HOLD_REQUIRED}s
       </div>
 
-      {/* Hold timer */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', marginBottom: THEME.space.md }}>
         <span style={{ fontSize: 9, fontFamily: THEME.fonts.mono, color: aligned ? THEME.colors.emerald : THEME.colors.textMuted, letterSpacing: 1 }}>LOCK</span>
         <div style={{ width: 100, height: 6, background: THEME.colors.dusk, borderRadius: 3, overflow: 'hidden' }}>
@@ -742,7 +750,6 @@ export const SignalScrambleGame = ({ difficulty, onResult, crewIds = [], chaosCa
         </div>
       </div>
 
-      {/* Wave display */}
       <div style={{
         background: THEME.colors.ink, border: `1px solid ${aligned ? THEME.colors.emerald : THEME.colors.borderFaint}`,
         borderRadius: THEME.radius.md, overflow: 'hidden', marginBottom: THEME.space.md,
@@ -751,16 +758,12 @@ export const SignalScrambleGame = ({ difficulty, onResult, crewIds = [], chaosCa
         transition: 'border-color 0.3s, box-shadow 0.3s',
       }}>
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ width: '100%', height: '100%' }}>
-          {/* Target wave */}
           {renderWave(effectiveTarget, `${THEME.colors.gold}80`, -5)}
-          {/* Player wave */}
           {renderWave(frequency, THEME.colors.sapphire, 5)}
-          {/* Rogue wave (broadcast bleed) */}
           {broadcastBleed && renderWave(rogueFreq, `${THEME.colors.ruby}60`, 0)}
         </svg>
       </div>
 
-      {/* Frequency slider */}
       {result === null && (
         <div style={{ maxWidth: 240, margin: '0 auto' }}>
           <input
@@ -774,9 +777,9 @@ export const SignalScrambleGame = ({ difficulty, onResult, crewIds = [], chaosCa
         </div>
       )}
 
-      {hasComms && (
-        <div style={{ fontSize: 9, fontFamily: THEME.fonts.mono, color: THEME.colors.sapphire, marginTop: THEME.space.sm, letterSpacing: 1 }}>
-          📡 COMMS BONUS — Wave locked in place
+      {rawHasComms && (
+        <div style={{ fontSize: 9, fontFamily: THEME.fonts.mono, color: isCrewSuppressed(chaosActive) ? THEME.colors.ruby : THEME.colors.sapphire, marginTop: THEME.space.sm, letterSpacing: 1 }}>
+          {isCrewSuppressed(chaosActive) ? '⚠ COMMS BONUS SUPPRESSED — Chaos active' : '📡 COMMS BONUS — Wave locked in place'}
         </div>
       )}
 
@@ -801,11 +804,15 @@ const DIR_ARROWS: Record<Direction, string> = { up: '↑', down: '↓', left: '�
 const ALL_DIRS: Direction[] = ['up', 'down', 'left', 'right'];
 
 export const TakedownGame = ({ difficulty, onResult, crewIds = [], chaosCard }: ExtGameProps) => {
-  const hasMuscle = hasCrewRole(crewIds, 'muscle');
-  const twoManPatrol = chaosCard?.id === 'police_raid'; // maps to "Two-Man Patrol"
+  const tier = getDifficultyTier(difficulty);
+  const cfg = DIFFICULTY_CONFIG.takedown[tier];
+  const chaosActive = isChaosActive(chaosCard);
+  const rawHasMuscle = hasCrewRole(crewIds, 'muscle');
+  const hasMuscle = rawHasMuscle && !isCrewSuppressed(chaosActive);
+  const twoManPatrol = chaosCard?.id === 'police_raid';
 
-  const seqLength = difficulty <= 2 ? 4 : difficulty <= 4 ? 5 : 6;
-  const windowDuration = hasMuscle ? 5000 : 3500; // ms, 30% slower shrink
+  const seqLength = cfg.seqLength;
+  const windowDuration = hasMuscle ? Math.round(cfg.windowMs * 1.3) : cfg.windowMs;
 
   const [sequences] = useState(() => {
     const gen = () => Array.from({ length: seqLength }, () => ALL_DIRS[Math.floor(Math.random() * 4)]);
@@ -822,7 +829,6 @@ export const TakedownGame = ({ difficulty, onResult, crewIds = [], chaosCard }: 
   const frameRef = useRef<number>(0);
   const startRef = useRef(0);
 
-  // Show sequence briefly then start timer
   useEffect(() => {
     const t = setTimeout(() => {
       setShowSequence(false);
@@ -831,7 +837,6 @@ export const TakedownGame = ({ difficulty, onResult, crewIds = [], chaosCard }: 
     return () => clearTimeout(t);
   }, [seqIndex]);
 
-  // Ring shrink animation
   useEffect(() => {
     if (showSequence || result !== null) return;
 
@@ -864,9 +869,7 @@ export const TakedownGame = ({ difficulty, onResult, crewIds = [], chaosCard }: 
       setInputIdx(nextIdx);
 
       if (nextIdx >= currentSeq.length) {
-        // Sequence complete
         if (seqIndex + 1 < sequences.length) {
-          // More sequences (two-man patrol)
           setSeqIndex(prev => prev + 1);
           setInputIdx(0);
           setRingSize(100);
@@ -885,7 +888,6 @@ export const TakedownGame = ({ difficulty, onResult, crewIds = [], chaosCard }: 
     }
   };
 
-  // Keyboard support
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       const map: Record<string, Direction> = {
@@ -915,7 +917,6 @@ export const TakedownGame = ({ difficulty, onResult, crewIds = [], chaosCard }: 
         </div>
       )}
 
-      {/* Guard with shrinking ring */}
       <div style={{
         position: 'relative', width: 140, height: 140, margin: '0 auto', marginBottom: THEME.space.lg,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -929,7 +930,6 @@ export const TakedownGame = ({ difficulty, onResult, crewIds = [], chaosCard }: 
         <span style={{ fontSize: 40 }}>💂</span>
       </div>
 
-      {/* Sequence display */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginBottom: THEME.space.lg }}>
         {currentSeq.map((dir, i) => (
           <div key={i} style={{
@@ -949,7 +949,6 @@ export const TakedownGame = ({ difficulty, onResult, crewIds = [], chaosCard }: 
         ))}
       </div>
 
-      {/* D-pad */}
       {!showSequence && result === null && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 48px)', gridTemplateRows: 'repeat(3, 48px)', gap: 4, justifyContent: 'center' }}>
           <div />
@@ -975,6 +974,12 @@ export const TakedownGame = ({ difficulty, onResult, crewIds = [], chaosCard }: 
           {result ? '✓ SILENT TAKEDOWN' : '✗ GUARD ALERTED'}
         </div>
       )}
+
+      {rawHasMuscle && (
+        <div style={{ fontSize: 9, fontFamily: THEME.fonts.mono, color: isCrewSuppressed(chaosActive) ? THEME.colors.ruby : THEME.colors.emerald, marginTop: THEME.space.sm, letterSpacing: 1 }}>
+          {isCrewSuppressed(chaosActive) ? '⚠ MUSCLE BONUS SUPPRESSED — Chaos active' : '💪 MUSCLE BONUS — Slower ring shrink'}
+        </div>
+      )}
     </div>
   );
 };
@@ -990,10 +995,14 @@ const dpadBtn: React.CSSProperties = {
 // MINI-GAME: HOT PURSUIT — Lane-based endless runner (Wheelman role)
 // ═══════════════════════════════════════════════════════════════
 export const HotPursuitGame = ({ difficulty, onResult, crewIds = [], chaosCard }: ExtGameProps) => {
+  const tier = getDifficultyTier(difficulty);
+  const cfg = DIFFICULTY_CONFIG.hotPursuit[tier];
   const LANES = 3;
-  const GAME_DURATION = 20000;
-  const hasWheelman = hasCrewRole(crewIds, 'wheelman');
-  const helicopter = chaosCard?.id === 'fog_cover'; // maps to "Police Helicopter"
+  const GAME_DURATION = cfg.duration;
+  const chaosActive = isChaosActive(chaosCard);
+  const rawHasWheelman = hasCrewRole(crewIds, 'wheelman');
+  const hasWheelman = rawHasWheelman && !isCrewSuppressed(chaosActive);
+  const helicopter = chaosCard?.id === 'fog_cover';
 
   const [playerLane, setPlayerLane] = useState(1);
   const [obstacles, setObstacles] = useState<{ id: number; lane: number; y: number; type: string }[]>([]);
@@ -1013,8 +1022,8 @@ export const HotPursuitGame = ({ difficulty, onResult, crewIds = [], chaosCard }
     lastSpawnRef.current = performance.now();
     lastSpotlightRef.current = performance.now();
 
-    const baseSpeed = 0.12 + difficulty * 0.025;
-    const spawnInterval = Math.max(500, 1000 - difficulty * 80);
+    const baseSpeed = 0.08 * cfg.baseSpeed;
+    const spawnInterval = Math.max(400, 900 - tier * 100);
 
     const loop = (now: number) => {
       const dt = now - lastTimeRef.current;
@@ -1031,17 +1040,30 @@ export const HotPursuitGame = ({ difficulty, onResult, crewIds = [], chaosCard }
         return next;
       });
 
-      // Speed increases over time
-      const timeMultiplier = 1 + (elapsed / GAME_DURATION) * 0.8;
+      // Speed ramp
+      let timeMultiplier = 1;
+      if (cfg.speedRampAfter !== null && elapsed > cfg.speedRampAfter * 1000) {
+        timeMultiplier = 1 + ((elapsed - cfg.speedRampAfter * 1000) / (GAME_DURATION - cfg.speedRampAfter * 1000)) * 1.2;
+      }
       const speed = baseSpeed * timeMultiplier;
 
       // Spawn obstacles
       if (now - lastSpawnRef.current > spawnInterval) {
         lastSpawnRef.current = now;
-        const lane = Math.floor(Math.random() * LANES);
+        const maxLanes = cfg.obstacleLanes;
+        const lane = Math.floor(Math.random() * maxLanes);
         obstacleIdRef.current++;
-        const type = Math.random() < 0.3 ? '🚧' : '🚔';
-        setObstacles(prev => [...prev, { id: obstacleIdRef.current, lane, y: -10, type }]);
+        const type = cfg.roadblockClusters && Math.random() < 0.25 ? '🚧' : '🚔';
+        setObstacles(prev => {
+          const newObs = [{ id: obstacleIdRef.current, lane, y: -10, type }];
+          // Roadblock clusters: spawn a second obstacle in adjacent lane
+          if (cfg.roadblockClusters && type === '🚧' && maxLanes >= 2) {
+            const adjLane = (lane + 1) % maxLanes;
+            obstacleIdRef.current++;
+            newObs.push({ id: obstacleIdRef.current, lane: adjLane, y: -8, type: '🚧' });
+          }
+          return [...prev, ...newObs];
+        });
       }
 
       // Helicopter spotlight
@@ -1060,9 +1082,8 @@ export const HotPursuitGame = ({ difficulty, onResult, crewIds = [], chaosCard }
 
     frameRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(frameRef.current);
-  }, [result, difficulty, elapsed, helicopter]);
+  }, [result, cfg, elapsed, helicopter, GAME_DURATION, tier]);
 
-  // Collision detection
   useEffect(() => {
     if (result !== null) return;
     for (const obs of obstacles) {
@@ -1079,7 +1100,6 @@ export const HotPursuitGame = ({ difficulty, onResult, crewIds = [], chaosCard }
         break;
       }
     }
-    // Spotlight collision
     if (spotlightLane !== null && spotlightLane === playerLane) {
       if (lives > 1) {
         setLives(prev => prev - 1);
@@ -1115,7 +1135,6 @@ export const HotPursuitGame = ({ difficulty, onResult, crewIds = [], chaosCard }
         Dodge traffic for {Math.ceil(GAME_DURATION / 1000)}s. Tap lanes to move.
       </div>
 
-      {/* Timer + Lives */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: THEME.space.sm }}>
         <div style={{ fontSize: 14, fontFamily: THEME.fonts.mono, color: timeLeft <= 5 ? THEME.colors.ruby : THEME.colors.gold }}>{timeLeft}s</div>
         <div style={{ flex: 1, maxWidth: 120, height: 4, background: THEME.colors.dusk, borderRadius: 2, overflow: 'hidden' }}>
@@ -1126,7 +1145,6 @@ export const HotPursuitGame = ({ difficulty, onResult, crewIds = [], chaosCard }
         </div>
       </div>
 
-      {/* Road */}
       <div
         onClick={handleTap}
         onTouchStart={handleTap}
@@ -1138,7 +1156,6 @@ export const HotPursuitGame = ({ difficulty, onResult, crewIds = [], chaosCard }
           cursor: 'pointer', touchAction: 'none',
         }}
       >
-        {/* Lane dividers */}
         {[1, 2].map(i => (
           <div key={i} style={{
             position: 'absolute', left: `${(i / LANES) * 100}%`, top: 0, bottom: 0,
@@ -1146,7 +1163,6 @@ export const HotPursuitGame = ({ difficulty, onResult, crewIds = [], chaosCard }
           }} />
         ))}
 
-        {/* Road scroll */}
         <div style={{
           position: 'absolute', top: 0, left: '50%', width: 3, height: '200%',
           transform: 'translateX(-50%)',
@@ -1154,7 +1170,6 @@ export const HotPursuitGame = ({ difficulty, onResult, crewIds = [], chaosCard }
           animation: 'roadScroll 0.6s linear infinite',
         }} />
 
-        {/* Helicopter spotlight */}
         {spotlightLane !== null && (
           <div style={{
             position: 'absolute',
@@ -1167,7 +1182,6 @@ export const HotPursuitGame = ({ difficulty, onResult, crewIds = [], chaosCard }
           }} />
         )}
 
-        {/* Obstacles */}
         {obstacles.map(obs => (
           <div key={obs.id} style={{
             position: 'absolute',
@@ -1179,7 +1193,6 @@ export const HotPursuitGame = ({ difficulty, onResult, crewIds = [], chaosCard }
           </div>
         ))}
 
-        {/* Player car */}
         <div style={{
           position: 'absolute',
           left: `${(playerLane / LANES) * 100 + 100 / LANES / 2 - 12}%`,
@@ -1195,6 +1208,12 @@ export const HotPursuitGame = ({ difficulty, onResult, crewIds = [], chaosCard }
       {helicopter && (
         <div style={{ fontSize: 9, fontFamily: THEME.fonts.mono, color: THEME.colors.gold, marginTop: THEME.space.sm, letterSpacing: 1 }}>
           🚁 HELICOPTER OVERHEAD
+        </div>
+      )}
+
+      {rawHasWheelman && (
+        <div style={{ fontSize: 9, fontFamily: THEME.fonts.mono, color: isCrewSuppressed(chaosActive) ? THEME.colors.ruby : THEME.colors.emerald, marginTop: THEME.space.sm, letterSpacing: 1 }}>
+          {isCrewSuppressed(chaosActive) ? '⚠ WHEELMAN BONUS SUPPRESSED — Chaos active' : '🏎️ WHEELMAN BONUS — Extra life'}
         </div>
       )}
 

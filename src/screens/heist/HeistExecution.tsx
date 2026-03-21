@@ -5,6 +5,7 @@ import { LockPickGame, WireCutGame, SafeComboGame, PressureValveGame, TailGame, 
 import { ShadowWalkGame, ColdReadGame, WireTapGame, SignalScrambleGame, TakedownGame, HotPursuitGame } from './MiniGamesExtended';
 import { SFX, Haptics } from '@/lib/sounds';
 import { ResultOverlay, BlackFlash, MiniGameHUD, PolishStyles } from './MiniGamePolish';
+import { getDifficultyTier, calculatePayout, formatPayoutBreakdown, getFailureHeat, isCrewSuppressed } from '@/lib/difficultyConfig';
 
 interface HeistExecutionProps {
   vault: typeof VAULTS[number];
@@ -13,9 +14,6 @@ interface HeistExecutionProps {
   onComplete: (results: { miniGameResults: boolean[] }) => void;
 }
 
-// ═══════════════════════════════════════════════════════
-// Tier-based mini-game sequencing — expanded with 6 new games
-// ═══════════════════════════════════════════════════════
 type GameType = 'lock' | 'combo' | 'wire' | 'tail' | 'interrogation' | 'shadow' | 'coldread' | 'wiretap' | 'signal' | 'takedown' | 'pursuit';
 
 function getGameSequence(tier: number): GameType[] {
@@ -45,9 +43,7 @@ const GAME_ROLES: Record<GameType, string> = {
   signal: 'COMMS', takedown: 'MUSCLE', pursuit: 'WHEELMAN',
 };
 
-// ═══════════════════════════════════════════════════════
-// Jewel Shimmer — hidden sparkle tap target
-// ═══════════════════════════════════════════════════════
+// Jewel Shimmer
 const JewelShimmer = ({ onCollect }: { vaultTier: number; onCollect: () => void }) => {
   const [visible, setVisible] = useState(false);
   const [position, setPosition] = useState({ x: 50, y: 50 });
@@ -92,6 +88,23 @@ const JewelShimmer = ({ onCollect }: { vaultTier: number; onCollect: () => void 
 
 const HeistExecution = ({ vault, crewIds, chaosCard, onComplete }: HeistExecutionProps) => {
   const skipMinigame = chaosCard.effect === 'skip_minigame';
+  const tier = getDifficultyTier(vault.difficulty);
+  const chaosActive = chaosCard.effect !== 'payout_bonus' && chaosCard.effect !== 'loyalty_boost';
+  const crewSuppressed = isCrewSuppressed(chaosActive);
+
+  // Check if relevant crew role is active for current game
+  const hasRelevantCrew = (gameType: GameType): boolean => {
+    const roleMap: Record<string, string> = {
+      shadow: 'scout', coldread: 'grifter', wiretap: 'hacker',
+      signal: 'comms', takedown: 'muscle', pursuit: 'wheelman',
+    };
+    const role = roleMap[gameType];
+    if (!role) return false;
+    return crewIds.some(id => {
+      const m = CREW_MEMBERS.find(c => c.id === id);
+      return m?.role.toLowerCase() === role;
+    });
+  };
 
   const [games] = useState(() => getGameSequence(vault.tier));
   const [currentGame, setCurrentGame] = useState(0);
@@ -99,8 +112,9 @@ const HeistExecution = ({ vault, crewIds, chaosCard, onComplete }: HeistExecutio
   const [phase, setPhase] = useState<'intro' | 'entering' | 'playing' | 'result' | 'blackflash' | 'transitioning'>('intro');
   const [shimmerCollected, setShimmerCollected] = useState(false);
   const [lastResult, setLastResult] = useState<boolean | null>(null);
+  const [payoutText, setPayoutText] = useState<string>('');
+  const [heatText, setHeatText] = useState<string>('');
 
-  // Auto-skip first minigame if chaos card says so
   useEffect(() => {
     if (skipMinigame && currentGame === 0 && phase === 'intro') {
       setResults([true]);
@@ -112,7 +126,6 @@ const HeistExecution = ({ vault, crewIds, chaosCard, onComplete }: HeistExecutio
     }
   }, [skipMinigame, currentGame, phase, games.length, onComplete]);
 
-  // Intro → entering (with fadeInScale)
   useEffect(() => {
     if (phase === 'intro') {
       const t = setTimeout(() => setPhase('entering'), 2000);
@@ -124,9 +137,8 @@ const HeistExecution = ({ vault, crewIds, chaosCard, onComplete }: HeistExecutio
     }
   }, [phase]);
 
-  // Play chaos sound on mount if chaos is active
   useEffect(() => {
-    if (chaosCard.effect !== 'payout_bonus' && chaosCard.effect !== 'loyalty_boost') {
+    if (chaosActive) {
       SFX.chaos();
     }
   }, []);
@@ -140,13 +152,23 @@ const HeistExecution = ({ vault, crewIds, chaosCard, onComplete }: HeistExecutio
       Haptics.fail();
     }
 
+    const currentGameType = games[currentGame];
+    const crewBonusActive = hasRelevantCrew(currentGameType) && !crewSuppressed;
+    // For now assume perfect = success (simplified; a full implementation would track mistakes per game)
+    const payout = calculatePayout(tier, success, success, crewBonusActive, chaosActive && success);
+    const breakdown = formatPayoutBreakdown(payout);
+
+    const failHeat = getFailureHeat(tier);
+    const chaosExtraHeat = chaosActive && !success ? 10 : 0;
+
+    setPayoutText(success ? breakdown : '');
+    setHeatText(!success ? `+${failHeat + chaosExtraHeat}% HEAT` : '');
+
     setLastResult(success);
     const newResults = [...results, success];
     setResults(newResults);
     setPhase('result');
-
-    // Result overlay auto-advances after 2.5s (or click)
-  }, [results]);
+  }, [results, games, currentGame, tier, chaosActive, crewSuppressed]);
 
   const handleResultDismiss = useCallback(() => {
     setPhase('blackflash');
@@ -191,36 +213,32 @@ const HeistExecution = ({ vault, crewIds, chaosCard, onComplete }: HeistExecutio
     }}>
       <PolishStyles />
 
-      {/* HUD */}
       <MiniGameHUD
         vaultTier={vault.tier}
         crewIds={crewIds}
         chaosCard={chaosCard}
         currentGameType={currentGameType}
         visible={phase === 'playing' || phase === 'entering'}
+        crewSuppressed={crewSuppressed}
       />
 
-      {/* Jewel Shimmer overlay */}
       {(phase === 'playing' || phase === 'entering') && !shimmerCollected && (
         <JewelShimmer vaultTier={vault.tier} onCollect={() => setShimmerCollected(true)} />
       )}
 
-      {/* Result overlay */}
       {phase === 'result' && lastResult !== null && (
         <ResultOverlay
           success={lastResult}
           roleName={lastResult ? `${roleName} CLEAR` : undefined}
-          payoutMultiplier={lastResult ? '×1.2 PAYOUT' : undefined}
-          heatPenalty={!lastResult ? '+15% HEAT' : undefined}
+          payoutMultiplier={payoutText || undefined}
+          heatPenalty={heatText || undefined}
           onDismiss={handleResultDismiss}
         />
       )}
 
-      {/* Black flash transition */}
       {phase === 'blackflash' && <BlackFlash onDone={handleBlackFlashDone} />}
 
       <div style={{ maxWidth: 480, margin: '0 auto', width: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {/* Header */}
         <div style={{ textAlign: 'center', paddingTop: THEME.space.xl, marginBottom: THEME.space.xl }}>
           <div style={S.eyebrow}>{vault.name}</div>
           <h1 style={{ ...S.h1, fontSize: 20, marginBottom: THEME.space.sm }}>
@@ -235,7 +253,6 @@ const HeistExecution = ({ vault, crewIds, chaosCard, onComplete }: HeistExecutio
             </div>
           )}
 
-          {/* Progress dots */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
             {games.map((_, i) => (
               <div key={i} style={{
@@ -268,7 +285,6 @@ const HeistExecution = ({ vault, crewIds, chaosCard, onComplete }: HeistExecutio
           )}
         </div>
 
-        {/* Game area */}
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {phase === 'intro' && (
             <div style={{

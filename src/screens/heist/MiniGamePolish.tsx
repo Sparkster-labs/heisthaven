@@ -232,7 +232,7 @@ const GAME_ROLES: Record<string, string> = {
   lock: 'Lockpick', combo: '', wire: 'Hacker', tail: '', interrogation: '',
 };
 
-export const MiniGameHUD = ({ vaultTier, crewIds, chaosCard, currentGameType, visible }: MiniGameHUDProps) => {
+export const MiniGameHUD = ({ vaultTier, crewIds, chaosCard, currentGameType, visible, crewSuppressed }: MiniGameHUDProps) => {
   const activeCrewBonuses = crewIds
     .map(id => CREW_MEMBERS.find(c => c.id === id))
     .filter(Boolean)
