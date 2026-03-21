@@ -105,7 +105,7 @@ const VaultSelectScreen = ({ vault, onCommit, onBack }: VaultSelectScreenProps) 
             marginBottom: THEME.space.xl,
           }}
         >
-          {vaultDescriptions[vault.id] || 'A target worth your attention.'}
+          {'flavor' in vault ? (vault as any).flavor : 'A target worth your attention.'}
         </p>
 
         {/* Stats dossier */}

@@ -193,7 +193,8 @@ const JobBoardScreen = ({ activeTab, onTabChange, onSelectVault }: JobBoardScree
                 <div style={{ paddingLeft: THEME.space.md }}>
                   {/* Top row: name + chain */}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: THEME.space.xs }}>
-                    <div style={{ fontFamily: THEME.fonts.display, fontSize: 16, color: THEME.colors.gold, letterSpacing: 1 }}>
+                     <div style={{ fontFamily: THEME.fonts.display, fontSize: 16, color: THEME.colors.gold, letterSpacing: 1 }}>
+                      {'emoji' in job.vault ? <span style={{ marginRight: 6 }}>{(job.vault as any).emoji}</span> : null}
                       {job.vault.name}
                       {job.isChain && <span style={{ marginLeft: 8 }} title="Chain job">🔗</span>}
                     </div>
