@@ -88,7 +88,6 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom, onOpenIAP, onOpen
     return (
       <div style={S.page}>
         <SkeletonLoader variant="safehouse" />
-        <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
       </div>
     );
   }
