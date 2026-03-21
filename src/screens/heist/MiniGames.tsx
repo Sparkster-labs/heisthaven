@@ -38,6 +38,7 @@ export const LockPickGame = ({ difficulty, onResult }: LockPickProps) => {
     setLocked(true);
     const hit = position >= sweetSpotStart && position <= sweetSpotStart + sweetSpotWidth;
     setResult(hit);
+    if (hit) SFX.tick(); else SFX.fail();
     if (navigator.vibrate) navigator.vibrate(hit ? 50 : 200);
     setTimeout(() => onResult(hit), 1200);
   }, [locked, position, sweetSpotStart, sweetSpotWidth, onResult]);
