@@ -367,14 +367,15 @@ const DressingRoomScreen = ({ onBack, onOpenPhotoMode }: DressingRoomScreenProps
               {filteredItems.map(item => {
                 const owned = ownedItemIds.has(item.id);
                 const isEquipped = equippedItems[item.cat as keyof EquippedItems] === item.id;
-                const isLegendary = 'setId' in item;
-                const canAfford = playerCash >= item.cashCost && (!item.jewel || (playerJewels[item.jewel] || 0) >= item.jewelCost);
+                const isLegendary = !!item._isLegendary;
+                const clothingItem = !isLegendary ? item as typeof CLOTHING_ITEMS[number] : null;
+                const canAfford = clothingItem ? playerCash >= clothingItem.cashCost && (!clothingItem.jewel || (playerJewels[clothingItem.jewel] || 0) >= clothingItem.jewelCost) : false;
                 return (
                   <button
                     key={item.id}
                     onClick={() => {
                       if (owned) toggleEquip(item.cat, item.id);
-                      else if (!isLegendary) buyItem(item);
+                      else if (!isLegendary && clothingItem) buyItem(clothingItem);
                     }}
                     onMouseDown={() => setPreviewItem(item.id)}
                     onMouseUp={() => setPreviewItem(null)}
@@ -390,7 +391,6 @@ const DressingRoomScreen = ({ onBack, onOpenPhotoMode }: DressingRoomScreenProps
                     <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 4 }}>
                       <ItemThumbnail category={item.cat} color={item.color} size={48} goldAccent={'goldAccent' in item && !!(item as any).goldAccent} />
                     </div>
-                    {/* Status badge */}
                     {isEquipped && (
                       <div style={{
                         position: 'absolute', top: 3, right: 3, width: 16, height: 16, borderRadius: '50%',
@@ -398,13 +398,13 @@ const DressingRoomScreen = ({ onBack, onOpenPhotoMode }: DressingRoomScreenProps
                         display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700,
                       }}>✓</div>
                     )}
-                    {!owned && !isLegendary && (
+                    {!owned && !isLegendary && clothingItem && (
                       <div style={{
                         position: 'absolute', top: 3, left: 3, fontSize: 7, padding: '1px 4px', borderRadius: 8,
-                        background: canAfford ? `${THEME.colors.gold}30` : `${THEME.colors.crimson}20`,
-                        color: canAfford ? THEME.colors.gold : THEME.colors.crimson,
+                        background: canAfford ? `${THEME.colors.gold}30` : `${THEME.colors.danger}20`,
+                        color: canAfford ? THEME.colors.gold : THEME.colors.danger,
                         fontFamily: THEME.fonts.mono,
-                      }}>{formatCash(item.cashCost)}</div>
+                      }}>{formatCash(clothingItem.cashCost)}</div>
                     )}
                     {!owned && isLegendary && (
                       <div style={{ position: 'absolute', top: 3, left: 3, fontSize: 12, opacity: 0.6 }}>🔒</div>
