@@ -228,6 +228,7 @@ const DistrictActivityScreen = ({ districtId, districtName, cityColor, onBack, o
   const [fightMatchup, setFightMatchup] = useState<Fighter[]>([]);
   const [selectedFighterId, setSelectedFighterId] = useState<string | null>(null);
   const [fightWinnerId, setFightWinnerId] = useState<string | null>(null);
+  const [selectedTrainCrewId, setSelectedTrainCrewId] = useState<string | null>(null);
 
   const activities = DISTRICT_ACTIVITIES[districtId] || [];
   const gamblingConfig = GAMBLING_CONFIG[districtId];
