@@ -372,7 +372,7 @@ const LeaderboardScreen = ({ activeTab, onTabChange }: LeaderboardScreenProps) =
         )}
       </div>
 
-      <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
+      
     </div>
   );
 };

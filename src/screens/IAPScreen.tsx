@@ -309,7 +309,7 @@ const IAPScreen = ({ activeTab, onTabChange, onBack }: IAPScreenProps) => {
         </div>
       </div>
 
-      <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
+      
     </div>
   );
 };

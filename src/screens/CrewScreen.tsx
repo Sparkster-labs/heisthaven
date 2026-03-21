@@ -262,7 +262,7 @@ const CrewScreen = ({ activeTab, onTabChange }: CrewScreenProps) => {
         </div>
       )}
 
-      <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
+      
     </div>
   );
 };

@@ -506,7 +506,7 @@ const ProfileScreen = ({ activeTab, onTabChange }: ProfileScreenProps) => {
         </div>
       )}
 
-      <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
+      
     </div>
   );
 };

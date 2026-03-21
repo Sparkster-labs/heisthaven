@@ -476,7 +476,7 @@ const CityMapScreen = ({ activeTab, onTabChange, onOpenDistrict }: CityMapScreen
         );
       })()}
 
-      <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
+      
     </div>
   );
 };

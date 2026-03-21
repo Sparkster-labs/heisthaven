@@ -346,7 +346,7 @@ const BlackMarketScreen = ({ activeTab, onTabChange }: BlackMarketScreenProps) =
         </div>
       </div>
 
-      <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
+      
     </div>
   );
 };

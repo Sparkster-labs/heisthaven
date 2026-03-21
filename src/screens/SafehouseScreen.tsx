@@ -291,7 +291,7 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom, onOpenIAP, onOpen
         />
       )}
 
-      <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
+      
     </div>
   );
 };

@@ -33,7 +33,7 @@ const PlaceholderScreen = ({ title, activeTab, onTabChange }: PlaceholderScreenP
           {title}
         </div>
       </div>
-      <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
+      
     </div>
   );
 };

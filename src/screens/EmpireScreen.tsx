@@ -297,7 +297,7 @@ const EmpireScreen = ({ activeTab, onTabChange }: EmpireScreenProps) => {
           })}
         </div>
       </div>
-      <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
+      
     </div>
   );
 };

@@ -306,7 +306,7 @@ const JobBoardScreen = ({ activeTab, onTabChange, onSelectVault }: JobBoardScree
         </button>
       </div>
 
-      <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
+      
     </div>
   );
 };
