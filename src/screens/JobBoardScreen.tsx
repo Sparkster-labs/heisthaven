@@ -232,6 +232,19 @@ const JobBoardScreen = ({ activeTab, onTabChange, onSelectVault }: JobBoardScree
                     {formatDistrict(job.vault.district)}
                   </div>
 
+                  {/* Flavor text */}
+                  {'flavor' in job.vault && (
+                    <div style={{
+                      fontFamily: THEME.fonts.body, fontStyle: 'italic', fontSize: 11,
+                      color: THEME.colors.textMuted, lineHeight: 1.5,
+                      marginBottom: THEME.space.sm,
+                      overflow: 'hidden', textOverflow: 'ellipsis',
+                      display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as any,
+                    }}>
+                      {(job.vault as any).flavor}
+                    </div>
+                  )}
+
                   {/* Stats row */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: THEME.space.lg, marginBottom: THEME.space.sm }}>
                     {/* Buy-in */}
