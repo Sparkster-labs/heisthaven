@@ -604,7 +604,7 @@ const DistrictActivityScreen = ({ districtId, districtName, cityColor, onBack, o
       setCrewStates((prev) => prev.map((row) => (row.crew_id === crewId ? { ...row, unlocked: true } : row)));
     } else {
       await supabase.from('crew_state').insert({ user_id: user.id, crew_id: crewId, unlocked: true, level: 1, loyalty: 60 });
-      setCrewStates((prev) => [...prev, { crew_id: crewId, unlocked: true }]);
+      setCrewStates((prev) => [...prev, { crew_id: crewId, unlocked: true, level: 1, loyalty: 60 }]);
     }
 
     setCash(nextCash);
