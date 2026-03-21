@@ -61,6 +61,7 @@ export const S = {
     fontFamily: THEME.fonts.mono,
     color: THEME.colors.textPrimary,
     overflowX: 'hidden' as const,
+    paddingBottom: 72,
   },
   card: {
     background: THEME.colors.ink,
