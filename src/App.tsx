@@ -96,6 +96,11 @@ const AppInner = () => {
     return <AuthScreen onAuth={() => {}} />;
   }
 
+  // Jail screen — blocks all navigation
+  if (isJailed) {
+    return <JailScreen onRelease={() => navigate(() => { setIsJailed(false); setActiveTab('home'); })} />;
+  }
+
   // Sub-screens (accessible from Safehouse quick links)
   if (subScreen === 'held_loot') {
     return <HeldLootScreen onBack={() => navigate(() => setSubScreen(null))} />;
@@ -127,7 +132,7 @@ const AppInner = () => {
 
   // Heist phases
   if (selectedVault && heistPhase === 'results' && chaosCard && heistOutcome) {
-    return <HeistResults vault={selectedVault} crewIds={selectedCrewIds} chaosCard={chaosCard} miniGameResults={heistOutcome.miniGameResults} onFinish={() => navigate(() => { setHeistPhase(null); setSelectedVault(null); setSelectedCrewIds([]); setChaosCard(null); setHeistOutcome(null); setActiveTab('home'); })} />;
+    return <HeistResults vault={selectedVault} crewIds={selectedCrewIds} chaosCard={chaosCard} miniGameResults={heistOutcome.miniGameResults} onFinish={() => navigate(() => { setHeistPhase(null); setSelectedVault(null); setSelectedCrewIds([]); setChaosCard(null); setHeistOutcome(null); setActiveTab('home'); })} onJailed={() => navigate(() => { setHeistPhase(null); setSelectedVault(null); setSelectedCrewIds([]); setChaosCard(null); setHeistOutcome(null); setIsJailed(true); })} />;
   }
   if (selectedVault && heistPhase === 'execution' && chaosCard) {
     return <HeistExecution vault={selectedVault} crewIds={selectedCrewIds} chaosCard={chaosCard} onComplete={(outcome) => { setHeistOutcome(outcome); setHeistPhase('results'); }} />;
