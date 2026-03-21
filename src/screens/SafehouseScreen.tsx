@@ -233,7 +233,7 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom, onOpenIAP, onOpen
                 key={room.id}
                 onClick={() => {
                   const roomTierVal = safehouse.rooms[room.id] || 0;
-                  const navigableRooms = ['vault', 'war_room', 'dressing_room'];
+                  const navigableRooms = ['vault', 'war_room'];
                   if (roomTierVal >= 1 && navigableRooms.includes(room.id) && onOpenRoom) {
                     onOpenRoom(room.id);
                   } else {
