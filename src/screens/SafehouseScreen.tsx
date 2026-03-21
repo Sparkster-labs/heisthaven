@@ -18,6 +18,9 @@ interface SafehouseScreenProps {
   onOpenIAP?: () => void;
   onOpenBlackMarket?: () => void;
   onOpenHeldLoot?: () => void;
+  onOpenEmpire?: () => void;
+  onOpenCity?: () => void;
+  onOpenCrew?: () => void;
 }
 
 interface ProfileData {
@@ -35,7 +38,7 @@ interface SafehouseData {
   rooms: Record<string, number>;
 }
 
-const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom, onOpenIAP, onOpenBlackMarket, onOpenHeldLoot }: SafehouseScreenProps) => {
+const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom, onOpenIAP, onOpenBlackMarket, onOpenHeldLoot, onOpenEmpire, onOpenCity, onOpenCrew }: SafehouseScreenProps) => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [safehouse, setSafehouse] = useState<SafehouseData | null>(null);
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
@@ -91,23 +94,24 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom, onOpenIAP, onOpen
   }
 
   const jewelsWithCount = Object.entries(profile.jewels).filter(([, count]) => count > 0);
-  const jewelColors: Record<string, string> = {
-    pearl: THEME.colors.pearl,
-    sapphire: THEME.colors.sapphire,
-    emerald: THEME.colors.emerald,
-    ruby: THEME.colors.ruby,
-    diamond: THEME.colors.diamond,
-  };
   const jewelEmojis: Record<string, string> = {
     pearl: '🤍', sapphire: '💙', emerald: '💚', ruby: '❤️', diamond: '💎',
   };
+
+  const quickLinks = [
+    { emoji: '🏛️', label: 'EMPIRE', onClick: onOpenEmpire },
+    { emoji: '🗺️', label: 'CITY', onClick: onOpenCity },
+    { emoji: '👥', label: 'CREW', onClick: onOpenCrew },
+    { emoji: '🏪', label: 'MARKET', onClick: onOpenBlackMarket },
+    { emoji: '💎', label: 'FENCE', onClick: onOpenIAP },
+  ];
 
   return (
     <div style={S.page} className="screen-enter">
       {/* TOP BAR */}
       <div
         style={{
-          position: 'fixed',
+          position: 'sticky',
           top: 0,
           left: 0,
           right: 0,
@@ -172,11 +176,11 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom, onOpenIAP, onOpen
         </div>
       </div>
 
-      {/* ROOM GRID */}
+      {/* MAIN CONTENT */}
       <div
         style={{
-          paddingTop: 100,
-          paddingBottom: 80,
+          paddingTop: THEME.space.md,
+          paddingBottom: THEME.space.md,
           paddingLeft: THEME.space.md,
           paddingRight: THEME.space.md,
           maxWidth: 480,
@@ -186,46 +190,33 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom, onOpenIAP, onOpen
         {/* HELD LOOT BANNER */}
         <HeldLootBanner onNavigateToLoot={onOpenHeldLoot} />
 
-        {/* Quick links */}
-        <div style={{ display: 'flex', gap: THEME.space.sm, marginBottom: THEME.space.md }}>
-          {onOpenBlackMarket && (
+        {/* Quick links row */}
+        <div style={{ display: 'flex', gap: THEME.space.xs, marginBottom: THEME.space.md, overflowX: 'auto' }}>
+          {quickLinks.filter(l => l.onClick).map((link) => (
             <button
-              onClick={onOpenBlackMarket}
+              key={link.label}
+              onClick={link.onClick}
+              className="tap-active"
               style={{
-                flex: 1,
                 ...S.btnGhost,
-                padding: '8px',
-                fontSize: 9,
+                padding: '8px 10px',
+                fontSize: 8,
                 display: 'flex',
+                flexDirection: 'column',
                 alignItems: 'center',
-                justifyContent: 'center',
-                gap: 4,
+                gap: 3,
+                minWidth: 56,
+                flex: '0 0 auto',
+                width: 'auto',
               }}
             >
-              🏪 BLACK MARKET
+              <span style={{ fontSize: 18 }}>{link.emoji}</span>
+              {link.label}
             </button>
-          )}
-          {onOpenIAP && (
-            <button
-              onClick={onOpenIAP}
-              style={{
-                flex: 1,
-                ...S.btnGhost,
-                padding: '8px',
-                fontSize: 9,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 4,
-                borderColor: `${THEME.colors.gold}30`,
-                color: THEME.colors.goldMid,
-              }}
-            >
-              💎 THE FENCE
-            </button>
-          )}
+          ))}
         </div>
 
+        {/* ROOM GRID */}
         <div
           className="stagger-children"
           style={{
@@ -258,14 +249,6 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom, onOpenIAP, onOpen
                   position: 'relative',
                 }}
                 className="tap-active"
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.borderColor = THEME.colors.borderBright;
-                  (e.currentTarget as HTMLDivElement).style.opacity = isUnlocked ? '1' : '0.6';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.borderColor = THEME.colors.borderFaint;
-                  (e.currentTarget as HTMLDivElement).style.opacity = isUnlocked ? '1' : '0.4';
-                }}
               >
                 <div style={{ fontSize: 32, marginBottom: THEME.space.sm }}>{room.emoji}</div>
                 <div
