@@ -236,6 +236,24 @@ const CrewHireScreen = ({ vault, onLaunch, onBack }: CrewHireScreenProps) => {
                   </div>
                 </div>
 
+                {/* Ability tags */}
+                {CREW_ABILITY_TAGS[cs.crew_id] && (
+                  <div style={{
+                    display: 'flex', flexWrap: 'wrap', gap: 4, paddingLeft: 56, marginTop: 4,
+                  }}>
+                    {CREW_ABILITY_TAGS[cs.crew_id].map((tag, i) => (
+                      <span key={i} style={{
+                        fontSize: 7, fontFamily: THEME.fonts.display, letterSpacing: 1,
+                        padding: '2px 6px', borderRadius: THEME.radius.pill,
+                        background: `${tag.color}15`, color: tag.color,
+                        border: `1px solid ${tag.color}30`,
+                      }}>
+                        {tag.label}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
                 {/* Flavor text */}
                 <div style={{
                   fontSize: 10, fontFamily: THEME.fonts.body, fontStyle: 'italic',
