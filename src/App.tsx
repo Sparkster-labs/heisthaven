@@ -125,6 +125,8 @@ const AppInner = () => {
     content = <CrewScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} />;
   } else if (subScreen === 'district_activity' && districtInfo) {
     content = <DistrictActivityScreen districtId={districtInfo.id} districtName={districtInfo.name} cityColor={districtInfo.color} onBack={() => navigate(() => { setSubScreen('city'); setDistrictInfo(null); })} />;
+  } else if (subScreen === 'achievements') {
+    content = <AchievementsScreen onBack={() => navigate(() => setSubScreen(null))} />;
   } else if (selectedVault && heistPhase === 'results' && chaosCard && heistOutcome) {
     showNav = false;
     content = <HeistResults vault={selectedVault} crewIds={selectedCrewIds} chaosCard={chaosCard} miniGameResults={heistOutcome.miniGameResults} onFinish={() => navigate(() => { setHeistPhase(null); setSelectedVault(null); setSelectedCrewIds([]); setChaosCard(null); setHeistOutcome(null); setActiveTab('home'); })} onJailed={() => navigate(() => { setHeistPhase(null); setSelectedVault(null); setSelectedCrewIds([]); setChaosCard(null); setHeistOutcome(null); setIsJailed(true); })} />;
