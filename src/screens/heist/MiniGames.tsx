@@ -132,7 +132,7 @@ export const LockPickGame = ({ difficulty, onResult }: LockPickProps) => {
         {/* Real sweet spot */}
         <div style={{ position: 'absolute', left: `${currentPinData.sweetSpotStart}%`, width: `${currentPinData.sweetSpotWidth}%`, top: 0, bottom: 0, background: `${THEME.colors.gold}25`, borderLeft: `2px solid ${THEME.colors.gold}60`, borderRight: `2px solid ${THEME.colors.gold}60` }} />
         {/* Needle */}
-        <div style={{ position: 'absolute', left: `${position}%`, top: -4, bottom: -4, width: 3, marginLeft: -1.5, background: result === null ? THEME.colors.pearl : result ? THEME.colors.emerald : THEME.colors.ruby, boxShadow: `0 0 8px ${result === null ? THEME.colors.pearl : result ? THEME.colors.emerald : THEME.colors.ruby}60`, borderRadius: 2 }} />
+        <div style={{ position: 'absolute', left: `${displayPos}%`, top: -4, bottom: -4, width: 3, marginLeft: -1.5, background: result === null ? THEME.colors.pearl : result ? THEME.colors.emerald : THEME.colors.ruby, boxShadow: `0 0 8px ${result === null ? THEME.colors.pearl : result ? THEME.colors.emerald : THEME.colors.ruby}60`, borderRadius: 2 }} />
       </div>
       {result !== null ? (
         <div style={{ fontSize: 18, fontFamily: THEME.fonts.display, letterSpacing: 4, color: result ? THEME.colors.emerald : THEME.colors.ruby, textShadow: `0 0 20px ${result ? THEME.colors.emerald : THEME.colors.ruby}40` }}>
