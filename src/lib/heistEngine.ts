@@ -73,6 +73,12 @@ const CREW_ABILITIES: Record<string, {
   king:    { payoutBonus: 0.25, xpBonus: 25 },  // Mastermind: plans = profit + learning
   static:  { failReduction: 0.05, heatReduction: 8 }, // Comms: jams frequencies, reduces heat
   nitro:   { failReduction: 0.06, payoutBonus: 0.10 }, // Wheelman: fast getaway saves loot
+  mako:    { failReduction: 0.09, payoutBonus: 0.05 },
+  anchor:  { failReduction: 0.08, heatReduction: 4 },
+  drift:   { failReduction: 0.05, heatReduction: 6, xpBonus: 10 },
+  ledger:  { payoutBonus: 0.18, xpBonus: 10 },
+  vanta:   { failReduction: 0.05, payoutBonus: 0.12 },
+  proxy:   { failReduction: 0.07, miniGameForgive: 1 },
 };
 
 export function resolveHeist(input: HeistInput): HeistOutcome {
