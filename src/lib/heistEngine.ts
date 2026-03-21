@@ -161,6 +161,11 @@ export function resolveHeist(input: HeistInput): HeistOutcome {
       vault.payoutMin + Math.random() * (vault.payoutMax - vault.payoutMin)
     );
 
+    // Crew payout bonus (Grifter, Mastermind, Wheelman)
+    if (totalPayoutBonus > 0) {
+      payout = Math.floor(payout * (1 + totalPayoutBonus));
+    }
+
     // Chaos card payout modifiers
     if (chaosCard.effect === 'payout_bonus') {
       payout = Math.floor(payout * 1.3);
@@ -192,7 +197,7 @@ export function resolveHeist(input: HeistInput): HeistOutcome {
   // --- XP ---
   let xpGained: number;
   if (!busted) {
-    xpGained = 50 + successCount * 25;
+    xpGained = 50 + successCount * 25 + totalXpBonus;
   } else {
     xpGained = Math.round(vault.tier * 5);
   }
@@ -201,6 +206,7 @@ export function resolveHeist(input: HeistInput): HeistOutcome {
   let heatChange = busted ? 2 : 1;
   if (chaosCard.effect === 'heat_increase') heatChange += 15;
   if (chaosCard.effect === 'heat_reduction') heatChange -= 10;
+  heatChange = Math.max(0, heatChange - totalHeatReduction);
 
   return {
     busted,
