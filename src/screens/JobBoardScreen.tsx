@@ -193,7 +193,8 @@ const JobBoardScreen = ({ activeTab, onTabChange, onSelectVault }: JobBoardScree
                 <div style={{ paddingLeft: THEME.space.md }}>
                   {/* Top row: name + chain */}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: THEME.space.xs }}>
-                    <div style={{ fontFamily: THEME.fonts.display, fontSize: 16, color: THEME.colors.gold, letterSpacing: 1 }}>
+                     <div style={{ fontFamily: THEME.fonts.display, fontSize: 16, color: THEME.colors.gold, letterSpacing: 1 }}>
+                      {'emoji' in job.vault ? <span style={{ marginRight: 6 }}>{(job.vault as any).emoji}</span> : null}
                       {job.vault.name}
                       {job.isChain && <span style={{ marginLeft: 8 }} title="Chain job">🔗</span>}
                     </div>
@@ -230,6 +231,19 @@ const JobBoardScreen = ({ activeTab, onTabChange, onSelectVault }: JobBoardScree
                   >
                     {formatDistrict(job.vault.district)}
                   </div>
+
+                  {/* Flavor text */}
+                  {'flavor' in job.vault && (
+                    <div style={{
+                      fontFamily: THEME.fonts.body, fontStyle: 'italic', fontSize: 11,
+                      color: THEME.colors.textMuted, lineHeight: 1.5,
+                      marginBottom: THEME.space.sm,
+                      overflow: 'hidden', textOverflow: 'ellipsis',
+                      display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as any,
+                    }}>
+                      {(job.vault as any).flavor}
+                    </div>
+                  )}
 
                   {/* Stats row */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: THEME.space.lg, marginBottom: THEME.space.sm }}>

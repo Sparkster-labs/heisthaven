@@ -28,20 +28,7 @@ const jewelEmojis: Record<string, string> = {
   pearl: '🤍', sapphire: '💙', emerald: '💚', ruby: '❤️', diamond: '💎',
 };
 
-const vaultDescriptions: Record<string, string> = {
-  pawnshop_safe: 'A greasy operation off the docks. Low security, lower expectations. Perfect for a warm-up.',
-  harbor_lockbox: 'Shipping containers full of secrets. The harbor master looks the other way — for a price.',
-  market_register: 'The busiest stalls in Market Square hide more than cheap goods. Time your entry right.',
-  jewelers_case: 'Fine gems behind thin glass. The jeweler has a drinking problem. Tonight, that\'s your advantage.',
-  bank_branch: 'First National thinks their branch vault is impenetrable. They haven\'t met you yet.',
-  old_quarter_vault: 'Centuries-old stonework hides a modern vault. The combination changes with the tides.',
-  neon_casino: 'Neon lights, loaded dice, and a cage full of cash. The house always wins — until tonight.',
-  undercity_stash: 'Deep beneath the streets, the real power brokers keep their reserves. No cameras. No witnesses.',
-  foundry_payroll: 'Molten steel above, cold cash below. The workers get paid Friday. You get paid Thursday.',
-  pit_vault: 'The deepest vault in Ironhollow. They say it\'s never been cracked. They say a lot of things.',
-  crystal_gallery: 'Art worth millions, guarded by lasers and ego. One wrong step and the floor drops.',
-  the_sanctum_vault: 'The final vault. Legend says it holds enough to buy a city. Only ghosts get in.',
-};
+// Descriptions now come from vault.flavor field directly
 
 const VaultSelectScreen = ({ vault, onCommit, onBack }: VaultSelectScreenProps) => {
   const cityData = CITIES[vault.city as keyof typeof CITIES];
@@ -103,6 +90,7 @@ const VaultSelectScreen = ({ vault, onCommit, onBack }: VaultSelectScreenProps) 
             textShadow: '0 0 30px rgba(232,184,75,0.2)',
           }}
         >
+          <span style={{ marginRight: 8 }}>{'emoji' in vault ? (vault as any).emoji : ''}</span>
           {vault.name}
         </h1>
 
@@ -117,7 +105,7 @@ const VaultSelectScreen = ({ vault, onCommit, onBack }: VaultSelectScreenProps) 
             marginBottom: THEME.space.xl,
           }}
         >
-          {vaultDescriptions[vault.id] || 'A target worth your attention.'}
+          {'flavor' in vault ? (vault as any).flavor : 'A target worth your attention.'}
         </p>
 
         {/* Stats dossier */}
