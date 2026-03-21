@@ -414,6 +414,13 @@ const ProfileScreen = ({ activeTab, onTabChange, onOpenAchievements }: ProfileSc
           </div>
         )}
 
+        {onOpenAchievements && (
+          <button onClick={onOpenAchievements}
+            style={{ ...S.btnGhost, marginBottom: THEME.space.sm, borderColor: `${THEME.colors.gold}30`, color: THEME.colors.gold }}>
+            🏆 ACHIEVEMENTS
+          </button>
+        )}
+
         <button onClick={handleSignOut} disabled={signingOut}
           style={{ ...S.btnGhost, color: THEME.colors.ruby, borderColor: `${THEME.colors.ruby}30` }}>
           {signingOut ? 'SIGNING OUT...' : 'SIGN OUT'}

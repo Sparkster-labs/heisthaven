@@ -170,7 +170,7 @@ const AppInner = () => {
         content = <JobBoardScreen activeTab={activeTab} onTabChange={handleTabChange} onSelectVault={(vault) => navigate(() => { setSelectedVault(vault); setHeistPhase('vault'); })} />;
         break;
       case 'profile':
-        content = <ProfileScreen activeTab={activeTab} onTabChange={handleTabChange} />;
+        content = <ProfileScreen activeTab={activeTab} onTabChange={handleTabChange} onOpenAchievements={() => navigate(() => setSubScreen('achievements'))} />;
         break;
       default:
         content = <SafehouseScreen activeTab={activeTab} onTabChange={handleTabChange} />;
