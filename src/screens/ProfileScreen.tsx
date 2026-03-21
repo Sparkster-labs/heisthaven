@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface ProfileScreenProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  onOpenAchievements?: () => void;
 }
 
 interface ProfileData {
