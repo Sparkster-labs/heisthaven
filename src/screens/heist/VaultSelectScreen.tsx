@@ -90,6 +90,7 @@ const VaultSelectScreen = ({ vault, onCommit, onBack }: VaultSelectScreenProps) 
             textShadow: '0 0 30px rgba(232,184,75,0.2)',
           }}
         >
+          <span style={{ marginRight: 8 }}>{'emoji' in vault ? (vault as any).emoji : ''}</span>
           {vault.name}
         </h1>
 
