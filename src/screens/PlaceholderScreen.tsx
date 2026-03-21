@@ -1,5 +1,5 @@
 import { THEME, S } from '@/styles/theme';
-import BottomNav from '@/components/BottomNav';
+
 
 interface PlaceholderScreenProps {
   title: string;
