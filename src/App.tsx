@@ -99,7 +99,11 @@ const AppInner = () => {
   }
 
   // Determine which screen to render and whether to show bottom nav
-  const handleTabChange = (tab: string) => navigate(() => setActiveTab(tab));
+  const handleTabChange = (tab: string) => navigate(() => {
+    setSubScreen(null);
+    setDistrictInfo(null);
+    setActiveTab(tab);
+  });
   let showNav = true;
   let content: React.ReactNode = null;
 
@@ -124,7 +128,7 @@ const AppInner = () => {
   } else if (subScreen === 'crew') {
     content = <CrewScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} />;
   } else if (subScreen === 'district_activity' && districtInfo) {
-    content = <DistrictActivityScreen districtId={districtInfo.id} districtName={districtInfo.name} cityColor={districtInfo.color} onBack={() => navigate(() => { setSubScreen('city'); setDistrictInfo(null); })} />;
+    content = <DistrictActivityScreen districtId={districtInfo.id} districtName={districtInfo.name} cityColor={districtInfo.color} onBack={() => navigate(() => { setSubScreen('city'); setDistrictInfo(null); })} onOpenBlackMarket={() => navigate(() => { setSubScreen('black_market'); setDistrictInfo(null); })} />;
   } else if (subScreen === 'achievements') {
     content = <AchievementsScreen onBack={() => navigate(() => setSubScreen(null))} />;
   } else if (selectedVault && heistPhase === 'results' && chaosCard && heistOutcome) {
