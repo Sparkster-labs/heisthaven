@@ -108,6 +108,7 @@ export const SafeComboGame = ({ difficulty, onResult }: SafeComboProps) => {
     setDialRotation(prev => prev + rotation);
 
     if (dir === sequence[inputIdx]) {
+      SFX.tick();
       const nextIdx = inputIdx + 1;
       setInputIdx(nextIdx);
       if (nextIdx >= seqLength) {
