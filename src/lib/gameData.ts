@@ -148,22 +148,63 @@ export const CREW_MEMBERS = [
 ] as const;
 
 export const VAULTS = [
-  // Tier 1 — New Cavendish
-  { id: 'pawnshop_safe', name: 'Pawnshop Safe', tier: 1, city: 'new_cavendish', district: 'docks', buyIn: 50, payoutMin: 120, payoutMax: 210, difficulty: 1, crewSlots: 1 },
-  { id: 'harbor_lockbox', name: 'Harbor Lockbox', tier: 1, city: 'new_cavendish', district: 'docks', buyIn: 75, payoutMin: 180, payoutMax: 320, difficulty: 1, crewSlots: 1 },
-  { id: 'market_register', name: 'Market Register', tier: 1, city: 'new_cavendish', district: 'market_square', buyIn: 100, payoutMin: 250, payoutMax: 450, difficulty: 2, crewSlots: 2 },
-  { id: 'jewelers_case', name: "Jeweler's Case", tier: 2, city: 'new_cavendish', district: 'market_square', buyIn: 200, payoutMin: 500, payoutMax: 900, difficulty: 2, crewSlots: 2 },
-  { id: 'bank_branch', name: 'First National Branch', tier: 2, city: 'new_cavendish', district: 'financial_row', buyIn: 400, payoutMin: 900, payoutMax: 1600, difficulty: 3, crewSlots: 2 },
-  { id: 'old_quarter_vault', name: 'Old Quarter Vault', tier: 3, city: 'new_cavendish', district: 'old_quarter', buyIn: 750, payoutMin: 1800, payoutMax: 3200, difficulty: 4, crewSlots: 3 },
-  // Tier 2 — Shadowport
-  { id: 'neon_casino', name: 'Neon Casino Cage', tier: 2, city: 'shadowport', district: 'neon_strip', buyIn: 300, payoutMin: 700, payoutMax: 1400, difficulty: 3, crewSlots: 2 },
-  { id: 'undercity_stash', name: 'Undercity Stash', tier: 3, city: 'shadowport', district: 'the_undercity', buyIn: 600, payoutMin: 1500, payoutMax: 2800, difficulty: 4, crewSlots: 3 },
-  // Tier 3 — Ironhollow
-  { id: 'foundry_payroll', name: 'Foundry Payroll', tier: 3, city: 'ironhollow', district: 'foundry_row', buyIn: 800, payoutMin: 2000, payoutMax: 4000, difficulty: 4, crewSlots: 3 },
-  { id: 'pit_vault', name: 'The Pit Vault', tier: 4, city: 'ironhollow', district: 'the_pit', buyIn: 1500, payoutMin: 4000, payoutMax: 8000, difficulty: 5, crewSlots: 3 },
-  // Tier 4 — Verenthia
-  { id: 'crystal_gallery', name: 'Crystal Gallery', tier: 4, city: 'verenthia', district: 'crystal_promenade', buyIn: 2000, payoutMin: 6000, payoutMax: 12000, difficulty: 5, crewSlots: 3 },
-  { id: 'the_sanctum_vault', name: 'The Sanctum', tier: 5, city: 'verenthia', district: 'the_sanctum', buyIn: 5000, payoutMin: 15000, payoutMax: 30000, difficulty: 5, crewSlots: 3 },
+  // ══════════ NEW CAVENDISH ══════════
+  // Docks
+  { id: 'pawnshop_safe', name: 'Pawnshop Safe', emoji: '🔓', tier: 1, city: 'new_cavendish', district: 'docks', buyIn: 50, payoutMin: 120, payoutMax: 210, difficulty: 1, crewSlots: 1, flavor: 'A greasy operation off the docks. Low security, lower expectations.' },
+  { id: 'harbor_lockbox', name: 'Harbor Lockbox', emoji: '📦', tier: 1, city: 'new_cavendish', district: 'docks', buyIn: 75, payoutMin: 180, payoutMax: 320, difficulty: 1, crewSlots: 1, flavor: 'Shipping containers full of secrets. The harbor master looks the other way — for a price.' },
+  { id: 'dockmaster_office', name: "Dockmaster's Office", emoji: '⚓', tier: 1, city: 'new_cavendish', district: 'docks', buyIn: 90, payoutMin: 200, payoutMax: 380, difficulty: 1, crewSlots: 1, flavor: 'The old man keeps a ledger and a lockbox. Tonight you only need one.' },
+  // Market Square
+  { id: 'market_register', name: 'Market Register', emoji: '🏪', tier: 1, city: 'new_cavendish', district: 'market_square', buyIn: 100, payoutMin: 250, payoutMax: 450, difficulty: 2, crewSlots: 2, flavor: 'The busiest stalls hide more than cheap goods. Time your entry right.' },
+  { id: 'jewelers_case', name: "Jeweler's Case", emoji: '💍', tier: 2, city: 'new_cavendish', district: 'market_square', buyIn: 200, payoutMin: 500, payoutMax: 900, difficulty: 2, crewSlots: 2, flavor: 'Fine gems behind thin glass. The jeweler has a drinking problem. Tonight, that\'s your advantage.' },
+  { id: 'spice_merchant', name: 'Spice Merchant Vault', emoji: '🫙', tier: 2, city: 'new_cavendish', district: 'market_square', buyIn: 175, payoutMin: 420, payoutMax: 800, difficulty: 2, crewSlots: 2, flavor: 'The rarest saffron is worth more than gold. He knows it. So do you.' },
+  // Old Quarter
+  { id: 'old_quarter_vault', name: 'Old Quarter Vault', emoji: '🏛️', tier: 3, city: 'new_cavendish', district: 'old_quarter', buyIn: 750, payoutMin: 1800, payoutMax: 3200, difficulty: 4, crewSlots: 3, flavor: 'Centuries-old stonework hides a modern vault. The combination changes with the tides.' },
+  { id: 'antiquarian_cellar', name: 'Antiquarian Cellar', emoji: '📜', tier: 2, city: 'new_cavendish', district: 'old_quarter', buyIn: 350, payoutMin: 800, payoutMax: 1500, difficulty: 3, crewSlots: 2, flavor: 'Maps, manuscripts, and money — the antiquarian hoards them all beneath the floorboards.' },
+  // Financial Row
+  { id: 'bank_branch', name: 'First National Branch', emoji: '🏦', tier: 2, city: 'new_cavendish', district: 'financial_row', buyIn: 400, payoutMin: 900, payoutMax: 1600, difficulty: 3, crewSlots: 2, flavor: 'First National thinks their branch vault is impenetrable. They haven\'t met you yet.' },
+  { id: 'exchange_floor', name: 'The Exchange Floor', emoji: '📈', tier: 3, city: 'new_cavendish', district: 'financial_row', buyIn: 600, payoutMin: 1400, payoutMax: 2600, difficulty: 3, crewSlots: 3, flavor: 'Bearer bonds sit in pneumatic tubes overnight. The night shift is one man and a crossword.' },
+
+  // ══════════ SHADOWPORT ══════════
+  // Harborfront
+  { id: 'smugglers_den', name: "Smuggler's Den", emoji: '🚢', tier: 2, city: 'shadowport', district: 'harborfront', buyIn: 250, payoutMin: 600, payoutMax: 1200, difficulty: 2, crewSlots: 2, flavor: 'Behind the fish market, past the brine, a den of contraband waits uncounted.' },
+  { id: 'customs_house', name: 'Customs House', emoji: '🛃', tier: 3, city: 'shadowport', district: 'harborfront', buyIn: 500, payoutMin: 1200, payoutMax: 2200, difficulty: 3, crewSlots: 2, flavor: 'Seized goods pile up. The customs officers take their cut. Tonight you take yours.' },
+  // Neon Strip
+  { id: 'neon_casino', name: 'Neon Casino Cage', emoji: '🎰', tier: 2, city: 'shadowport', district: 'neon_strip', buyIn: 300, payoutMin: 700, payoutMax: 1400, difficulty: 3, crewSlots: 2, flavor: 'Neon lights, loaded dice, and a cage full of cash. The house always wins — until tonight.' },
+  { id: 'fortune_lounge', name: 'Fortune Lounge', emoji: '🃏', tier: 3, city: 'shadowport', district: 'neon_strip', buyIn: 550, payoutMin: 1300, payoutMax: 2500, difficulty: 3, crewSlots: 3, flavor: 'High-rollers leave their coats — and their wallets — at the door. The back room is the real prize.' },
+  // The Undercity
+  { id: 'undercity_stash', name: 'Undercity Stash', emoji: '🕳️', tier: 3, city: 'shadowport', district: 'the_undercity', buyIn: 600, payoutMin: 1500, payoutMax: 2800, difficulty: 4, crewSlots: 3, flavor: 'Deep beneath the streets, the real power brokers keep their reserves. No cameras. No witnesses.' },
+  { id: 'tunnel_cache', name: 'Tunnel Cache', emoji: '🚇', tier: 3, city: 'shadowport', district: 'the_undercity', buyIn: 700, payoutMin: 1700, payoutMax: 3100, difficulty: 4, crewSlots: 3, flavor: 'An abandoned rail tunnel. The cache moves every week. This week, you know where.' },
+  // Clocktower District
+  { id: 'clocktower_archives', name: 'Clocktower Archives', emoji: '🕰️', tier: 2, city: 'shadowport', district: 'clocktower_district', buyIn: 350, payoutMin: 850, payoutMax: 1600, difficulty: 3, crewSlots: 2, flavor: 'The clock strikes twelve and the night watchman sleeps. The archives hold more than history.' },
+  { id: 'bellringers_stash', name: "Bellringer's Stash", emoji: '🔔', tier: 3, city: 'shadowport', district: 'clocktower_district', buyIn: 650, payoutMin: 1600, payoutMax: 2900, difficulty: 4, crewSlots: 3, flavor: 'Two hundred steps up. One wrong move and the bells wake the whole district.' },
+
+  // ══════════ IRONHOLLOW ══════════
+  // Foundry Row
+  { id: 'foundry_payroll', name: 'Foundry Payroll', emoji: '🔥', tier: 3, city: 'ironhollow', district: 'foundry_row', buyIn: 800, payoutMin: 2000, payoutMax: 4000, difficulty: 4, crewSlots: 3, flavor: 'Molten steel above, cold cash below. The workers get paid Friday. You get paid Thursday.' },
+  { id: 'forgemasters_safe', name: "Forgemaster's Safe", emoji: '⚒️', tier: 3, city: 'ironhollow', district: 'foundry_row', buyIn: 900, payoutMin: 2200, payoutMax: 4200, difficulty: 4, crewSlots: 3, flavor: 'The forgemaster built his own safe. Iron walls, iron will. But every lock has a flaw.' },
+  // The Yards
+  { id: 'railyard_depot', name: 'Railyard Depot', emoji: '🚂', tier: 3, city: 'ironhollow', district: 'the_yards', buyIn: 850, payoutMin: 2100, payoutMax: 3800, difficulty: 4, crewSlots: 3, flavor: 'Coal trains carry more than fuel. The midnight express has a special cargo car.' },
+  { id: 'scrapyard_bunker', name: 'Scrapyard Bunker', emoji: '♻️', tier: 4, city: 'ironhollow', district: 'the_yards', buyIn: 1200, payoutMin: 3200, payoutMax: 6000, difficulty: 4, crewSlots: 3, flavor: 'Beneath mountains of twisted metal, someone built a fortress. The scrapyard king doesn\'t share.' },
+  // Smelter Heights
+  { id: 'smelter_office', name: 'Smelter Heights Office', emoji: '🏭', tier: 4, city: 'ironhollow', district: 'smelter_heights', buyIn: 1300, payoutMin: 3500, payoutMax: 6500, difficulty: 5, crewSlots: 3, flavor: 'The air burns your lungs. The office sits above the smelter floor, unreachable by cowards.' },
+  { id: 'refinery_vault', name: 'Refinery Vault', emoji: '⚗️', tier: 4, city: 'ironhollow', district: 'smelter_heights', buyIn: 1400, payoutMin: 3800, payoutMax: 7200, difficulty: 5, crewSlots: 3, flavor: 'Precious metals flow through here daily. The vault catches the overflow. Tonight it overflows for you.' },
+  // The Pit
+  { id: 'pit_vault', name: 'The Pit Vault', emoji: '⛏️', tier: 4, city: 'ironhollow', district: 'the_pit', buyIn: 1500, payoutMin: 4000, payoutMax: 8000, difficulty: 5, crewSlots: 3, flavor: 'The deepest vault in Ironhollow. They say it\'s never been cracked. They say a lot of things.' },
+  { id: 'pit_bosses_den', name: "Pit Boss's Den", emoji: '💀', tier: 5, city: 'ironhollow', district: 'the_pit', buyIn: 2500, payoutMin: 6000, payoutMax: 12000, difficulty: 5, crewSlots: 3, flavor: 'The Pit Boss runs Ironhollow from a chair made of rail ties. His den has no door — just a reputation.' },
+
+  // ══════════ VERENTHIA ══════════
+  // Crystal Promenade
+  { id: 'crystal_gallery', name: 'Crystal Gallery', emoji: '🖼️', tier: 4, city: 'verenthia', district: 'crystal_promenade', buyIn: 2000, payoutMin: 6000, payoutMax: 12000, difficulty: 5, crewSlots: 3, flavor: 'Art worth millions, guarded by lasers and ego. One wrong step and the floor drops.' },
+  { id: 'diamond_boutique', name: 'Diamond Boutique', emoji: '💎', tier: 4, city: 'verenthia', district: 'crystal_promenade', buyIn: 2200, payoutMin: 6500, payoutMax: 13000, difficulty: 5, crewSlots: 3, flavor: 'Invitation only. The boutique opens at midnight for clients who pay in silence.' },
+  // The Spires
+  { id: 'observatory_vault', name: 'Observatory Vault', emoji: '🔭', tier: 4, city: 'verenthia', district: 'the_spires', buyIn: 2500, payoutMin: 7000, payoutMax: 14000, difficulty: 5, crewSlots: 3, flavor: 'The astronomers watch the stars. Nobody watches the astronomers. Or what they keep in the basement.' },
+  { id: 'penthouse_safe', name: 'Penthouse Safe', emoji: '🌃', tier: 5, city: 'verenthia', district: 'the_spires', buyIn: 4000, payoutMin: 12000, payoutMax: 24000, difficulty: 5, crewSlots: 3, flavor: 'Eighty floors up. Glass walls. One elevator. The safe is behind a Monet. The Monet is also worth stealing.' },
+  // Palace Grounds
+  { id: 'royal_treasury', name: 'Royal Treasury', emoji: '👑', tier: 5, city: 'verenthia', district: 'palace_grounds', buyIn: 4500, payoutMin: 13000, payoutMax: 26000, difficulty: 5, crewSlots: 3, flavor: 'The old palace is now a museum. The treasury was never moved. Guards patrol in pairs.' },
+  { id: 'ambassadors_suite', name: "Ambassador's Suite", emoji: '🏰', tier: 4, city: 'verenthia', district: 'palace_grounds', buyIn: 3000, payoutMin: 8000, payoutMax: 16000, difficulty: 5, crewSlots: 3, flavor: 'Diplomatic immunity covers a multitude of sins. The ambassador collects more than art.' },
+  // The Sanctum
+  { id: 'the_sanctum_vault', name: 'The Sanctum', emoji: '🕯️', tier: 5, city: 'verenthia', district: 'the_sanctum', buyIn: 5000, payoutMin: 15000, payoutMax: 30000, difficulty: 5, crewSlots: 3, flavor: 'The final vault. Legend says it holds enough to buy a city. Only ghosts get in.' },
+  { id: 'inner_reliquary', name: 'Inner Reliquary', emoji: '⚱️', tier: 5, city: 'verenthia', district: 'the_sanctum', buyIn: 6000, payoutMin: 18000, payoutMax: 35000, difficulty: 5, crewSlots: 3, flavor: 'Beyond the Sanctum lies the Reliquary. What\'s kept here has no price — only consequences.' },
 ] as const;
 
 export const CHAOS_CARDS = [
