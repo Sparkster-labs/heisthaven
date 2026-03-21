@@ -28,6 +28,7 @@ import ResetPasswordScreen from '@/screens/ResetPasswordScreen';
 import PhotoModeScreen from '@/screens/PhotoModeScreen';
 import DistrictActivityScreen from '@/screens/DistrictActivityScreen';
 import JailScreen from '@/screens/JailScreen';
+import AchievementsScreen from '@/screens/AchievementsScreen';
 import BottomNav from '@/components/BottomNav';
 import type { Session } from '@supabase/supabase-js';
 
