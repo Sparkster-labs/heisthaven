@@ -598,6 +598,7 @@ export const InterrogationGame = ({ difficulty, onResult }: InterrogationProps) 
     const threshold = option.type === 'best' ? 0.85 : option.type === 'risky' ? 0.40 : 0.05;
     const success = roll < threshold;
     setResult(success);
+    if (success) SFX.tick(); else SFX.fail();
     if (navigator.vibrate) navigator.vibrate(success ? 50 : 200);
     setPhase('result');
     setTimeout(() => onResult(success), 2000);
