@@ -308,7 +308,7 @@ const DistrictActivityScreen = ({ districtId, districtName, cityColor, onBack, o
       if (!user) return;
       const [profileRes, crewRes] = await Promise.all([
         supabase.from('profiles').select('cash, jewels').eq('id', user.id).single(),
-        supabase.from('crew_state').select('crew_id, unlocked').eq('user_id', user.id),
+        supabase.from('crew_state').select('crew_id, unlocked, level, loyalty').eq('user_id', user.id),
       ]);
 
       if (profileRes.data) {
