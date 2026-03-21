@@ -84,14 +84,18 @@ const CrewHireScreen = ({ vault, onLaunch, onBack }: CrewHireScreenProps) => {
     }
   };
 
-  // Risk calculation
+  // Risk calculation using actual crew ability modifiers
+  const CREW_FAIL_REDUCTIONS: Record<string, number> = {
+    fingers: 12, echo: 9, brick: 10, silk: 8, ghost: 16, doc: 4, raven: 11, king: 4, static: 9, nitro: 10,
+  };
   const baseRisk = vault.difficulty * 18;
   const crewReduction = selectedIds.reduce((acc, id) => {
     const state = crewStates.find(cs => cs.crew_id === id);
     if (!state) return acc;
-    const loyaltyBonus = state.loyalty * 0.08;
-    const levelBonus = state.level * 2;
-    return acc + loyaltyBonus + levelBonus;
+    const abilityBonus = CREW_FAIL_REDUCTIONS[id] || 4;
+    const loyaltyBonus = state.loyalty * 0.04;
+    const levelBonus = state.level * 1.5;
+    return acc + abilityBonus + loyaltyBonus + levelBonus;
   }, 0);
   const finalRisk = Math.max(5, Math.round(baseRisk - crewReduction));
 
