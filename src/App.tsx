@@ -180,6 +180,7 @@ const AppInner = () => {
       {showNav && <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />}
     </>
   );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
