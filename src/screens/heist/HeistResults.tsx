@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { Json } from '@/integrations/supabase/types';
 import { SFX, Haptics } from '@/lib/sounds';
+import { checkAndUnlockAchievements } from '@/hooks/useAchievements';
 
 interface HeistResultsProps {
   vault: typeof VAULTS[number];
@@ -254,6 +255,22 @@ const HeistResults = ({ vault, crewIds, chaosCard, miniGameResults, onFinish, on
     Object.entries(jewelDrops).forEach(([jewel, count]) => {
       if (count > 0) {
         toast({ title: `${jewelEmojis[jewel]} ${jewelLabels[jewel]} FOUND`, description: `×${count}` });
+      }
+    });
+
+    // Check achievements
+    const { ACHIEVEMENTS: ACH_LIST } = await import('@/lib/achievements');
+    const newAchievements = await checkAndUnlockAchievements(user.id, {
+      success,
+      crewIds,
+      miniGameResults,
+      vaultTier: vault.tier,
+      chaosCardEffect: chaosCard.effect,
+    });
+    newAchievements.forEach(id => {
+      const ach = ACH_LIST.find(a => a.id === id);
+      if (ach) {
+        toast({ title: `🏆 ${ach.name}`, description: ach.description });
       }
     });
 

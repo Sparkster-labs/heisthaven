@@ -28,6 +28,7 @@ import ResetPasswordScreen from '@/screens/ResetPasswordScreen';
 import PhotoModeScreen from '@/screens/PhotoModeScreen';
 import DistrictActivityScreen from '@/screens/DistrictActivityScreen';
 import JailScreen from '@/screens/JailScreen';
+import AchievementsScreen from '@/screens/AchievementsScreen';
 import BottomNav from '@/components/BottomNav';
 import type { Session } from '@supabase/supabase-js';
 
@@ -124,6 +125,8 @@ const AppInner = () => {
     content = <CrewScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} />;
   } else if (subScreen === 'district_activity' && districtInfo) {
     content = <DistrictActivityScreen districtId={districtInfo.id} districtName={districtInfo.name} cityColor={districtInfo.color} onBack={() => navigate(() => { setSubScreen('city'); setDistrictInfo(null); })} />;
+  } else if (subScreen === 'achievements') {
+    content = <AchievementsScreen onBack={() => navigate(() => setSubScreen(null))} />;
   } else if (selectedVault && heistPhase === 'results' && chaosCard && heistOutcome) {
     showNav = false;
     content = <HeistResults vault={selectedVault} crewIds={selectedCrewIds} chaosCard={chaosCard} miniGameResults={heistOutcome.miniGameResults} onFinish={() => navigate(() => { setHeistPhase(null); setSelectedVault(null); setSelectedCrewIds([]); setChaosCard(null); setHeistOutcome(null); setActiveTab('home'); })} onJailed={() => navigate(() => { setHeistPhase(null); setSelectedVault(null); setSelectedCrewIds([]); setChaosCard(null); setHeistOutcome(null); setIsJailed(true); })} />;
@@ -167,7 +170,7 @@ const AppInner = () => {
         content = <JobBoardScreen activeTab={activeTab} onTabChange={handleTabChange} onSelectVault={(vault) => navigate(() => { setSelectedVault(vault); setHeistPhase('vault'); })} />;
         break;
       case 'profile':
-        content = <ProfileScreen activeTab={activeTab} onTabChange={handleTabChange} />;
+        content = <ProfileScreen activeTab={activeTab} onTabChange={handleTabChange} onOpenAchievements={() => navigate(() => setSubScreen('achievements'))} />;
         break;
       default:
         content = <SafehouseScreen activeTab={activeTab} onTabChange={handleTabChange} />;

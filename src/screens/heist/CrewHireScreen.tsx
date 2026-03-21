@@ -298,20 +298,28 @@ const CrewHireScreen = ({ vault, onLaunch, onBack }: CrewHireScreenProps) => {
         {/* Launch button */}
         <button
           onClick={() => {
-            if (selectedIds.length > 0 && canAfford) {
+            if (canAfford) {
               onLaunch(selectedIds);
             }
           }}
-          disabled={selectedIds.length === 0 || !canAfford}
+          disabled={!canAfford}
           style={{
             ...S.btnPrimary,
-            opacity: selectedIds.length === 0 || !canAfford ? 0.4 : 1,
+            opacity: !canAfford ? 0.4 : 1,
             marginBottom: THEME.space.md,
-            boxShadow: selectedIds.length > 0 && canAfford ? THEME.shadows.gold : 'none',
+            boxShadow: canAfford ? THEME.shadows.gold : 'none',
           }}
         >
-          {!canAfford ? 'INSUFFICIENT FUNDS' : selectedIds.length === 0 ? 'SELECT CREW' : 'LAUNCH THE HEIST'}
+          {!canAfford ? 'INSUFFICIENT FUNDS' : selectedIds.length === 0 ? 'GO SOLO' : 'LAUNCH THE HEIST'}
         </button>
+        {selectedIds.length === 0 && canAfford && (
+          <div style={{
+            fontSize: 9, fontFamily: THEME.fonts.mono, color: THEME.colors.warning,
+            textAlign: 'center', marginBottom: THEME.space.sm, letterSpacing: 1,
+          }}>
+            ⚠ SOLO RUNS ARE HIGH RISK — NO CREW BONUSES
+          </div>
+        )}
         <button onClick={onBack} style={S.btnGhost}>
           ABORT MISSION
         </button>

@@ -20,6 +20,7 @@ export const LockPickGame = ({ difficulty, onResult }: LockPickProps) => {
   const [result, setResult] = useState<boolean | null>(null);
   const [pinResults, setPinResults] = useState<boolean[]>([]);
   const [displayPos, setDisplayPos] = useState(0);
+  const [ready, setReady] = useState(false);
 
   const posRef = useRef(0);
   const dirRef = useRef(1);
@@ -44,24 +45,35 @@ export const LockPickGame = ({ difficulty, onResult }: LockPickProps) => {
 
   useEffect(() => {
     if (locked || result !== null) return;
-    lastTimeRef.current = performance.now();
+    
+    // First frame: just initialize position, don't render yet
+    const initFrame = requestAnimationFrame(() => {
+      posRef.current = 0;
+      setDisplayPos(0);
+      setReady(true);
+      lastTimeRef.current = performance.now();
 
-    const loop = (now: number) => {
-      const dt = now - lastTimeRef.current;
-      lastTimeRef.current = now;
-      const move = dirRef.current * speed * (dt / 16);
-      let next = posRef.current + move;
+      const loop = (now: number) => {
+        const dt = now - lastTimeRef.current;
+        lastTimeRef.current = now;
+        const move = dirRef.current * speed * (dt / 16);
+        let next = posRef.current + move;
 
-      if (next >= 100) { next = 100; dirRef.current = -1; }
-      if (next <= 0) { next = 0; dirRef.current = 1; }
+        if (next >= 100) { next = 100; dirRef.current = -1; }
+        if (next <= 0) { next = 0; dirRef.current = 1; }
 
-      posRef.current = next;
-      setDisplayPos(next);
+        posRef.current = next;
+        setDisplayPos(next);
+        frameRef.current = requestAnimationFrame(loop);
+      };
+
       frameRef.current = requestAnimationFrame(loop);
-    };
+    });
 
-    frameRef.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(frameRef.current);
+    return () => {
+      cancelAnimationFrame(initFrame);
+      cancelAnimationFrame(frameRef.current);
+    };
   }, [locked, speed, result, currentPin]);
 
   const handleTap = useCallback(() => {
@@ -132,7 +144,7 @@ export const LockPickGame = ({ difficulty, onResult }: LockPickProps) => {
         {/* Real sweet spot */}
         <div style={{ position: 'absolute', left: `${currentPinData.sweetSpotStart}%`, width: `${currentPinData.sweetSpotWidth}%`, top: 0, bottom: 0, background: `${THEME.colors.gold}25`, borderLeft: `2px solid ${THEME.colors.gold}60`, borderRight: `2px solid ${THEME.colors.gold}60` }} />
         {/* Needle */}
-        <div style={{ position: 'absolute', left: `${displayPos}%`, top: -4, bottom: -4, width: 3, marginLeft: -1.5, background: result === null ? THEME.colors.pearl : result ? THEME.colors.emerald : THEME.colors.ruby, boxShadow: `0 0 8px ${result === null ? THEME.colors.pearl : result ? THEME.colors.emerald : THEME.colors.ruby}60`, borderRadius: 2 }} />
+        <div style={{ position: 'absolute', left: `${displayPos}%`, top: -4, bottom: -4, width: 3, marginLeft: -1.5, background: result === null ? THEME.colors.pearl : result ? THEME.colors.emerald : THEME.colors.ruby, boxShadow: `0 0 8px ${result === null ? THEME.colors.pearl : result ? THEME.colors.emerald : THEME.colors.ruby}60`, borderRadius: 2, opacity: ready ? 1 : 0, transition: 'opacity 0.1s' }} />
       </div>
       {result !== null ? (
         <div style={{ fontSize: 18, fontFamily: THEME.fonts.display, letterSpacing: 4, color: result ? THEME.colors.emerald : THEME.colors.ruby, textShadow: `0 0 20px ${result ? THEME.colors.emerald : THEME.colors.ruby}40` }}>

@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface ProfileScreenProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  onOpenAchievements?: () => void;
 }
 
 interface ProfileData {
@@ -72,7 +73,7 @@ const titleColor = (level: number) => {
   return THEME.colors.gold;
 };
 
-const ProfileScreen = ({ activeTab, onTabChange }: ProfileScreenProps) => {
+const ProfileScreen = ({ activeTab, onTabChange, onOpenAchievements }: ProfileScreenProps) => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [heists, setHeists] = useState<HeistRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -411,6 +412,13 @@ const ProfileScreen = ({ activeTab, onTabChange }: ProfileScreenProps) => {
               </div>
             ))}
           </div>
+        )}
+
+        {onOpenAchievements && (
+          <button onClick={onOpenAchievements}
+            style={{ ...S.btnGhost, marginBottom: THEME.space.sm, borderColor: `${THEME.colors.gold}30`, color: THEME.colors.gold }}>
+            🏆 ACHIEVEMENTS
+          </button>
         )}
 
         <button onClick={handleSignOut} disabled={signingOut}

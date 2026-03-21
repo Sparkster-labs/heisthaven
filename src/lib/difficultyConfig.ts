@@ -15,9 +15,9 @@ export function getDifficultyTier(difficulty: number): 1 | 2 | 3 {
 // ═══════════════════════════════════════════════════════════════
 export const DIFFICULTY_CONFIG = {
   lockpick: {
-    1: { pins: 3, sweetSpotWidth: 30, falseSweetSpots: 0, speed: 1.0 },
-    2: { pins: 4, sweetSpotWidth: 22, falseSweetSpots: 0, speed: 1.3 },
-    3: { pins: 5, sweetSpotWidth: 14, falseSweetSpots: 1, speed: 1.6 },
+    1: { pins: 3, sweetSpotWidth: 18, falseSweetSpots: 0, speed: 1.0 },
+    2: { pins: 4, sweetSpotWidth: 14, falseSweetSpots: 0, speed: 1.3 },
+    3: { pins: 5, sweetSpotWidth: 9, falseSweetSpots: 1, speed: 1.6 },
   },
   safeCombo: {
     1: { digits: 3, catchZoneWidth: 35, decoyZones: 0 },
