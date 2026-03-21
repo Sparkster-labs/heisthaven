@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { Json } from '@/integrations/supabase/types';
 import { SFX, Haptics } from '@/lib/sounds';
+import { checkAndUnlockAchievements } from '@/hooks/useAchievements';
 
 interface HeistResultsProps {
   vault: typeof VAULTS[number];
