@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { VAULTS, CHAOS_CARDS } from '@/lib/gameData';
 import { LockPickGame, WireCutGame, SafeComboGame, PressureValveGame, TailGame, InterrogationGame } from './MiniGames';
+import { ShadowWalkGame, ColdReadGame, WireTapGame, SignalScrambleGame, TakedownGame, HotPursuitGame } from './MiniGamesExtended';
 import { SFX, Haptics } from '@/lib/sounds';
 
 interface HeistExecutionProps {
@@ -12,18 +13,22 @@ interface HeistExecutionProps {
 }
 
 // ═══════════════════════════════════════════════════════
-// Tier-based mini-game sequencing from Prompt 5
+// Tier-based mini-game sequencing — expanded with 6 new games
 // ═══════════════════════════════════════════════════════
-type GameType = 'lock' | 'combo' | 'wire' | 'tail' | 'interrogation';
+type GameType = 'lock' | 'combo' | 'wire' | 'tail' | 'interrogation' | 'shadow' | 'coldread' | 'wiretap' | 'signal' | 'takedown' | 'pursuit';
 
 function getGameSequence(tier: number): GameType[] {
   if (tier <= 1) return ['lock'];
-  if (tier <= 3) return ['lock', 'combo'];
-  if (tier <= 5) return ['combo', 'wire'];
-  if (tier <= 7) return ['lock', 'wire', 'combo'];
-  if (tier <= 9) return ['combo', 'wire', 'tail'];
-  // Tier 10+: all five mini-games
-  return ['lock', 'combo', 'wire', 'tail', 'interrogation'];
+  if (tier === 2) return ['lock', 'coldread'];
+  if (tier === 3) return ['combo', 'shadow'];
+  if (tier === 4) return ['shadow', 'wire', 'coldread'];
+  if (tier === 5) return ['combo', 'wiretap', 'takedown'];
+  if (tier === 6) return ['lock', 'signal', 'wire'];
+  if (tier === 7) return ['shadow', 'wire', 'combo', 'takedown'];
+  if (tier === 8) return ['wiretap', 'coldread', 'tail', 'signal'];
+  if (tier === 9) return ['combo', 'wire', 'takedown', 'pursuit'];
+  // Tier 10+: full gauntlet
+  return ['shadow', 'coldread', 'wiretap', 'signal', 'takedown', 'pursuit'];
 }
 
 const GAME_NAMES: Record<GameType, string> = {
@@ -32,6 +37,12 @@ const GAME_NAMES: Record<GameType, string> = {
   wire: 'ALARM CUT',
   tail: 'THE TAIL',
   interrogation: 'THE INTERROGATION',
+  shadow: 'SHADOW WALK',
+  coldread: 'COLD READ',
+  wiretap: 'WIRE TAP',
+  signal: 'SIGNAL SCRAMBLE',
+  takedown: 'TAKEDOWN',
+  pursuit: 'HOT PURSUIT',
 };
 
 // ═══════════════════════════════════════════════════════
@@ -161,12 +172,19 @@ const HeistExecution = ({ vault, crewIds, chaosCard, onComplete }: HeistExecutio
   const renderGame = () => {
     const gameType = games[currentGame];
     const d = vault.difficulty;
+    const extProps = { difficulty: d, onResult: handleGameResult, crewIds, chaosCard };
     switch (gameType) {
       case 'lock': return <LockPickGame difficulty={d} onResult={handleGameResult} />;
       case 'combo': return <SafeComboGame difficulty={d} onResult={handleGameResult} />;
       case 'wire': return <WireCutGame difficulty={d} onResult={handleGameResult} />;
       case 'tail': return <TailGame difficulty={d} onResult={handleGameResult} />;
       case 'interrogation': return <InterrogationGame difficulty={d} onResult={handleGameResult} />;
+      case 'shadow': return <ShadowWalkGame {...extProps} />;
+      case 'coldread': return <ColdReadGame {...extProps} />;
+      case 'wiretap': return <WireTapGame {...extProps} />;
+      case 'signal': return <SignalScrambleGame {...extProps} />;
+      case 'takedown': return <TakedownGame {...extProps} />;
+      case 'pursuit': return <HotPursuitGame {...extProps} />;
     }
   };
 

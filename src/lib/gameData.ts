@@ -125,6 +125,26 @@ export const CREW_MEMBERS = [
     baseCost: 25000,
     unlocked: false,
   },
+  {
+    id: 'static',
+    name: 'Static',
+    role: 'Comms',
+    specialty: 'signals',
+    emoji: '📡',
+    flavor: 'Tunes into any frequency. If it broadcasts, she owns it.',
+    baseCost: 12000,
+    unlocked: false,
+  },
+  {
+    id: 'nitro',
+    name: 'Nitro',
+    role: 'Wheelman',
+    specialty: 'driving',
+    emoji: '🏎️',
+    flavor: 'Behind the wheel, he\'s untouchable. On foot, less so.',
+    baseCost: 10000,
+    unlocked: false,
+  },
 ] as const;
 
 export const VAULTS = [
