@@ -526,6 +526,7 @@ const DistrictActivityScreen = ({ districtId, districtName, cityColor, onBack, o
 
   const handleTraining = async (type: 'level_up' | 'loyalty_boost') => {
     if (acting) return;
+    if (!selectedTrainCrewId) { toast({ title: 'Select a crew member first' }); return; }
     const cost = type === 'level_up' ? TRAINING_COST.level_up : TRAINING_COST.loyalty_boost;
     if (cash < cost) { toast({ title: 'Insufficient funds' }); return; }
 
@@ -534,19 +535,26 @@ const DistrictActivityScreen = ({ districtId, districtName, cityColor, onBack, o
     if (!user) { setActing(false); return; }
 
     await supabase.from('profiles').update({ cash: cash - cost }).eq('id', user.id);
-    const { data: crewData } = await supabase.from('crew_state').select('id, level, loyalty').eq('user_id', user.id);
-    if (crewData && crewData.length > 0) {
-      const target = crewData[Math.floor(Math.random() * crewData.length)];
+
+    const crewState = crewStates.find(cs => cs.crew_id === selectedTrainCrewId);
+    if (crewState) {
       if (type === 'level_up') {
-        await supabase.from('crew_state').update({ level: target.level + 1 }).eq('id', target.id);
+        await supabase.from('crew_state').update({ level: (crewState.level || 1) + 1 }).eq('user_id', user.id).eq('crew_id', selectedTrainCrewId);
       } else {
-        await supabase.from('crew_state').update({ loyalty: Math.min(100, target.loyalty + 5) }).eq('id', target.id);
+        await supabase.from('crew_state').update({ loyalty: Math.min(100, (crewState.loyalty || 60) + 5) }).eq('user_id', user.id).eq('crew_id', selectedTrainCrewId);
       }
     }
+
+    // Refresh crew states
+    const { data: freshCrew } = await supabase.from('crew_state').select('crew_id, unlocked, level, loyalty').eq('user_id', user.id);
+    if (freshCrew) setCrewStates(freshCrew);
+
+    const member = CREW_MEMBERS.find(m => m.id === selectedTrainCrewId);
+    const memberName = member ? member.name : selectedTrainCrewId;
     setCash(cash - cost);
     setActing(false);
     Haptics.success();
-    toast({ title: type === 'level_up' ? '⬆ Crew Member Leveled Up!' : '❤️ Loyalty Boosted!', description: `Cost: $${cost}` });
+    toast({ title: type === 'level_up' ? `⬆ ${memberName} Leveled Up!` : `❤️ ${memberName}'s Loyalty Boosted!`, description: `Cost: $${cost}` });
   };
 
   const handleIntel = async (type: string) => {
