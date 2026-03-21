@@ -25,9 +25,9 @@ import ChaosCardReveal from '@/screens/heist/ChaosCardReveal';
 import HeistExecution from '@/screens/heist/HeistExecution';
 import HeistResults from '@/screens/heist/HeistResults';
 import ResetPasswordScreen from '@/screens/ResetPasswordScreen';
-
 import PhotoModeScreen from '@/screens/PhotoModeScreen';
 import DistrictActivityScreen from '@/screens/DistrictActivityScreen';
+import JailScreen from '@/screens/JailScreen';
 import type { Session } from '@supabase/supabase-js';
 
 const queryClient = new QueryClient();
