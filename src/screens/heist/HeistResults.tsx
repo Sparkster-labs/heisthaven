@@ -258,6 +258,21 @@ const HeistResults = ({ vault, crewIds, chaosCard, miniGameResults, onFinish, on
       }
     });
 
+    // Check achievements
+    const newAchievements = await checkAndUnlockAchievements(user.id, {
+      success,
+      crewIds,
+      miniGameResults,
+      vaultTier: vault.tier,
+      chaosCardEffect: chaosCard.effect,
+    });
+    newAchievements.forEach(id => {
+      const ach = (await import('@/lib/achievements')).ACHIEVEMENTS.find(a => a.id === id);
+      if (ach) {
+        toast({ title: `🏆 ${ach.name}`, description: ach.description });
+      }
+    });
+
     // Jail on bust — failed heist outcome triggers jail
     if (!success && onJailed) {
       // Get or create jail record
