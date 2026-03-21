@@ -145,7 +145,7 @@ const AppInner = () => {
         content = (
           <>
             <DailyLoginModal />
-            <OnboardingOverlay />
+            <OnboardingOverlay onNavigate={(tab) => handleTabChange(tab)} />
             <SafehouseScreen
               activeTab={activeTab}
               onTabChange={handleTabChange}
