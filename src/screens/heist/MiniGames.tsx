@@ -266,6 +266,10 @@ export const WireCutGame = ({ difficulty, onResult }: WireCutProps) => {
           setTimeout(() => onResult(false), 1200);
           return 0;
         }
+        // Heartbeat in final 3 seconds
+        if (next <= 3 && Math.abs(next - Math.round(next)) < 0.05) {
+          SFX.heartbeat();
+        }
         return next;
       });
     }, 50);
