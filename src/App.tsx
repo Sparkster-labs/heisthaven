@@ -25,7 +25,7 @@ import ChaosCardReveal from '@/screens/heist/ChaosCardReveal';
 import HeistExecution from '@/screens/heist/HeistExecution';
 import HeistResults from '@/screens/heist/HeistResults';
 import ResetPasswordScreen from '@/screens/ResetPasswordScreen';
-import DressingRoomScreen from '@/screens/DressingRoomScreen';
+
 import PhotoModeScreen from '@/screens/PhotoModeScreen';
 import DistrictActivityScreen from '@/screens/DistrictActivityScreen';
 import type { Session } from '@supabase/supabase-js';
@@ -90,11 +90,8 @@ const AppInner = () => {
   if (subScreen === 'iap') {
     return <IAPScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} onBack={() => navigate(() => setSubScreen(null))} />;
   }
-  if (subScreen === 'dressing_room') {
-    return <DressingRoomScreen onBack={() => navigate(() => setSubScreen(null))} onOpenPhotoMode={() => navigate(() => setSubScreen('photo_mode'))} />;
-  }
   if (subScreen === 'photo_mode') {
-    return <PhotoModeScreen onBack={() => navigate(() => setSubScreen('dressing_room'))} />;
+    return <PhotoModeScreen onBack={() => navigate(() => setSubScreen(null))} />;
   }
   if (subScreen === 'empire') {
     return <EmpireScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} />;
@@ -141,7 +138,7 @@ const AppInner = () => {
             onOpenRoom={(roomId) => {
               if (roomId === 'vault') navigate(() => setSubScreen('held_loot'));
               if (roomId === 'war_room') navigate(() => setSubScreen('leaderboard'));
-              if (roomId === 'dressing_room') navigate(() => setSubScreen('dressing_room'));
+              
             }}
             onOpenIAP={() => navigate(() => setSubScreen('iap'))}
             onOpenBlackMarket={() => navigate(() => setSubScreen('black_market'))}
