@@ -144,9 +144,15 @@ const DressingRoomScreen = ({ onBack, onOpenPhotoMode }: DressingRoomScreenProps
 
   // Unified item list — all clothing + legendary, filtered
   const filteredItems = useMemo(() => {
-    const allItems = [...CLOTHING_ITEMS, ...LEGENDARY_ITEMS];
+    const allItems: Array<(typeof CLOTHING_ITEMS[number] | typeof LEGENDARY_ITEMS[number]) & { _isLegendary?: boolean }> = [
+      ...CLOTHING_ITEMS.map(i => ({ ...i, _isLegendary: false as const })),
+      ...LEGENDARY_ITEMS.map(i => ({ ...i, _isLegendary: true as const })),
+    ];
     return allItems
-      .filter(i => i.gender === 'all' || i.gender === avatarConfig.gender)
+      .filter(i => {
+        if (i._isLegendary) return true;
+        return (i as typeof CLOTHING_ITEMS[number]).gender === 'all' || (i as typeof CLOTHING_ITEMS[number]).gender === avatarConfig.gender;
+      })
       .filter(i => filterCat === 'all' || i.cat === filterCat)
       .filter(i => {
         if (filterOwned === 'owned') return ownedItemIds.has(i.id);
@@ -157,7 +163,9 @@ const DressingRoomScreen = ({ onBack, onOpenPhotoMode }: DressingRoomScreenProps
         const aOwned = ownedItemIds.has(a.id) ? 0 : 1;
         const bOwned = ownedItemIds.has(b.id) ? 0 : 1;
         if (aOwned !== bOwned) return aOwned - bOwned;
-        return a.tier - b.tier;
+        const aTier = a._isLegendary ? 4 : (a as typeof CLOTHING_ITEMS[number]).tier;
+        const bTier = b._isLegendary ? 4 : (b as typeof CLOTHING_ITEMS[number]).tier;
+        return aTier - bTier;
       });
   }, [filterCat, filterOwned, ownedItemIds, avatarConfig.gender]);
 
