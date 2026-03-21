@@ -10,8 +10,6 @@ import DailyLoginModal from '@/components/DailyLoginModal';
 import OnboardingOverlay from '@/components/OnboardingOverlay';
 import AuthScreen from '@/screens/AuthScreen';
 import SafehouseScreen from '@/screens/SafehouseScreen';
-import CityMapScreen from '@/screens/CityMapScreen';
-import CrewScreen from '@/screens/CrewScreen';
 import ProfileScreen from '@/screens/ProfileScreen';
 import HeldLootScreen from '@/screens/HeldLootScreen';
 import LeaderboardScreen from '@/screens/LeaderboardScreen';
@@ -19,6 +17,8 @@ import JobBoardScreen from '@/screens/JobBoardScreen';
 import BlackMarketScreen from '@/screens/BlackMarketScreen';
 import EmpireScreen from '@/screens/EmpireScreen';
 import IAPScreen from '@/screens/IAPScreen';
+import CityMapScreen from '@/screens/CityMapScreen';
+import CrewScreen from '@/screens/CrewScreen';
 import VaultSelectScreen from '@/screens/heist/VaultSelectScreen';
 import CrewHireScreen from '@/screens/heist/CrewHireScreen';
 import ChaosCardReveal from '@/screens/heist/ChaosCardReveal';
@@ -77,7 +77,7 @@ const AppInner = () => {
     return <AuthScreen onAuth={() => {}} />;
   }
 
-  // Sub-screens
+  // Sub-screens (accessible from Safehouse quick links)
   if (subScreen === 'held_loot') {
     return <HeldLootScreen onBack={() => navigate(() => setSubScreen(null))} />;
   }
@@ -96,8 +96,17 @@ const AppInner = () => {
   if (subScreen === 'photo_mode') {
     return <PhotoModeScreen onBack={() => navigate(() => setSubScreen('dressing_room'))} />;
   }
+  if (subScreen === 'empire') {
+    return <EmpireScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} />;
+  }
+  if (subScreen === 'city') {
+    return <CityMapScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} onOpenDistrict={(id, name, color) => navigate(() => { setDistrictInfo({ id, name, color }); setSubScreen('district_activity'); })} />;
+  }
+  if (subScreen === 'crew') {
+    return <CrewScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} />;
+  }
   if (subScreen === 'district_activity' && districtInfo) {
-    return <DistrictActivityScreen districtId={districtInfo.id} districtName={districtInfo.name} cityColor={districtInfo.color} onBack={() => navigate(() => { setSubScreen(null); setDistrictInfo(null); })} />;
+    return <DistrictActivityScreen districtId={districtInfo.id} districtName={districtInfo.name} cityColor={districtInfo.color} onBack={() => navigate(() => { setSubScreen('city'); setDistrictInfo(null); })} />;
   }
 
   // Heist phases
@@ -117,7 +126,7 @@ const AppInner = () => {
     return <VaultSelectScreen vault={selectedVault} onCommit={() => setHeistPhase('crew')} onBack={() => navigate(() => { setSelectedVault(null); setHeistPhase(null); })} />;
   }
 
-  // Tab routing
+  // Tab routing — only 3 tabs now
   const handleTabChange = (tab: string) => navigate(() => setActiveTab(tab));
 
   switch (activeTab) {
@@ -137,17 +146,14 @@ const AppInner = () => {
             onOpenIAP={() => navigate(() => setSubScreen('iap'))}
             onOpenBlackMarket={() => navigate(() => setSubScreen('black_market'))}
             onOpenHeldLoot={() => navigate(() => setSubScreen('held_loot'))}
+            onOpenEmpire={() => navigate(() => setSubScreen('empire'))}
+            onOpenCity={() => navigate(() => setSubScreen('city'))}
+            onOpenCrew={() => navigate(() => setSubScreen('crew'))}
           />
         </>
       );
     case 'jobs':
       return <JobBoardScreen activeTab={activeTab} onTabChange={handleTabChange} onSelectVault={(vault) => navigate(() => { setSelectedVault(vault); setHeistPhase('vault'); })} />;
-    case 'city':
-      return <CityMapScreen activeTab={activeTab} onTabChange={handleTabChange} onOpenDistrict={(id, name, color) => navigate(() => { setDistrictInfo({ id, name, color }); setSubScreen('district_activity'); })} />;
-    case 'empire':
-      return <EmpireScreen activeTab={activeTab} onTabChange={handleTabChange} />;
-    case 'crew':
-      return <CrewScreen activeTab={activeTab} onTabChange={handleTabChange} />;
     case 'profile':
       return <ProfileScreen activeTab={activeTab} onTabChange={handleTabChange} />;
     default:
