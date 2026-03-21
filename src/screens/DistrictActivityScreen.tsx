@@ -141,27 +141,28 @@ const DistrictActivityScreen = ({ districtId, districtName, cityColor, onBack }:
   };
 
   return (
-    <div style={S.page}>
-      <div style={{ maxWidth: 480, margin: '0 auto', padding: THEME.space.lg, paddingTop: THEME.space.xl }}>
+    <div style={{ ...S.page, paddingBottom: 72, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+      <div style={{ maxWidth: 480, margin: '0 auto', padding: `${THEME.space.md}px ${THEME.space.md}px` }}>
         {/* Back */}
         <button onClick={onBack} style={{
           background: 'none', border: 'none', color: THEME.colors.textMuted,
           fontFamily: THEME.fonts.display, fontSize: 11, letterSpacing: 2,
-          cursor: 'pointer', marginBottom: THEME.space.lg, padding: 0,
+          cursor: 'pointer', marginBottom: THEME.space.md, padding: `${THEME.space.sm}px 0`,
+          minHeight: 44,
         }}>
           ← BACK TO MAP
         </button>
 
         <div style={{ ...S.eyebrow, color: cityColor }}>{districtName.toUpperCase()}</div>
-        <h1 style={{ ...S.h1, fontSize: 20, marginBottom: THEME.space.sm, color: cityColor }}>
+        <h1 style={{ ...S.h1, fontSize: 18, marginBottom: THEME.space.xs, color: cityColor }}>
           DISTRICT ACTIVITIES
         </h1>
-        <div style={{ fontSize: 12, fontFamily: THEME.fonts.mono, color: THEME.colors.gold, marginBottom: THEME.space.lg }}>
+        <div style={{ fontSize: 12, fontFamily: THEME.fonts.mono, color: THEME.colors.gold, marginBottom: THEME.space.md }}>
           ${cash.toLocaleString()} on hand
         </div>
 
         {activities.length === 0 && (
-          <div style={{ ...S.card, textAlign: 'center' }}>
+          <div style={{ ...S.card, textAlign: 'center', padding: THEME.space.xl }}>
             <div style={{ fontSize: 36, marginBottom: THEME.space.md }}>🌙</div>
             <div style={{ fontFamily: THEME.fonts.body, fontStyle: 'italic', color: THEME.colors.textMuted }}>
               Nothing happening here... yet.
@@ -169,138 +170,138 @@ const DistrictActivityScreen = ({ districtId, districtName, cityColor, onBack }:
           </div>
         )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: THEME.space.md }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: THEME.space.sm }}>
           {activities.map(activity => (
-            <div key={activity.id} style={{ ...S.card, position: 'relative', overflow: 'hidden' }}>
+            <div key={activity.id} style={{ ...S.card, position: 'relative', overflow: 'hidden', padding: `${THEME.space.md}px ${THEME.space.md}px ${THEME.space.md}px ${THEME.space.md + 6}px` }}>
               {/* Accent bar */}
-              <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: cityColor, borderRadius: '4px 0 0 4px' }} />
+              <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: cityColor }} />
 
-              <div style={{ paddingLeft: THEME.space.sm }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: THEME.space.sm, marginBottom: THEME.space.sm }}>
-                  <span style={{ fontSize: 24 }}>{activity.emoji}</span>
-                  <div>
-                    <div style={{ fontFamily: THEME.fonts.display, fontSize: 13, color: THEME.colors.textPrimary, letterSpacing: 1, textTransform: 'uppercase' }}>
-                      {activity.name}
-                    </div>
-                    <div style={{ fontSize: 10, fontFamily: THEME.fonts.body, color: THEME.colors.textSecondary }}>
-                      {activity.description}
-                    </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: THEME.space.sm, marginBottom: THEME.space.xs }}>
+                <span style={{ fontSize: 22 }}>{activity.emoji}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: THEME.fonts.display, fontSize: 12, color: THEME.colors.textPrimary, letterSpacing: 1, textTransform: 'uppercase' }}>
+                    {activity.name}
+                  </div>
+                  <div style={{ fontSize: 10, fontFamily: THEME.fonts.body, color: THEME.colors.textSecondary, lineHeight: 1.4 }}>
+                    {activity.description}
                   </div>
                 </div>
-
-                <p style={{ fontFamily: THEME.fonts.body, fontSize: 10, fontStyle: 'italic', color: THEME.colors.textMuted, marginBottom: THEME.space.md }}>
-                  "{activity.lore}"
-                </p>
-
-                {/* GAMBLING UI */}
-                {activity.type === 'gambling' && gamblingConfig && (
-                  <div>
-                    <div style={{ fontSize: 9, fontFamily: THEME.fonts.mono, color: THEME.colors.textMuted, marginBottom: THEME.space.sm }}>
-                      BET: ${gamblingConfig.minBet}–${gamblingConfig.maxBet} | WIN: {Math.round(gamblingConfig.winChance * 100)}% | PAYOUT: {gamblingConfig.multiplier}x
-                    </div>
-                    <div style={{ display: 'flex', gap: THEME.space.sm }}>
-                      <input type="number" value={betAmount} onChange={e => setBetAmount(e.target.value)}
-                        placeholder={`$${gamblingConfig.minBet}+`}
-                        style={{
-                          flex: 1, background: THEME.colors.dusk, border: `1px solid ${THEME.colors.borderFaint}`,
-                          borderRadius: THEME.radius.sm, padding: '8px 12px',
-                          fontFamily: THEME.fonts.mono, fontSize: 12, color: THEME.colors.textPrimary, outline: 'none',
-                        }}
-                      />
-                      <button onClick={handleGamble} disabled={acting || !betAmount} style={{
-                        ...S.btnPrimary, width: 'auto', padding: '8px 16px', fontSize: 10,
-                      }}>
-                        {acting ? '...' : 'BET'}
-                      </button>
-                    </div>
-                    {gamblingResult && (
-                      <div style={{
-                        marginTop: THEME.space.sm, padding: THEME.space.sm, borderRadius: THEME.radius.sm,
-                        background: gamblingResult.won ? `${THEME.colors.emerald}10` : `${THEME.colors.ruby}10`,
-                        color: gamblingResult.won ? THEME.colors.emerald : THEME.colors.ruby,
-                        fontSize: 11, fontFamily: THEME.fonts.display, textAlign: 'center', letterSpacing: 2,
-                      }}>
-                        {gamblingResult.won ? `🎉 WON $${gamblingResult.amount}` : `💸 LOST $${gamblingResult.amount}`}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* FENCE UI */}
-                {activity.type === 'fence' && fenceRates && (
-                  <div>
-                    <div style={{ fontSize: 9, fontFamily: THEME.fonts.mono, color: THEME.colors.textMuted, marginBottom: THEME.space.sm }}>
-                      SELL JEWELS FOR CASH
-                    </div>
-                    <div style={{ display: 'flex', gap: THEME.space.xs, flexWrap: 'wrap' }}>
-                      {Object.entries(fenceRates).map(([type, price]) => {
-                        const count = jewels[type] || 0;
-                        return (
-                          <button key={type} onClick={() => handleSellJewel(type)} disabled={count <= 0 || acting}
-                            style={{
-                              padding: '6px 12px', borderRadius: THEME.radius.sm, cursor: count > 0 ? 'pointer' : 'default',
-                              background: THEME.colors.dusk, border: `1px solid ${THEME.colors.borderFaint}`,
-                              opacity: count > 0 ? 1 : 0.3, fontSize: 10, fontFamily: THEME.fonts.mono,
-                              color: THEME.colors.textPrimary, display: 'flex', alignItems: 'center', gap: 4,
-                            }}>
-                            {jewelEmojis[type]}{count} → ${price}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* TRAINING UI */}
-                {activity.type === 'training' && (
-                  <div style={{ display: 'flex', gap: THEME.space.sm }}>
-                    <button onClick={() => handleTraining('level_up')} disabled={acting || cash < TRAINING_COST.level_up}
-                      style={{ ...S.btnPrimary, flex: 1, fontSize: 9, padding: '8px', opacity: cash < TRAINING_COST.level_up ? 0.4 : 1 }}>
-                      ⬆ LEVEL UP (${TRAINING_COST.level_up})
-                    </button>
-                    <button onClick={() => handleTraining('loyalty_boost')} disabled={acting || cash < TRAINING_COST.loyalty_boost}
-                      style={{ ...S.btnGhost, flex: 1, fontSize: 9, padding: '8px', opacity: cash < TRAINING_COST.loyalty_boost ? 0.4 : 1 }}>
-                      ❤️ LOYALTY (${TRAINING_COST.loyalty_boost})
-                    </button>
-                  </div>
-                )}
-
-                {/* INTEL UI */}
-                {activity.type === 'intel' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: THEME.space.xs }}>
-                    {[
-                      { type: 'vault_info', label: 'VAULT INTEL', cost: INTEL_COST.vault_info, emoji: '📋' },
-                      { type: 'chaos_preview', label: 'CHAOS FORECAST', cost: INTEL_COST.chaos_preview, emoji: '🔮' },
-                      { type: 'heat_reset', label: 'COOL HEAT', cost: INTEL_COST.district_heat_reset, emoji: '❄️' },
-                    ].map(item => (
-                      <button key={item.type} onClick={() => handleIntel(item.type)}
-                        disabled={acting || cash < item.cost}
-                        style={{
-                          ...S.btnGhost, fontSize: 9, padding: '8px 12px',
-                          display: 'flex', justifyContent: 'space-between',
-                          opacity: cash < item.cost ? 0.4 : 1,
-                        }}>
-                        <span>{item.emoji} {item.label}</span>
-                        <span style={{ color: THEME.colors.gold }}>${item.cost}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {/* SHOP UI */}
-                {activity.type === 'shop' && (
-                  <div style={{ fontSize: 11, fontFamily: THEME.fonts.body, fontStyle: 'italic', color: THEME.colors.textMuted }}>
-                    Visit the Black Market or Empire screen for purchases.
-                  </div>
-                )}
-
-                {/* RECRUITMENT UI */}
-                {activity.type === 'recruitment' && (
-                  <div style={{ fontSize: 11, fontFamily: THEME.fonts.body, fontStyle: 'italic', color: THEME.colors.textMuted }}>
-                    Visit the Crew screen to recruit new members.
-                  </div>
-                )}
               </div>
+
+              <p style={{ fontFamily: THEME.fonts.body, fontSize: 9, fontStyle: 'italic', color: THEME.colors.textMuted, marginBottom: THEME.space.sm, marginTop: 0 }}>
+                "{activity.lore}"
+              </p>
+
+              {/* GAMBLING UI */}
+              {activity.type === 'gambling' && gamblingConfig && (
+                <div>
+                  <div style={{ fontSize: 9, fontFamily: THEME.fonts.mono, color: THEME.colors.textMuted, marginBottom: THEME.space.xs }}>
+                    BET: ${gamblingConfig.minBet}–${gamblingConfig.maxBet} | WIN: {Math.round(gamblingConfig.winChance * 100)}% | {gamblingConfig.multiplier}x
+                  </div>
+                  <div style={{ display: 'flex', gap: THEME.space.xs }}>
+                    <input type="number" inputMode="numeric" value={betAmount} onChange={e => setBetAmount(e.target.value)}
+                      placeholder={`$${gamblingConfig.minBet}+`}
+                      style={{
+                        flex: 1, background: THEME.colors.dusk, border: `1px solid ${THEME.colors.borderFaint}`,
+                        borderRadius: THEME.radius.sm, padding: '10px 12px',
+                        fontFamily: THEME.fonts.mono, fontSize: 14, color: THEME.colors.textPrimary, outline: 'none',
+                        minWidth: 0,
+                      }}
+                    />
+                    <button onClick={handleGamble} disabled={acting || !betAmount} style={{
+                      ...S.btnPrimary, width: 'auto', padding: '10px 20px', fontSize: 11, minHeight: 44,
+                    }}>
+                      {acting ? '...' : 'BET'}
+                    </button>
+                  </div>
+                  {gamblingResult && (
+                    <div style={{
+                      marginTop: THEME.space.xs, padding: THEME.space.sm, borderRadius: THEME.radius.sm,
+                      background: gamblingResult.won ? `${THEME.colors.emerald}10` : `${THEME.colors.ruby}10`,
+                      color: gamblingResult.won ? THEME.colors.emerald : THEME.colors.ruby,
+                      fontSize: 11, fontFamily: THEME.fonts.display, textAlign: 'center', letterSpacing: 2,
+                    }}>
+                      {gamblingResult.won ? `🎉 WON $${gamblingResult.amount}` : `💸 LOST $${gamblingResult.amount}`}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* FENCE UI */}
+              {activity.type === 'fence' && fenceRates && (
+                <div>
+                  <div style={{ fontSize: 9, fontFamily: THEME.fonts.mono, color: THEME.colors.textMuted, marginBottom: THEME.space.xs }}>
+                    SELL JEWELS FOR CASH
+                  </div>
+                  <div style={{ display: 'flex', gap: THEME.space.xs, flexWrap: 'wrap' }}>
+                    {Object.entries(fenceRates).map(([type, price]) => {
+                      const count = jewels[type] || 0;
+                      return (
+                        <button key={type} onClick={() => handleSellJewel(type)} disabled={count <= 0 || acting}
+                          style={{
+                            padding: '8px 12px', borderRadius: THEME.radius.sm, cursor: count > 0 ? 'pointer' : 'default',
+                            background: THEME.colors.dusk, border: `1px solid ${THEME.colors.borderFaint}`,
+                            opacity: count > 0 ? 1 : 0.3, fontSize: 11, fontFamily: THEME.fonts.mono,
+                            color: THEME.colors.textPrimary, display: 'flex', alignItems: 'center', gap: 4,
+                            minHeight: 40,
+                          }}>
+                          {jewelEmojis[type]}{count} → ${price}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* TRAINING UI */}
+              {activity.type === 'training' && (
+                <div style={{ display: 'flex', gap: THEME.space.xs }}>
+                  <button onClick={() => handleTraining('level_up')} disabled={acting || cash < TRAINING_COST.level_up}
+                    style={{ ...S.btnPrimary, flex: 1, fontSize: 10, padding: '10px 8px', minHeight: 44, opacity: cash < TRAINING_COST.level_up ? 0.4 : 1 }}>
+                    ⬆ LEVEL UP (${TRAINING_COST.level_up})
+                  </button>
+                  <button onClick={() => handleTraining('loyalty_boost')} disabled={acting || cash < TRAINING_COST.loyalty_boost}
+                    style={{ ...S.btnGhost, flex: 1, fontSize: 10, padding: '10px 8px', minHeight: 44, opacity: cash < TRAINING_COST.loyalty_boost ? 0.4 : 1 }}>
+                    ❤️ LOYALTY (${TRAINING_COST.loyalty_boost})
+                  </button>
+                </div>
+              )}
+
+              {/* INTEL UI */}
+              {activity.type === 'intel' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: THEME.space.xs }}>
+                  {[
+                    { type: 'vault_info', label: 'VAULT INTEL', cost: INTEL_COST.vault_info, emoji: '📋' },
+                    { type: 'chaos_preview', label: 'CHAOS FORECAST', cost: INTEL_COST.chaos_preview, emoji: '🔮' },
+                    { type: 'heat_reset', label: 'COOL HEAT', cost: INTEL_COST.district_heat_reset, emoji: '❄️' },
+                  ].map(item => (
+                    <button key={item.type} onClick={() => handleIntel(item.type)}
+                      disabled={acting || cash < item.cost}
+                      style={{
+                        ...S.btnGhost, fontSize: 10, padding: '10px 12px', minHeight: 44,
+                        display: 'flex', justifyContent: 'space-between',
+                        opacity: cash < item.cost ? 0.4 : 1,
+                      }}>
+                      <span>{item.emoji} {item.label}</span>
+                      <span style={{ color: THEME.colors.gold }}>${item.cost}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* SHOP UI */}
+              {activity.type === 'shop' && (
+                <div style={{ fontSize: 11, fontFamily: THEME.fonts.body, fontStyle: 'italic', color: THEME.colors.textMuted }}>
+                  Visit the Black Market or Empire screen for purchases.
+                </div>
+              )}
+
+              {/* RECRUITMENT UI */}
+              {activity.type === 'recruitment' && (
+                <div style={{ fontSize: 11, fontFamily: THEME.fonts.body, fontStyle: 'italic', color: THEME.colors.textMuted }}>
+                  Visit the Crew screen to recruit new members.
+                </div>
+              )}
             </div>
           ))}
         </div>
