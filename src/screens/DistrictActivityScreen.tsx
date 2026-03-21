@@ -27,7 +27,7 @@ const DistrictActivityScreen = ({ districtId, districtName, cityColor, onBack }:
   const fenceRates = FENCE_RATES[districtId];
 
   // Load profile data
-  useState(() => {
+  useEffect(() => {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -39,7 +39,7 @@ const DistrictActivityScreen = ({ districtId, districtName, cityColor, onBack }:
       setLoaded(true);
     };
     load();
-  });
+  }, []);
 
   const handleGamble = async () => {
     const bet = parseInt(betAmount);

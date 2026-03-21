@@ -14,14 +14,22 @@ export const useTransition = () => useContext(TransitionContext);
 
 export const TransitionProvider = ({ children }: { children: ReactNode }) => {
   const [transitioning, setTransitioning] = useState(false);
-  const callbackRef = useRef<(() => void) | null>(null);
+  const busyRef = useRef(false);
 
   const triggerTransition = useCallback((callback: () => void) => {
-    callbackRef.current = callback;
+    if (busyRef.current) {
+      // Skip animation, execute immediately
+      callback();
+      return;
+    }
+    busyRef.current = true;
     setTransitioning(true);
     setTimeout(() => {
       callback();
-      setTimeout(() => setTransitioning(false), 50);
+      setTimeout(() => {
+        setTransitioning(false);
+        busyRef.current = false;
+      }, 50);
     }, 200);
   }, []);
 
