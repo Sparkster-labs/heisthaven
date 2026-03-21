@@ -4,7 +4,7 @@ import { CITIES } from '@/lib/gameData';
 import { supabase } from '@/integrations/supabase/client';
 import type { Json } from '@/integrations/supabase/types';
 import { toast } from '@/hooks/use-toast';
-import BottomNav from '@/components/BottomNav';
+
 
 interface CityMapScreenProps {
   activeTab: string;
@@ -476,7 +476,7 @@ const CityMapScreen = ({ activeTab, onTabChange, onOpenDistrict }: CityMapScreen
         );
       })()}
 
-      <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
+      
     </div>
   );
 };

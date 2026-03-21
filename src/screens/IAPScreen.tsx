@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import BottomNav from '@/components/BottomNav';
+
 
 interface IAPScreenProps {
   activeTab: string;
@@ -309,7 +309,7 @@ const IAPScreen = ({ activeTab, onTabChange, onBack }: IAPScreenProps) => {
         </div>
       </div>
 
-      <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
+      
     </div>
   );
 };

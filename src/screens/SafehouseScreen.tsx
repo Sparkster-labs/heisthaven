@@ -4,7 +4,7 @@ import { SAFEHOUSE_ROOMS } from '@/lib/gameData';
 import { supabase } from '@/integrations/supabase/client';
 import type { Json } from '@/integrations/supabase/types';
 import { toast } from '@/hooks/use-toast';
-import BottomNav from '@/components/BottomNav';
+
 import SafehouseRoomModal from '@/components/SafehouseRoomModal';
 import HeldLootBanner from '@/components/HeldLootBanner';
 import SkeletonLoader from '@/components/SkeletonLoader';
@@ -88,7 +88,6 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom, onOpenIAP, onOpen
     return (
       <div style={S.page}>
         <SkeletonLoader variant="safehouse" />
-        <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
       </div>
     );
   }
@@ -292,7 +291,7 @@ const SafehouseScreen = ({ activeTab, onTabChange, onOpenRoom, onOpenIAP, onOpen
         />
       )}
 
-      <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
+      
     </div>
   );
 };

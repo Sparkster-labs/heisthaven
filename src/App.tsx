@@ -28,6 +28,7 @@ import ResetPasswordScreen from '@/screens/ResetPasswordScreen';
 import PhotoModeScreen from '@/screens/PhotoModeScreen';
 import DistrictActivityScreen from '@/screens/DistrictActivityScreen';
 import JailScreen from '@/screens/JailScreen';
+import BottomNav from '@/components/BottomNav';
 import type { Session } from '@supabase/supabase-js';
 
 const queryClient = new QueryClient();
@@ -96,90 +97,89 @@ const AppInner = () => {
     return <AuthScreen onAuth={() => {}} />;
   }
 
-  // Jail screen — blocks all navigation
-  if (isJailed) {
-    return <JailScreen onRelease={() => navigate(() => { setIsJailed(false); setActiveTab('home'); })} />;
-  }
-
-  // Sub-screens (accessible from Safehouse quick links)
-  if (subScreen === 'held_loot') {
-    return <HeldLootScreen onBack={() => navigate(() => setSubScreen(null))} />;
-  }
-  if (subScreen === 'leaderboard') {
-    return <LeaderboardScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} />;
-  }
-  if (subScreen === 'black_market') {
-    return <BlackMarketScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} />;
-  }
-  if (subScreen === 'iap') {
-    return <IAPScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} onBack={() => navigate(() => setSubScreen(null))} />;
-  }
-  if (subScreen === 'photo_mode') {
-    return <PhotoModeScreen onBack={() => navigate(() => setSubScreen(null))} />;
-  }
-  if (subScreen === 'empire') {
-    return <EmpireScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} />;
-  }
-  if (subScreen === 'city') {
-    return <CityMapScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} onOpenDistrict={(id, name, color) => navigate(() => { setDistrictInfo({ id, name, color }); setSubScreen('district_activity'); })} />;
-  }
-  if (subScreen === 'crew') {
-    return <CrewScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} />;
-  }
-  if (subScreen === 'district_activity' && districtInfo) {
-    return <DistrictActivityScreen districtId={districtInfo.id} districtName={districtInfo.name} cityColor={districtInfo.color} onBack={() => navigate(() => { setSubScreen('city'); setDistrictInfo(null); })} />;
-  }
-
-  // Heist phases
-  if (selectedVault && heistPhase === 'results' && chaosCard && heistOutcome) {
-    return <HeistResults vault={selectedVault} crewIds={selectedCrewIds} chaosCard={chaosCard} miniGameResults={heistOutcome.miniGameResults} onFinish={() => navigate(() => { setHeistPhase(null); setSelectedVault(null); setSelectedCrewIds([]); setChaosCard(null); setHeistOutcome(null); setActiveTab('home'); })} onJailed={() => navigate(() => { setHeistPhase(null); setSelectedVault(null); setSelectedCrewIds([]); setChaosCard(null); setHeistOutcome(null); setIsJailed(true); })} />;
-  }
-  if (selectedVault && heistPhase === 'execution' && chaosCard) {
-    return <HeistExecution vault={selectedVault} crewIds={selectedCrewIds} chaosCard={chaosCard} onComplete={(outcome) => { setHeistOutcome(outcome); setHeistPhase('results'); }} />;
-  }
-  if (selectedVault && heistPhase === 'chaos') {
-    return <ChaosCardReveal onComplete={(card) => { setChaosCard(card); setHeistPhase('execution'); }} />;
-  }
-  if (selectedVault && heistPhase === 'crew') {
-    return <CrewHireScreen vault={selectedVault} onLaunch={(crewIds) => { setSelectedCrewIds(crewIds); setHeistPhase('chaos'); }} onBack={() => setHeistPhase('vault')} />;
-  }
-  if (selectedVault && heistPhase === 'vault') {
-    return <VaultSelectScreen vault={selectedVault} onCommit={() => setHeistPhase('crew')} onBack={() => navigate(() => { setSelectedVault(null); setHeistPhase(null); })} />;
-  }
-
-  // Tab routing — only 3 tabs now
+  // Determine which screen to render and whether to show bottom nav
   const handleTabChange = (tab: string) => navigate(() => setActiveTab(tab));
+  let showNav = true;
+  let content: React.ReactNode = null;
 
-  switch (activeTab) {
-    case 'home':
-      return (
-        <>
-          <DailyLoginModal />
-          <OnboardingOverlay />
-          <SafehouseScreen
-            activeTab={activeTab}
-            onTabChange={handleTabChange}
-            onOpenRoom={(roomId) => {
-              if (roomId === 'vault') navigate(() => setSubScreen('held_loot'));
-              if (roomId === 'war_room') navigate(() => setSubScreen('leaderboard'));
-              
-            }}
-            onOpenIAP={() => navigate(() => setSubScreen('iap'))}
-            onOpenBlackMarket={() => navigate(() => setSubScreen('black_market'))}
-            onOpenHeldLoot={() => navigate(() => setSubScreen('held_loot'))}
-            onOpenEmpire={() => navigate(() => setSubScreen('empire'))}
-            onOpenCity={() => navigate(() => setSubScreen('city'))}
-            onOpenCrew={() => navigate(() => setSubScreen('crew'))}
-          />
-        </>
-      );
-    case 'jobs':
-      return <JobBoardScreen activeTab={activeTab} onTabChange={handleTabChange} onSelectVault={(vault) => navigate(() => { setSelectedVault(vault); setHeistPhase('vault'); })} />;
-    case 'profile':
-      return <ProfileScreen activeTab={activeTab} onTabChange={handleTabChange} />;
-    default:
-      return <SafehouseScreen activeTab={activeTab} onTabChange={handleTabChange} />;
+  if (isJailed) {
+    showNav = false;
+    content = <JailScreen onRelease={() => navigate(() => { setIsJailed(false); setActiveTab('home'); })} />;
+  } else if (subScreen === 'held_loot') {
+    content = <HeldLootScreen onBack={() => navigate(() => setSubScreen(null))} />;
+  } else if (subScreen === 'leaderboard') {
+    content = <LeaderboardScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} />;
+  } else if (subScreen === 'black_market') {
+    content = <BlackMarketScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} />;
+  } else if (subScreen === 'iap') {
+    content = <IAPScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} onBack={() => navigate(() => setSubScreen(null))} />;
+  } else if (subScreen === 'photo_mode') {
+    showNav = false;
+    content = <PhotoModeScreen onBack={() => navigate(() => setSubScreen(null))} />;
+  } else if (subScreen === 'empire') {
+    content = <EmpireScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} />;
+  } else if (subScreen === 'city') {
+    content = <CityMapScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} onOpenDistrict={(id, name, color) => navigate(() => { setDistrictInfo({ id, name, color }); setSubScreen('district_activity'); })} />;
+  } else if (subScreen === 'crew') {
+    content = <CrewScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} />;
+  } else if (subScreen === 'district_activity' && districtInfo) {
+    content = <DistrictActivityScreen districtId={districtInfo.id} districtName={districtInfo.name} cityColor={districtInfo.color} onBack={() => navigate(() => { setSubScreen('city'); setDistrictInfo(null); })} />;
+  } else if (selectedVault && heistPhase === 'results' && chaosCard && heistOutcome) {
+    showNav = false;
+    content = <HeistResults vault={selectedVault} crewIds={selectedCrewIds} chaosCard={chaosCard} miniGameResults={heistOutcome.miniGameResults} onFinish={() => navigate(() => { setHeistPhase(null); setSelectedVault(null); setSelectedCrewIds([]); setChaosCard(null); setHeistOutcome(null); setActiveTab('home'); })} onJailed={() => navigate(() => { setHeistPhase(null); setSelectedVault(null); setSelectedCrewIds([]); setChaosCard(null); setHeistOutcome(null); setIsJailed(true); })} />;
+  } else if (selectedVault && heistPhase === 'execution' && chaosCard) {
+    showNav = false;
+    content = <HeistExecution vault={selectedVault} crewIds={selectedCrewIds} chaosCard={chaosCard} onComplete={(outcome) => { setHeistOutcome(outcome); setHeistPhase('results'); }} />;
+  } else if (selectedVault && heistPhase === 'chaos') {
+    showNav = false;
+    content = <ChaosCardReveal onComplete={(card) => { setChaosCard(card); setHeistPhase('execution'); }} />;
+  } else if (selectedVault && heistPhase === 'crew') {
+    showNav = false;
+    content = <CrewHireScreen vault={selectedVault} onLaunch={(crewIds) => { setSelectedCrewIds(crewIds); setHeistPhase('chaos'); }} onBack={() => setHeistPhase('vault')} />;
+  } else if (selectedVault && heistPhase === 'vault') {
+    showNav = false;
+    content = <VaultSelectScreen vault={selectedVault} onCommit={() => setHeistPhase('crew')} onBack={() => navigate(() => { setSelectedVault(null); setHeistPhase(null); })} />;
+  } else {
+    switch (activeTab) {
+      case 'home':
+        content = (
+          <>
+            <DailyLoginModal />
+            <OnboardingOverlay />
+            <SafehouseScreen
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              onOpenRoom={(roomId) => {
+                if (roomId === 'vault') navigate(() => setSubScreen('held_loot'));
+                if (roomId === 'war_room') navigate(() => setSubScreen('leaderboard'));
+              }}
+              onOpenIAP={() => navigate(() => setSubScreen('iap'))}
+              onOpenBlackMarket={() => navigate(() => setSubScreen('black_market'))}
+              onOpenHeldLoot={() => navigate(() => setSubScreen('held_loot'))}
+              onOpenEmpire={() => navigate(() => setSubScreen('empire'))}
+              onOpenCity={() => navigate(() => setSubScreen('city'))}
+              onOpenCrew={() => navigate(() => setSubScreen('crew'))}
+            />
+          </>
+        );
+        break;
+      case 'jobs':
+        content = <JobBoardScreen activeTab={activeTab} onTabChange={handleTabChange} onSelectVault={(vault) => navigate(() => { setSelectedVault(vault); setHeistPhase('vault'); })} />;
+        break;
+      case 'profile':
+        content = <ProfileScreen activeTab={activeTab} onTabChange={handleTabChange} />;
+        break;
+      default:
+        content = <SafehouseScreen activeTab={activeTab} onTabChange={handleTabChange} />;
+    }
   }
+
+  return (
+    <>
+      {content}
+      {showNav && <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />}
+    </>
+  );
 };
 
 const App = () => (

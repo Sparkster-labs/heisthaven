@@ -3,7 +3,7 @@ import { THEME, S } from '@/styles/theme';
 import { supabase } from '@/integrations/supabase/client';
 import type { Json } from '@/integrations/supabase/types';
 import { toast } from '@/hooks/use-toast';
-import BottomNav from '@/components/BottomNav';
+
 
 interface BlackMarketScreenProps {
   activeTab: string;
@@ -346,7 +346,7 @@ const BlackMarketScreen = ({ activeTab, onTabChange }: BlackMarketScreenProps) =
         </div>
       </div>
 
-      <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
+      
     </div>
   );
 };

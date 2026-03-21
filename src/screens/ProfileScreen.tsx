@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { REP_THRESHOLDS, CREW_MEMBERS } from '@/lib/gameData';
 import { supabase } from '@/integrations/supabase/client';
-import BottomNav from '@/components/BottomNav';
+
 
 interface ProfileScreenProps {
   activeTab: string;
@@ -506,7 +506,7 @@ const ProfileScreen = ({ activeTab, onTabChange }: ProfileScreenProps) => {
         </div>
       )}
 
-      <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
+      
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { THEME, S } from '@/styles/theme';
-import BottomNav from '@/components/BottomNav';
+
 
 interface PlaceholderScreenProps {
   title: string;
@@ -33,7 +33,7 @@ const PlaceholderScreen = ({ title, activeTab, onTabChange }: PlaceholderScreenP
           {title}
         </div>
       </div>
-      <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
+      
     </div>
   );
 };

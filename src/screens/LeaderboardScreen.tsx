@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { supabase } from '@/integrations/supabase/client';
-import BottomNav from '@/components/BottomNav';
+
 import { AvatarMini } from '@/components/Avatar';
 import { type AvatarConfig, type EquippedItems, DEFAULT_AVATAR, DEFAULT_EQUIPPED } from '@/lib/avatarData';
 
@@ -372,7 +372,7 @@ const LeaderboardScreen = ({ activeTab, onTabChange }: LeaderboardScreenProps) =
         )}
       </div>
 
-      <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
+      
     </div>
   );
 };

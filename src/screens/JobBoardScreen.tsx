@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { VAULTS, CITIES } from '@/lib/gameData';
 import { supabase } from '@/integrations/supabase/client';
-import BottomNav from '@/components/BottomNav';
+
 
 interface JobBoardScreenProps {
   activeTab: string;
@@ -306,7 +306,7 @@ const JobBoardScreen = ({ activeTab, onTabChange, onSelectVault }: JobBoardScree
         </button>
       </div>
 
-      <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
+      
     </div>
   );
 };
