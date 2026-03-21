@@ -43,9 +43,28 @@ const AppInner = () => {
   const [heistOutcome, setHeistOutcome] = useState<{ miniGameResults: boolean[] } | null>(null);
   const [subScreen, setSubScreen] = useState<string | null>(null);
   const [districtInfo, setDistrictInfo] = useState<{ id: string; name: string; color: string } | null>(null);
+  const [isJailed, setIsJailed] = useState(false);
   const { triggerTransition } = useTransition();
 
   const navigate = (cb: () => void) => triggerTransition(cb);
+
+  // Check jail status on session load
+  useEffect(() => {
+    if (!session) return;
+    const checkJail = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: jail } = await supabase
+        .from('jail_state')
+        .select('release_at, paid')
+        .eq('user_id', user.id)
+        .single();
+      if (jail && !jail.paid && new Date(jail.release_at) > new Date()) {
+        setIsJailed(true);
+      }
+    };
+    checkJail();
+  }, [session]);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
