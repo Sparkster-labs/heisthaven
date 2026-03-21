@@ -31,8 +31,8 @@ export const DIFFICULTY_CONFIG = {
   },
   coldRead: {
     1: { questions: 3, suspicionFillAt: 4, removeNeutral: false },
-    2: { questions: 3, suspicionFillAt: 3, removeNeutral: true },
-    3: { questions: 4, suspicionFillAt: 2, removeNeutral: true },
+    2: { questions: 4, suspicionFillAt: 3, removeNeutral: false },
+    3: { questions: 5, suspicionFillAt: 3, removeNeutral: true },
   },
   wireTap: {
     1: { gridSize: 5, lockedTiles: 0, timer: 30 },
