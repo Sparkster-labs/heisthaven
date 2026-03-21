@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { CREW_MEMBERS, CHAOS_CARDS } from '@/lib/gameData';
+import { SFX } from '@/lib/sounds';
 
 // Shared props for all extended mini-games
 interface ExtGameProps {
