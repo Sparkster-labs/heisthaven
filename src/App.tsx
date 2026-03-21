@@ -25,9 +25,9 @@ import ChaosCardReveal from '@/screens/heist/ChaosCardReveal';
 import HeistExecution from '@/screens/heist/HeistExecution';
 import HeistResults from '@/screens/heist/HeistResults';
 import ResetPasswordScreen from '@/screens/ResetPasswordScreen';
-
 import PhotoModeScreen from '@/screens/PhotoModeScreen';
 import DistrictActivityScreen from '@/screens/DistrictActivityScreen';
+import JailScreen from '@/screens/JailScreen';
 import type { Session } from '@supabase/supabase-js';
 
 const queryClient = new QueryClient();
@@ -43,9 +43,28 @@ const AppInner = () => {
   const [heistOutcome, setHeistOutcome] = useState<{ miniGameResults: boolean[] } | null>(null);
   const [subScreen, setSubScreen] = useState<string | null>(null);
   const [districtInfo, setDistrictInfo] = useState<{ id: string; name: string; color: string } | null>(null);
+  const [isJailed, setIsJailed] = useState(false);
   const { triggerTransition } = useTransition();
 
   const navigate = (cb: () => void) => triggerTransition(cb);
+
+  // Check jail status on session load
+  useEffect(() => {
+    if (!session) return;
+    const checkJail = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: jail } = await supabase
+        .from('jail_state')
+        .select('release_at, paid')
+        .eq('user_id', user.id)
+        .single();
+      if (jail && !jail.paid && new Date(jail.release_at) > new Date()) {
+        setIsJailed(true);
+      }
+    };
+    checkJail();
+  }, [session]);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -75,6 +94,11 @@ const AppInner = () => {
 
   if (!session) {
     return <AuthScreen onAuth={() => {}} />;
+  }
+
+  // Jail screen — blocks all navigation
+  if (isJailed) {
+    return <JailScreen onRelease={() => navigate(() => { setIsJailed(false); setActiveTab('home'); })} />;
   }
 
   // Sub-screens (accessible from Safehouse quick links)
@@ -108,7 +132,7 @@ const AppInner = () => {
 
   // Heist phases
   if (selectedVault && heistPhase === 'results' && chaosCard && heistOutcome) {
-    return <HeistResults vault={selectedVault} crewIds={selectedCrewIds} chaosCard={chaosCard} miniGameResults={heistOutcome.miniGameResults} onFinish={() => navigate(() => { setHeistPhase(null); setSelectedVault(null); setSelectedCrewIds([]); setChaosCard(null); setHeistOutcome(null); setActiveTab('home'); })} />;
+    return <HeistResults vault={selectedVault} crewIds={selectedCrewIds} chaosCard={chaosCard} miniGameResults={heistOutcome.miniGameResults} onFinish={() => navigate(() => { setHeistPhase(null); setSelectedVault(null); setSelectedCrewIds([]); setChaosCard(null); setHeistOutcome(null); setActiveTab('home'); })} onJailed={() => navigate(() => { setHeistPhase(null); setSelectedVault(null); setSelectedCrewIds([]); setChaosCard(null); setHeistOutcome(null); setIsJailed(true); })} />;
   }
   if (selectedVault && heistPhase === 'execution' && chaosCard) {
     return <HeistExecution vault={selectedVault} crewIds={selectedCrewIds} chaosCard={chaosCard} onComplete={(outcome) => { setHeistOutcome(outcome); setHeistPhase('results'); }} />;

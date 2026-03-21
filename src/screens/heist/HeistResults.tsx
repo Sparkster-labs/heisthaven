@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { THEME, S } from '@/styles/theme';
+import { calculateBailCost, JAIL_DURATION_MS } from '@/screens/JailScreen';
 import { VAULTS, CHAOS_CARDS, CREW_MEMBERS, REP_THRESHOLDS } from '@/lib/gameData';
 import { resolveHeist, calculateRepLevel, calculateFenceOffer } from '@/lib/heistEngine';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,6 +14,7 @@ interface HeistResultsProps {
   chaosCard: typeof CHAOS_CARDS[number];
   miniGameResults: boolean[];
   onFinish: () => void;
+  onJailed?: () => void;
 }
 
 const jewelEmojis: Record<string, string> = {
@@ -48,7 +50,7 @@ function useCountUp(target: number, duration: number, start: boolean) {
 
 type Phase = 'flash' | 'headline' | 'payout' | 'jewels' | 'ledger' | 'fence' | 'saving' | 'done';
 
-const HeistResults = ({ vault, crewIds, chaosCard, miniGameResults, onFinish }: HeistResultsProps) => {
+const HeistResults = ({ vault, crewIds, chaosCard, miniGameResults, onFinish, onJailed }: HeistResultsProps) => {
   const { toast } = useToast();
 
   // Resolve heist outcome using engine
@@ -254,6 +256,43 @@ const HeistResults = ({ vault, crewIds, chaosCard, miniGameResults, onFinish }: 
         toast({ title: `${jewelEmojis[jewel]} ${jewelLabels[jewel]} FOUND`, description: `×${count}` });
       }
     });
+
+    // Jail on bust — failed heist outcome triggers jail
+    if (!success && onJailed) {
+      // Get or create jail record
+      const { data: existingJail } = await supabase
+        .from('jail_state')
+        .select('offense_count')
+        .eq('user_id', user.id)
+        .single();
+
+      const offenseCount = existingJail ? existingJail.offense_count + 1 : 1;
+      const bailCost = calculateBailCost(offenseCount);
+      const releaseAt = new Date(Date.now() + JAIL_DURATION_MS).toISOString();
+
+      if (existingJail) {
+        await supabase.from('jail_state').update({
+          jailed_at: new Date().toISOString(),
+          release_at: releaseAt,
+          bail_cost: bailCost,
+          offense_count: offenseCount,
+          paid: false,
+        }).eq('user_id', user.id);
+      } else {
+        await supabase.from('jail_state').insert({
+          user_id: user.id,
+          release_at: releaseAt,
+          bail_cost: bailCost,
+          offense_count: offenseCount,
+        });
+      }
+
+      setSaving(false);
+      setPhase('done');
+      // Small delay so player sees "BUSTED" before jail
+      setTimeout(() => onJailed(), 2000);
+      return;
+    }
 
     setSaving(false);
     setPhase('done');
