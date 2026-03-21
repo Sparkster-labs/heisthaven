@@ -183,7 +183,8 @@ export const ShadowWalkGame = ({ difficulty, onResult, crewIds = [], chaosCard }
 // ═══════════════════════════════════════════════════════════════
 // MINI-GAME: COLD READ — Guard dialogue trust game (Grifter role)
 // ═══════════════════════════════════════════════════════════════
-const COLD_READ_QUESTIONS = [
+const COLD_READ_SCENARIOS = [
+  // --- SECURITY CHECKPOINT ---
   {
     question: '"Who authorized your clearance for this floor?"',
     options: [
@@ -224,16 +225,135 @@ const COLD_READ_QUESTIONS = [
       { text: '"Since when do you question staff movements?"', type: 'suspicious' as const },
     ],
   },
+  // --- MUSEUM / GALLERY ---
+  {
+    question: '"This wing is closed for restoration. How did you get in?"',
+    options: [
+      { text: '"Conservator team — we\'re documenting before the scaffolding goes up."', type: 'correct' as const },
+      { text: '"The door was open, so I walked in."', type: 'neutral' as const },
+      { text: '"I have more right to be here than you do."', type: 'suspicious' as const },
+    ],
+  },
+  {
+    question: '"Your badge doesn\'t scan. Care to explain?"',
+    options: [
+      { text: '"IT flagged a batch issue this morning. Here\'s the memo number: 4417."', type: 'correct' as const },
+      { text: '"Really? It worked downstairs..."', type: 'neutral' as const },
+      { text: '"Your reader is broken. Try again."', type: 'suspicious' as const },
+    ],
+  },
+  // --- CORPORATE / OFFICE ---
+  {
+    question: '"I called down to your department. They say you left an hour ago."',
+    options: [
+      { text: '"I came back for the Henderson files. Check with Carol at reception."', type: 'correct' as const },
+      { text: '"That\'s strange, I\'ve been here the whole time."', type: 'neutral' as const },
+      { text: '"Then they\'re lying. Call again."', type: 'suspicious' as const },
+    ],
+  },
+  {
+    question: '"You\'re not on tonight\'s roster. Who sent you?"',
+    options: [
+      { text: '"Shift swap with Torres. The duty manager signed off on it."', type: 'correct' as const },
+      { text: '"I thought I was? Let me check my phone."', type: 'neutral' as const },
+      { text: '"I don\'t need to be on a roster to do my job."', type: 'suspicious' as const },
+    ],
+  },
+  {
+    question: '"Why is your visitor pass expired?"',
+    options: [
+      { text: '"HR is reissuing them next week. I have the interim approval email right here."', type: 'correct' as const },
+      { text: '"Is it? I didn\'t notice."', type: 'neutral' as const },
+      { text: '"Because your system is a mess. Not my problem."', type: 'suspicious' as const },
+    ],
+  },
+  // --- DOCKSIDE / INDUSTRIAL ---
+  {
+    question: '"That truck isn\'t scheduled for this bay. Move it."',
+    options: [
+      { text: '"Dispatch rerouted us — Bay 7 had a spill. Call them on channel 4."', type: 'correct' as const },
+      { text: '"Oh, I thought this was the right bay."', type: 'neutral' as const },
+      { text: '"I\'ll move it when I\'m good and ready."', type: 'suspicious' as const },
+    ],
+  },
+  {
+    question: '"I need to see your loading manifest."',
+    options: [
+      { text: '"Right here — twenty crates, serial-matched. Signed by the dock foreman."', type: 'correct' as const },
+      { text: '"I think the driver has it in the cab."', type: 'neutral' as const },
+      { text: '"You don\'t have the authority to ask for that."', type: 'suspicious' as const },
+    ],
+  },
+  // --- HIGH SECURITY / VAULT ---
+  {
+    question: '"The biometric log shows a second entry on your profile. Explain the anomaly."',
+    options: [
+      { text: '"Calibration test — security ran a sweep at 14:00. It\'s in the daily report."', type: 'correct' as const },
+      { text: '"I don\'t know what to tell you. Must be a glitch."', type: 'neutral' as const },
+      { text: '"Maybe your biometrics need upgrading."', type: 'suspicious' as const },
+    ],
+  },
+  {
+    question: '"You\'re carrying equipment that isn\'t on the approved list."',
+    options: [
+      { text: '"Special requisition for the climate control audit. Authorization code: Tango-9."', type: 'correct' as const },
+      { text: '"It\'s standard issue. Everyone has one."', type: 'neutral' as const },
+      { text: '"Since when do you inspect equipment?"', type: 'suspicious' as const },
+    ],
+  },
+  // --- SOCIAL / BLUFFING ---
+  {
+    question: '"The night manager says he doesn\'t know you. Who hired you?"',
+    options: [
+      { text: '"I report to Elaine Park in operations. She\'s on leave — call her deputy, Chen."', type: 'correct' as const },
+      { text: '"I was hired through an agency."', type: 'neutral' as const },
+      { text: '"That\'s between me and my employer."', type: 'suspicious' as const },
+    ],
+  },
+  {
+    question: '"You seem nervous. Something you want to tell me?"',
+    options: [
+      { text: '"First night on a new rotation. You know how it is — just want to make a good impression."', type: 'correct' as const },
+      { text: '"Nervous? No, I\'m fine."', type: 'neutral' as const },
+      { text: '"I\'m not nervous. Are YOU nervous?"', type: 'suspicious' as const },
+    ],
+  },
+  {
+    question: '"How come you know the access code but not the patrol schedule?"',
+    options: [
+      { text: '"I was briefed on access only — patrol intel goes to the on-site lead, not contractors."', type: 'correct' as const },
+      { text: '"I guess I forgot that part of the briefing."', type: 'neutral' as const },
+      { text: '"I know plenty. Test me."', type: 'suspicious' as const },
+    ],
+  },
 ];
 
-const SHAKEDOWN_QUESTION = {
-  question: '"One last thing — what\'s the security code for this sector?"',
-  options: [
-    { text: '"7-7-4-Alpha. Changed yesterday."', type: 'correct' as const },
-    { text: '"I... don\'t have that clearance."', type: 'suspicious' as const },
-    { text: '"You first. What\'s YOUR code?"', type: 'suspicious' as const },
-  ],
-};
+const SHAKEDOWN_QUESTIONS = [
+  {
+    question: '"One last thing — what\'s the security code for this sector?"',
+    options: [
+      { text: '"7-7-4-Alpha. Changed yesterday."', type: 'correct' as const },
+      { text: '"I... don\'t have that clearance."', type: 'suspicious' as const },
+      { text: '"You first. What\'s YOUR code?"', type: 'suspicious' as const },
+    ],
+  },
+  {
+    question: '"Final check — who\'s the duty officer tonight?"',
+    options: [
+      { text: '"Sergeant Moira Vance. Started at 22:00."', type: 'correct' as const },
+      { text: '"I\'m not sure, actually."', type: 'suspicious' as const },
+      { text: '"Why would I know that?"', type: 'suspicious' as const },
+    ],
+  },
+  {
+    question: '"Before you go — what floor is the server room on?"',
+    options: [
+      { text: '"Sub-level 2, east corridor. Keycard access only."', type: 'correct' as const },
+      { text: '"Somewhere downstairs, I think?"', type: 'suspicious' as const },
+      { text: '"That\'s need-to-know and you don\'t need to know."', type: 'suspicious' as const },
+    ],
+  },
+];
 
 export const ColdReadGame = ({ difficulty, onResult, crewIds = [], chaosCard }: ExtGameProps) => {
   const tier = getDifficultyTier(difficulty);
@@ -244,13 +364,15 @@ export const ColdReadGame = ({ difficulty, onResult, crewIds = [], chaosCard }: 
   const shakedown = chaosCard?.id === 'crew_injury';
 
   const [questions] = useState(() => {
-    const shuffled = [...COLD_READ_QUESTIONS].sort(() => Math.random() - 0.5);
+    const shuffled = [...COLD_READ_SCENARIOS].sort(() => Math.random() - 0.5);
     const picked = shuffled.slice(0, cfg.questions);
-    // Remove neutral options for tier 3 (or tier 2 with removeNeutral)
     const processed = cfg.removeNeutral
       ? picked.map(q => ({ ...q, options: q.options.filter(o => o.type !== 'neutral') }))
       : picked;
-    if (shakedown) processed.push(SHAKEDOWN_QUESTION);
+    if (shakedown) {
+      const shakedownQ = SHAKEDOWN_QUESTIONS[Math.floor(Math.random() * SHAKEDOWN_QUESTIONS.length)];
+      processed.push(shakedownQ);
+    }
     return processed;
   });
 

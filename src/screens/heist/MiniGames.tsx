@@ -16,11 +16,15 @@ export const LockPickGame = ({ difficulty, onResult }: LockPickProps) => {
   const cfg = DIFFICULTY_CONFIG.lockpick[tier];
 
   const [currentPin, setCurrentPin] = useState(0);
-  const [position, setPosition] = useState(0);
-  const [direction, setDirection] = useState(1);
   const [locked, setLocked] = useState(false);
   const [result, setResult] = useState<boolean | null>(null);
   const [pinResults, setPinResults] = useState<boolean[]>([]);
+  const [displayPos, setDisplayPos] = useState(0);
+
+  const posRef = useRef(0);
+  const dirRef = useRef(1);
+  const frameRef = useRef<number>(0);
+  const lastTimeRef = useRef(0);
 
   // Generate sweet spots and false sweet spots per pin
   const [pinData] = useState(() =>
@@ -28,7 +32,6 @@ export const LockPickGame = ({ difficulty, onResult }: LockPickProps) => {
       const sweetSpotStart = 20 + Math.random() * (60 - cfg.sweetSpotWidth);
       const falseSpots: { start: number; width: number }[] = [];
       if (cfg.falseSweetSpots > 0) {
-        // Place false sweet spot away from real one
         let fStart = sweetSpotStart > 50 ? 10 + Math.random() * 20 : 70 + Math.random() * 15;
         falseSpots.push({ start: fStart, width: cfg.sweetSpotWidth * 0.8 });
       }
@@ -41,24 +44,34 @@ export const LockPickGame = ({ difficulty, onResult }: LockPickProps) => {
 
   useEffect(() => {
     if (locked || result !== null) return;
-    const interval = setInterval(() => {
-      setPosition(prev => {
-        let next = prev + direction * speed;
-        if (next >= 100) { next = 100; setDirection(-1); }
-        if (next <= 0) { next = 0; setDirection(1); }
-        return next;
-      });
-    }, 16);
-    return () => clearInterval(interval);
-  }, [locked, direction, speed, result]);
+    lastTimeRef.current = performance.now();
+
+    const loop = (now: number) => {
+      const dt = now - lastTimeRef.current;
+      lastTimeRef.current = now;
+      const move = dirRef.current * speed * (dt / 16);
+      let next = posRef.current + move;
+
+      if (next >= 100) { next = 100; dirRef.current = -1; }
+      if (next <= 0) { next = 0; dirRef.current = 1; }
+
+      posRef.current = next;
+      setDisplayPos(next);
+      frameRef.current = requestAnimationFrame(loop);
+    };
+
+    frameRef.current = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(frameRef.current);
+  }, [locked, speed, result, currentPin]);
 
   const handleTap = useCallback(() => {
     if (locked || result !== null) return;
     setLocked(true);
+    cancelAnimationFrame(frameRef.current);
     const pin = currentPinData;
+    const position = posRef.current;
     const hit = position >= pin.sweetSpotStart && position <= pin.sweetSpotStart + pin.sweetSpotWidth;
 
-    // Check if they hit a false sweet spot instead
     const hitFalse = !hit && pin.falseSpots.some(
       f => position >= f.start && position <= f.start + f.width
     );
@@ -73,10 +86,13 @@ export const LockPickGame = ({ difficulty, onResult }: LockPickProps) => {
         setResult(true);
         setTimeout(() => onResult(true), 1200);
       } else {
-        setCurrentPin(prev => prev + 1);
-        setPosition(0);
-        setDirection(1);
-        setLocked(false);
+        setTimeout(() => {
+          setCurrentPin(prev => prev + 1);
+          posRef.current = 0;
+          dirRef.current = 1;
+          setDisplayPos(0);
+          setLocked(false);
+        }, 400);
       }
     } else {
       SFX.fail();
@@ -85,7 +101,7 @@ export const LockPickGame = ({ difficulty, onResult }: LockPickProps) => {
       setResult(false);
       setTimeout(() => onResult(false), 1200);
     }
-  }, [locked, position, currentPinData, pinResults, currentPin, cfg.pins, onResult, result]);
+  }, [locked, currentPinData, pinResults, currentPin, cfg.pins, onResult, result]);
 
   return (
     <div style={{ textAlign: 'center' }}>
@@ -116,7 +132,7 @@ export const LockPickGame = ({ difficulty, onResult }: LockPickProps) => {
         {/* Real sweet spot */}
         <div style={{ position: 'absolute', left: `${currentPinData.sweetSpotStart}%`, width: `${currentPinData.sweetSpotWidth}%`, top: 0, bottom: 0, background: `${THEME.colors.gold}25`, borderLeft: `2px solid ${THEME.colors.gold}60`, borderRight: `2px solid ${THEME.colors.gold}60` }} />
         {/* Needle */}
-        <div style={{ position: 'absolute', left: `${position}%`, top: -4, bottom: -4, width: 3, marginLeft: -1.5, background: result === null ? THEME.colors.pearl : result ? THEME.colors.emerald : THEME.colors.ruby, boxShadow: `0 0 8px ${result === null ? THEME.colors.pearl : result ? THEME.colors.emerald : THEME.colors.ruby}60`, borderRadius: 2 }} />
+        <div style={{ position: 'absolute', left: `${displayPos}%`, top: -4, bottom: -4, width: 3, marginLeft: -1.5, background: result === null ? THEME.colors.pearl : result ? THEME.colors.emerald : THEME.colors.ruby, boxShadow: `0 0 8px ${result === null ? THEME.colors.pearl : result ? THEME.colors.emerald : THEME.colors.ruby}60`, borderRadius: 2 }} />
       </div>
       {result !== null ? (
         <div style={{ fontSize: 18, fontFamily: THEME.fonts.display, letterSpacing: 4, color: result ? THEME.colors.emerald : THEME.colors.ruby, textShadow: `0 0 20px ${result ? THEME.colors.emerald : THEME.colors.ruby}40` }}>

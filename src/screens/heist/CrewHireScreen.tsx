@@ -35,6 +35,20 @@ const getHireCost = (member: typeof CREW_MEMBERS[number], level: number) => {
   return Math.round(member.baseCost * 0.1 * level) || 0;
 };
 
+// Crew ability descriptions shown in the hire screen
+const CREW_ABILITY_TAGS: Record<string, { label: string; color: string }[]> = {
+  fingers: [{ label: '−8% RISK', color: THEME.colors.emerald }],
+  echo:    [{ label: '−5% RISK', color: THEME.colors.emerald }, { label: '−3 HEAT', color: THEME.colors.sapphire }],
+  brick:   [{ label: '−6% RISK', color: THEME.colors.emerald }, { label: 'FORGIVE 1 FAIL', color: THEME.colors.gold }],
+  silk:    [{ label: '+15% PAYOUT', color: THEME.colors.gold }, { label: 'COLD READ+', color: THEME.colors.sapphire }],
+  ghost:   [{ label: '−12% RISK', color: THEME.colors.emerald }],
+  doc:     [{ label: 'FORGIVE 1 FAIL', color: THEME.colors.gold }, { label: '+15 XP', color: THEME.colors.sapphire }],
+  raven:   [{ label: '−7% RISK', color: THEME.colors.emerald }, { label: '−5 HEAT', color: THEME.colors.sapphire }],
+  king:    [{ label: '+25% PAYOUT', color: THEME.colors.gold }, { label: '+25 XP', color: THEME.colors.sapphire }],
+  static:  [{ label: '−5% RISK', color: THEME.colors.emerald }, { label: '−8 HEAT', color: THEME.colors.sapphire }],
+  nitro:   [{ label: '−6% RISK', color: THEME.colors.emerald }, { label: '+10% PAYOUT', color: THEME.colors.gold }],
+};
+
 const CrewHireScreen = ({ vault, onLaunch, onBack }: CrewHireScreenProps) => {
   const [crewStates, setCrewStates] = useState<CrewStateRow[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -70,14 +84,18 @@ const CrewHireScreen = ({ vault, onLaunch, onBack }: CrewHireScreenProps) => {
     }
   };
 
-  // Risk calculation
+  // Risk calculation using actual crew ability modifiers
+  const CREW_FAIL_REDUCTIONS: Record<string, number> = {
+    fingers: 12, echo: 9, brick: 10, silk: 8, ghost: 16, doc: 4, raven: 11, king: 4, static: 9, nitro: 10,
+  };
   const baseRisk = vault.difficulty * 18;
   const crewReduction = selectedIds.reduce((acc, id) => {
     const state = crewStates.find(cs => cs.crew_id === id);
     if (!state) return acc;
-    const loyaltyBonus = state.loyalty * 0.08;
-    const levelBonus = state.level * 2;
-    return acc + loyaltyBonus + levelBonus;
+    const abilityBonus = CREW_FAIL_REDUCTIONS[id] || 4;
+    const loyaltyBonus = state.loyalty * 0.04;
+    const levelBonus = state.level * 1.5;
+    return acc + abilityBonus + loyaltyBonus + levelBonus;
   }, 0);
   const finalRisk = Math.max(5, Math.round(baseRisk - crewReduction));
 
@@ -221,6 +239,24 @@ const CrewHireScreen = ({ vault, onLaunch, onBack }: CrewHireScreenProps) => {
                     </div>
                   </div>
                 </div>
+
+                {/* Ability tags */}
+                {CREW_ABILITY_TAGS[cs.crew_id] && (
+                  <div style={{
+                    display: 'flex', flexWrap: 'wrap', gap: 4, paddingLeft: 56, marginTop: 4,
+                  }}>
+                    {CREW_ABILITY_TAGS[cs.crew_id].map((tag, i) => (
+                      <span key={i} style={{
+                        fontSize: 7, fontFamily: THEME.fonts.display, letterSpacing: 1,
+                        padding: '2px 6px', borderRadius: THEME.radius.pill,
+                        background: `${tag.color}15`, color: tag.color,
+                        border: `1px solid ${tag.color}30`,
+                      }}>
+                        {tag.label}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
                 {/* Flavor text */}
                 <div style={{

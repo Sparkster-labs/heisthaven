@@ -51,8 +51,29 @@ const BASE_FAIL_BY_DIFFICULTY: Record<number, number> = {
   5: 0.60,
 };
 
-// Crew fail reduction per member hired
-const CREW_FAIL_REDUCTION = 0.07;
+// Crew fail reduction per member hired (generic)
+const CREW_FAIL_REDUCTION = 0.04;
+
+// Crew-specific ability modifiers applied during heist resolution
+const CREW_ABILITIES: Record<string, {
+  failReduction?: number;
+  payoutBonus?: number;
+  heatReduction?: number;
+  xpBonus?: number;
+  jewelBonus?: number;
+  miniGameForgive?: number;
+}> = {
+  fingers: { failReduction: 0.08 },           // Lockpick: reliable under pressure
+  echo:    { failReduction: 0.05, heatReduction: 3 }, // Hacker: covers digital tracks
+  brick:   { failReduction: 0.06, miniGameForgive: 1 }, // Muscle: brute-force backup
+  silk:    { failReduction: 0.04, payoutBonus: 0.15 }, // Grifter: negotiates better fence deals
+  ghost:   { failReduction: 0.12 },           // Infiltrator: massive stealth advantage
+  doc:     { miniGameForgive: 1, xpBonus: 15 }, // Medic: keeps crew operational + experience
+  raven:   { failReduction: 0.07, heatReduction: 5 }, // Scout: intel reduces risk & exposure
+  king:    { payoutBonus: 0.25, xpBonus: 25 },  // Mastermind: plans = profit + learning
+  static:  { failReduction: 0.05, heatReduction: 8 }, // Comms: jams frequencies, reduces heat
+  nitro:   { failReduction: 0.06, payoutBonus: 0.10 }, // Wheelman: fast getaway saves loot
+};
 
 export function resolveHeist(input: HeistInput): HeistOutcome {
   const { vault, crewIds, chaosCard, miniGameResults, safehouseRooms } = input;
@@ -60,8 +81,24 @@ export function resolveHeist(input: HeistInput): HeistOutcome {
   // --- FAIL CHANCE CALCULATION ---
   let failChance = BASE_FAIL_BY_DIFFICULTY[vault.difficulty] ?? 0.35;
 
-  // Crew reductions
+  // Generic crew reduction
   failChance -= crewIds.length * CREW_FAIL_REDUCTION;
+
+  // Crew-specific fail reductions
+  let totalPayoutBonus = 0;
+  let totalHeatReduction = 0;
+  let totalXpBonus = 0;
+  let totalMiniGameForgives = 0;
+
+  crewIds.forEach(id => {
+    const ability = CREW_ABILITIES[id];
+    if (!ability) return;
+    if (ability.failReduction) failChance -= ability.failReduction;
+    if (ability.payoutBonus) totalPayoutBonus += ability.payoutBonus;
+    if (ability.heatReduction) totalHeatReduction += ability.heatReduction;
+    if (ability.xpBonus) totalXpBonus += ability.xpBonus;
+    if (ability.miniGameForgive) totalMiniGameForgives += ability.miniGameForgive;
+  });
 
   // Chaos card modifier
   if (chaosCard.effect === 'heat_increase') failChance += 0.05;
@@ -85,16 +122,25 @@ export function resolveHeist(input: HeistInput): HeistOutcome {
   }
 
   // Mini-game modifiers: each success -9%, each fail +13%
-  miniGameResults.forEach(r => {
-    failChance += r ? -0.09 : 0.13;
-  });
+  const failCount = miniGameResults.filter(r => !r).length;
+  const successCount = miniGameResults.filter(Boolean).length;
 
-  // Infirmary bonus: if safehouse infirmary tier >= 1, one fail forgiven
+  // Apply mini-game forgives from crew (Muscle/Medic)
+  const effectiveFailCount = Math.max(0, failCount - totalMiniGameForgives);
+  
+  miniGameResults.forEach(r => {
+    if (r) {
+      failChance -= 0.09;
+    }
+  });
+  // Only count effective fails (after forgiveness)
+  failChance += effectiveFailCount * 0.13;
+
+  // Infirmary bonus: if safehouse infirmary tier >= 1, one additional fail forgiven
   if (safehouseRooms && (safehouseRooms['infirmary'] ?? 0) >= 1) {
-    const failCount = miniGameResults.filter(r => !r).length;
-    if (failCount > 0) {
+    if (effectiveFailCount > 0) {
       failChance -= 0.13; // undo one fail penalty
-      if ((safehouseRooms['infirmary'] ?? 0) >= 2 && failCount > 1) {
+      if ((safehouseRooms['infirmary'] ?? 0) >= 2 && effectiveFailCount > 1) {
         failChance -= 0.13; // undo second fail
       }
     }
@@ -104,7 +150,6 @@ export function resolveHeist(input: HeistInput): HeistOutcome {
   failChance = Math.max(0.03, Math.min(0.97, failChance));
 
   // If no mini-games were passed, the heist automatically fails
-  const successCount = miniGameResults.filter(Boolean).length;
   const busted = successCount === 0 ? true : Math.random() < failChance;
 
   // --- PAYOUT ---
@@ -115,6 +160,11 @@ export function resolveHeist(input: HeistInput): HeistOutcome {
     payout = Math.floor(
       vault.payoutMin + Math.random() * (vault.payoutMax - vault.payoutMin)
     );
+
+    // Crew payout bonus (Grifter, Mastermind, Wheelman)
+    if (totalPayoutBonus > 0) {
+      payout = Math.floor(payout * (1 + totalPayoutBonus));
+    }
 
     // Chaos card payout modifiers
     if (chaosCard.effect === 'payout_bonus') {
@@ -147,7 +197,7 @@ export function resolveHeist(input: HeistInput): HeistOutcome {
   // --- XP ---
   let xpGained: number;
   if (!busted) {
-    xpGained = 50 + successCount * 25;
+    xpGained = 50 + successCount * 25 + totalXpBonus;
   } else {
     xpGained = Math.round(vault.tier * 5);
   }
@@ -156,6 +206,7 @@ export function resolveHeist(input: HeistInput): HeistOutcome {
   let heatChange = busted ? 2 : 1;
   if (chaosCard.effect === 'heat_increase') heatChange += 15;
   if (chaosCard.effect === 'heat_reduction') heatChange -= 10;
+  heatChange = Math.max(0, heatChange - totalHeatReduction);
 
   return {
     busted,
