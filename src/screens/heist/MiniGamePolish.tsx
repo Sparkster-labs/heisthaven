@@ -269,6 +269,15 @@ export const MiniGameHUD = ({ vaultTier, crewIds, chaosCard, currentGameType, vi
         ))}
       </div>
 
+      {/* Crew suppression warning */}
+      {crewSuppressed && activeCrewBonuses.length > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <span style={{ color: THEME.colors.gold, fontSize: 8, animation: 'chaosPulse 1.5s ease-in-out infinite' }}>
+            ⚠ CREW SUPPRESSED
+          </span>
+        </div>
+      )}
+
       {/* Chaos indicator */}
       {hasChaos && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
