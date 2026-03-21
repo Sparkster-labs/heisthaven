@@ -496,7 +496,7 @@ export const WireTapGame = ({ difficulty, onResult, crewIds = [], chaosCard }: E
   const emfSurge = chaosCard?.id === 'betrayal';
 
   const [grid, setGrid] = useState(() => generateGrid(SIZE, cfg.lockedTiles, hasHacker));
-  const [timer, setTimer] = useState(cfg.timer);
+  const [timer, setTimer] = useState<number>(cfg.timer);
   const [result, setResult] = useState<boolean | null>(null);
   const [surged, setSurged] = useState(false);
   const [rotations, setRotations] = useState(0);

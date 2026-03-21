@@ -224,6 +224,7 @@ interface MiniGameHUDProps {
   chaosCard: typeof CHAOS_CARDS[number];
   currentGameType: string;
   visible: boolean;
+  crewSuppressed?: boolean;
 }
 
 const GAME_ROLES: Record<string, string> = {
