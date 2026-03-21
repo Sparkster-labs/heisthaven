@@ -45,24 +45,35 @@ export const LockPickGame = ({ difficulty, onResult }: LockPickProps) => {
 
   useEffect(() => {
     if (locked || result !== null) return;
-    lastTimeRef.current = performance.now();
+    
+    // First frame: just initialize position, don't render yet
+    const initFrame = requestAnimationFrame(() => {
+      posRef.current = 0;
+      setDisplayPos(0);
+      setReady(true);
+      lastTimeRef.current = performance.now();
 
-    const loop = (now: number) => {
-      const dt = now - lastTimeRef.current;
-      lastTimeRef.current = now;
-      const move = dirRef.current * speed * (dt / 16);
-      let next = posRef.current + move;
+      const loop = (now: number) => {
+        const dt = now - lastTimeRef.current;
+        lastTimeRef.current = now;
+        const move = dirRef.current * speed * (dt / 16);
+        let next = posRef.current + move;
 
-      if (next >= 100) { next = 100; dirRef.current = -1; }
-      if (next <= 0) { next = 0; dirRef.current = 1; }
+        if (next >= 100) { next = 100; dirRef.current = -1; }
+        if (next <= 0) { next = 0; dirRef.current = 1; }
 
-      posRef.current = next;
-      setDisplayPos(next);
+        posRef.current = next;
+        setDisplayPos(next);
+        frameRef.current = requestAnimationFrame(loop);
+      };
+
       frameRef.current = requestAnimationFrame(loop);
-    };
+    });
 
-    frameRef.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(frameRef.current);
+    return () => {
+      cancelAnimationFrame(initFrame);
+      cancelAnimationFrame(frameRef.current);
+    };
   }, [locked, speed, result, currentPin]);
 
   const handleTap = useCallback(() => {
