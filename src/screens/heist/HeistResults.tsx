@@ -49,7 +49,7 @@ function useCountUp(target: number, duration: number, start: boolean) {
 
 type Phase = 'flash' | 'headline' | 'payout' | 'jewels' | 'ledger' | 'fence' | 'saving' | 'done';
 
-const HeistResults = ({ vault, crewIds, chaosCard, miniGameResults, onFinish }: HeistResultsProps) => {
+const HeistResults = ({ vault, crewIds, chaosCard, miniGameResults, onFinish, onJailed }: HeistResultsProps) => {
   const { toast } = useToast();
 
   // Resolve heist outcome using engine
