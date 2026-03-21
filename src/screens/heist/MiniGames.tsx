@@ -20,6 +20,7 @@ export const LockPickGame = ({ difficulty, onResult }: LockPickProps) => {
   const [result, setResult] = useState<boolean | null>(null);
   const [pinResults, setPinResults] = useState<boolean[]>([]);
   const [displayPos, setDisplayPos] = useState(0);
+  const [ready, setReady] = useState(false);
 
   const posRef = useRef(0);
   const dirRef = useRef(1);
