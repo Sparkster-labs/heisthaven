@@ -6,11 +6,8 @@ interface BottomNavProps {
 }
 
 const tabs = [
-  { id: 'home', emoji: '🏠', label: 'Home' },
-  { id: 'jobs', emoji: '💼', label: 'Jobs' },
-  { id: 'empire', emoji: '🏛️', label: 'Empire' },
-  { id: 'city', emoji: '🗺️', label: 'City' },
-  { id: 'crew', emoji: '👥', label: 'Crew' },
+  { id: 'home', emoji: '🏠', label: 'Safehouse' },
+  { id: 'jobs', emoji: '💼', label: 'Heist' },
   { id: 'profile', emoji: '👤', label: 'Profile' },
 ];
 
@@ -18,7 +15,7 @@ const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
   return (
     <div
       style={{
-        position: 'relative',
+        position: 'sticky',
         bottom: 0,
         left: 0,
         right: 0,
@@ -26,7 +23,7 @@ const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
         borderTop: `1px solid ${THEME.colors.borderFaint}`,
         display: 'flex',
         justifyContent: 'space-around',
-        padding: `${THEME.space.xs}px 0 calc(${THEME.space.sm}px + env(safe-area-inset-bottom))`,
+        padding: `${THEME.space.sm}px 0 calc(${THEME.space.sm}px + env(safe-area-inset-bottom))`,
         zIndex: 100,
       }}
     >
@@ -42,18 +39,18 @@ const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              gap: 1,
+              gap: 2,
               cursor: 'pointer',
-              padding: `${THEME.space.xs}px 2px`,
+              padding: `${THEME.space.xs}px ${THEME.space.md}px`,
               minWidth: 0,
             }}
           >
-            <span style={{ fontSize: 18 }}>{tab.emoji}</span>
+            <span style={{ fontSize: 22 }}>{tab.emoji}</span>
             <span
               style={{
-                fontSize: 7,
+                fontSize: 9,
                 fontFamily: THEME.fonts.display,
-                letterSpacing: 0.5,
+                letterSpacing: 1,
                 textTransform: 'uppercase',
                 color: isActive ? THEME.colors.gold : THEME.colors.textMuted,
                 transition: 'color 0.2s',
