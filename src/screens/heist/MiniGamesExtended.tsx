@@ -364,13 +364,15 @@ export const ColdReadGame = ({ difficulty, onResult, crewIds = [], chaosCard }: 
   const shakedown = chaosCard?.id === 'crew_injury';
 
   const [questions] = useState(() => {
-    const shuffled = [...COLD_READ_QUESTIONS].sort(() => Math.random() - 0.5);
+    const shuffled = [...COLD_READ_SCENARIOS].sort(() => Math.random() - 0.5);
     const picked = shuffled.slice(0, cfg.questions);
-    // Remove neutral options for tier 3 (or tier 2 with removeNeutral)
     const processed = cfg.removeNeutral
       ? picked.map(q => ({ ...q, options: q.options.filter(o => o.type !== 'neutral') }))
       : picked;
-    if (shakedown) processed.push(SHAKEDOWN_QUESTION);
+    if (shakedown) {
+      const shakedownQ = SHAKEDOWN_QUESTIONS[Math.floor(Math.random() * SHAKEDOWN_QUESTIONS.length)];
+      processed.push(shakedownQ);
+    }
     return processed;
   });
 
