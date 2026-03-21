@@ -172,12 +172,19 @@ const HeistExecution = ({ vault, crewIds, chaosCard, onComplete }: HeistExecutio
   const renderGame = () => {
     const gameType = games[currentGame];
     const d = vault.difficulty;
+    const extProps = { difficulty: d, onResult: handleGameResult, crewIds, chaosCard };
     switch (gameType) {
       case 'lock': return <LockPickGame difficulty={d} onResult={handleGameResult} />;
       case 'combo': return <SafeComboGame difficulty={d} onResult={handleGameResult} />;
       case 'wire': return <WireCutGame difficulty={d} onResult={handleGameResult} />;
       case 'tail': return <TailGame difficulty={d} onResult={handleGameResult} />;
       case 'interrogation': return <InterrogationGame difficulty={d} onResult={handleGameResult} />;
+      case 'shadow': return <ShadowWalkGame {...extProps} />;
+      case 'coldread': return <ColdReadGame {...extProps} />;
+      case 'wiretap': return <WireTapGame {...extProps} />;
+      case 'signal': return <SignalScrambleGame {...extProps} />;
+      case 'takedown': return <TakedownGame {...extProps} />;
+      case 'pursuit': return <HotPursuitGame {...extProps} />;
     }
   };
 
