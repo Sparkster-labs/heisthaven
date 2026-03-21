@@ -859,6 +859,7 @@ export const TakedownGame = ({ difficulty, onResult, crewIds = [], chaosCard }: 
     const currentSeq = sequences[seqIndex];
 
     if (dir === currentSeq[inputIdx]) {
+      SFX.tick();
       const nextIdx = inputIdx + 1;
       setInputIdx(nextIdx);
 
