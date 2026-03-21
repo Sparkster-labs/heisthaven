@@ -25,7 +25,7 @@ import ChaosCardReveal from '@/screens/heist/ChaosCardReveal';
 import HeistExecution from '@/screens/heist/HeistExecution';
 import HeistResults from '@/screens/heist/HeistResults';
 import ResetPasswordScreen from '@/screens/ResetPasswordScreen';
-import DressingRoomScreen from '@/screens/DressingRoomScreen';
+
 import PhotoModeScreen from '@/screens/PhotoModeScreen';
 import DistrictActivityScreen from '@/screens/DistrictActivityScreen';
 import type { Session } from '@supabase/supabase-js';
