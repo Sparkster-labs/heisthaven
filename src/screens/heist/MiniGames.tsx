@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { THEME, S } from '@/styles/theme';
+import { SFX } from '@/lib/sounds';
 
 // ═══════════════════════════════════════════════════════════════
 // MINI-GAME 1: LOCKPICK — Timing-based sweet spot
