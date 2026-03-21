@@ -37,6 +37,12 @@ const GAME_NAMES: Record<GameType, string> = {
   wire: 'ALARM CUT',
   tail: 'THE TAIL',
   interrogation: 'THE INTERROGATION',
+  shadow: 'SHADOW WALK',
+  coldread: 'COLD READ',
+  wiretap: 'WIRE TAP',
+  signal: 'SIGNAL SCRAMBLE',
+  takedown: 'TAKEDOWN',
+  pursuit: 'HOT PURSUIT',
 };
 
 // ═══════════════════════════════════════════════════════
