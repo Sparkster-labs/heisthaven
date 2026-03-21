@@ -259,6 +259,7 @@ const HeistResults = ({ vault, crewIds, chaosCard, miniGameResults, onFinish, on
     });
 
     // Check achievements
+    const { ACHIEVEMENTS: ACH_LIST } = await import('@/lib/achievements');
     const newAchievements = await checkAndUnlockAchievements(user.id, {
       success,
       crewIds,
@@ -267,7 +268,7 @@ const HeistResults = ({ vault, crewIds, chaosCard, miniGameResults, onFinish, on
       chaosCardEffect: chaosCard.effect,
     });
     newAchievements.forEach(id => {
-      const ach = (await import('@/lib/achievements')).ACHIEVEMENTS.find(a => a.id === id);
+      const ach = ACH_LIST.find(a => a.id === id);
       if (ach) {
         toast({ title: `🏆 ${ach.name}`, description: ach.description });
       }
