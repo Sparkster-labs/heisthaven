@@ -210,6 +210,44 @@ export type Database = {
           },
         ]
       }
+      jail_state: {
+        Row: {
+          bail_cost: number
+          id: string
+          jailed_at: string
+          offense_count: number
+          paid: boolean
+          release_at: string
+          user_id: string
+        }
+        Insert: {
+          bail_cost?: number
+          id?: string
+          jailed_at?: string
+          offense_count?: number
+          paid?: boolean
+          release_at: string
+          user_id: string
+        }
+        Update: {
+          bail_cost?: number
+          id?: string
+          jailed_at?: string
+          offense_count?: number
+          paid?: boolean
+          release_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jail_state_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leaderboard_weekly: {
         Row: {
           id: string
