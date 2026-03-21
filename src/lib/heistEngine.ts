@@ -122,16 +122,25 @@ export function resolveHeist(input: HeistInput): HeistOutcome {
   }
 
   // Mini-game modifiers: each success -9%, each fail +13%
-  miniGameResults.forEach(r => {
-    failChance += r ? -0.09 : 0.13;
-  });
+  const failCount = miniGameResults.filter(r => !r).length;
+  const successCount = miniGameResults.filter(Boolean).length;
 
-  // Infirmary bonus: if safehouse infirmary tier >= 1, one fail forgiven
+  // Apply mini-game forgives from crew (Muscle/Medic)
+  const effectiveFailCount = Math.max(0, failCount - totalMiniGameForgives);
+  
+  miniGameResults.forEach(r => {
+    if (r) {
+      failChance -= 0.09;
+    }
+  });
+  // Only count effective fails (after forgiveness)
+  failChance += effectiveFailCount * 0.13;
+
+  // Infirmary bonus: if safehouse infirmary tier >= 1, one additional fail forgiven
   if (safehouseRooms && (safehouseRooms['infirmary'] ?? 0) >= 1) {
-    const failCount = miniGameResults.filter(r => !r).length;
-    if (failCount > 0) {
+    if (effectiveFailCount > 0) {
       failChance -= 0.13; // undo one fail penalty
-      if ((safehouseRooms['infirmary'] ?? 0) >= 2 && failCount > 1) {
+      if ((safehouseRooms['infirmary'] ?? 0) >= 2 && effectiveFailCount > 1) {
         failChance -= 0.13; // undo second fail
       }
     }
