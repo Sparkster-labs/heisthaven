@@ -90,11 +90,8 @@ const AppInner = () => {
   if (subScreen === 'iap') {
     return <IAPScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} onBack={() => navigate(() => setSubScreen(null))} />;
   }
-  if (subScreen === 'dressing_room') {
-    return <DressingRoomScreen onBack={() => navigate(() => setSubScreen(null))} onOpenPhotoMode={() => navigate(() => setSubScreen('photo_mode'))} />;
-  }
   if (subScreen === 'photo_mode') {
-    return <PhotoModeScreen onBack={() => navigate(() => setSubScreen('dressing_room'))} />;
+    return <PhotoModeScreen onBack={() => navigate(() => setSubScreen(null))} />;
   }
   if (subScreen === 'empire') {
     return <EmpireScreen activeTab={activeTab} onTabChange={(tab) => navigate(() => { setSubScreen(null); setActiveTab(tab); })} />;
