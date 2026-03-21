@@ -261,13 +261,16 @@ export const ColdReadGame = ({ difficulty, onResult, crewIds = [], chaosCard }: 
     if (type === 'correct') {
       newTrust = trust + 1;
       fb = '✓ Convincing';
+      SFX.tick();
     } else if (type === 'suspicious') {
       if (forgivesLeft > 0) {
         setForgivesLeft(prev => prev - 1);
         fb = '🎭 Grifter covered for you';
+        SFX.tick();
       } else {
         newSuspicion = suspicion + 1;
         fb = '⚠ Suspicious';
+        SFX.fail();
       }
     } else {
       fb = '— Neutral';
