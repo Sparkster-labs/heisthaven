@@ -73,7 +73,7 @@ const titleColor = (level: number) => {
   return THEME.colors.gold;
 };
 
-const ProfileScreen = ({ activeTab, onTabChange }: ProfileScreenProps) => {
+const ProfileScreen = ({ activeTab, onTabChange, onOpenAchievements }: ProfileScreenProps) => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [heists, setHeists] = useState<HeistRow[]>([]);
   const [loading, setLoading] = useState(true);
