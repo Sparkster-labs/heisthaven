@@ -13,6 +13,7 @@ interface HeistResultsProps {
   chaosCard: typeof CHAOS_CARDS[number];
   miniGameResults: boolean[];
   onFinish: () => void;
+  onJailed?: () => void;
 }
 
 const jewelEmojis: Record<string, string> = {
