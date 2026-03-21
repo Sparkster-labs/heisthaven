@@ -3,7 +3,7 @@ import { THEME, S } from '@/styles/theme';
 import { EMPIRE_ASSETS, EMPIRE_CATEGORIES, getUpgradeCost, getIncomeAtLevel } from '@/lib/empireData';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import BottomNav from '@/components/BottomNav';
+
 
 interface EmpireScreenProps {
   activeTab: string;
