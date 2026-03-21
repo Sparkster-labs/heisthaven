@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { THEME, S } from '@/styles/theme';
+import { SFX } from '@/lib/sounds';
 
 // ═══════════════════════════════════════════════════════════════
 // MINI-GAME 1: LOCKPICK — Timing-based sweet spot
@@ -37,6 +38,7 @@ export const LockPickGame = ({ difficulty, onResult }: LockPickProps) => {
     setLocked(true);
     const hit = position >= sweetSpotStart && position <= sweetSpotStart + sweetSpotWidth;
     setResult(hit);
+    if (hit) SFX.tick(); else SFX.fail();
     if (navigator.vibrate) navigator.vibrate(hit ? 50 : 200);
     setTimeout(() => onResult(hit), 1200);
   }, [locked, position, sweetSpotStart, sweetSpotWidth, onResult]);
@@ -106,6 +108,7 @@ export const SafeComboGame = ({ difficulty, onResult }: SafeComboProps) => {
     setDialRotation(prev => prev + rotation);
 
     if (dir === sequence[inputIdx]) {
+      SFX.tick();
       const nextIdx = inputIdx + 1;
       setInputIdx(nextIdx);
       if (nextIdx >= seqLength) {
@@ -115,6 +118,7 @@ export const SafeComboGame = ({ difficulty, onResult }: SafeComboProps) => {
         setTimeout(() => onResult(true), 1200);
       }
     } else {
+      SFX.fail();
       setResult(false);
       setPhase('done');
       if (navigator.vibrate) navigator.vibrate(200);
@@ -262,6 +266,10 @@ export const WireCutGame = ({ difficulty, onResult }: WireCutProps) => {
           setTimeout(() => onResult(false), 1200);
           return 0;
         }
+        // Heartbeat in final 3 seconds
+        if (next <= 3 && Math.abs(next - Math.round(next)) < 0.05) {
+          SFX.heartbeat();
+        }
         return next;
       });
     }, 50);
@@ -271,6 +279,7 @@ export const WireCutGame = ({ difficulty, onResult }: WireCutProps) => {
   const handleCut = (wire: typeof WIRE_COLORS[number]) => {
     if (phase !== 'cutting' || result !== null) return;
     if (wire.name === sequence[cutIndex].name) {
+      SFX.tick();
       setCutWires(prev => [...prev, wire.name]);
       const nextIdx = cutIndex + 1;
       setCutIndex(nextIdx);
@@ -281,6 +290,7 @@ export const WireCutGame = ({ difficulty, onResult }: WireCutProps) => {
         setTimeout(() => onResult(true), 1200);
       }
     } else {
+      SFX.fail();
       setResult(false);
       setPhase('done');
       if (navigator.vibrate) navigator.vibrate(200);
@@ -592,6 +602,7 @@ export const InterrogationGame = ({ difficulty, onResult }: InterrogationProps) 
     const threshold = option.type === 'best' ? 0.85 : option.type === 'risky' ? 0.40 : 0.05;
     const success = roll < threshold;
     setResult(success);
+    if (success) SFX.tick(); else SFX.fail();
     if (navigator.vibrate) navigator.vibrate(success ? 50 : 200);
     setPhase('result');
     setTimeout(() => onResult(success), 2000);

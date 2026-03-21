@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { CREW_MEMBERS, CHAOS_CARDS } from '@/lib/gameData';
+import { SFX } from '@/lib/sounds';
 
 // Shared props for all extended mini-games
 interface ExtGameProps {
@@ -69,6 +70,7 @@ export const ShadowWalkGame = ({ difficulty, onResult, crewIds = [], chaosCard }
     const inSafe = guardPos >= segment.start && guardPos <= segment.end;
 
     if (!inSafe) {
+      SFX.fail();
       const newHeat = heat + 15;
       setHeat(newHeat);
       if (newHeat >= 100) {
@@ -77,6 +79,8 @@ export const ShadowWalkGame = ({ difficulty, onResult, crewIds = [], chaosCard }
         setTimeout(() => onResult(false), 1200);
         return;
       }
+    } else {
+      SFX.tick();
     }
 
     if (nextPos >= COVER_POINTS) {
@@ -257,13 +261,16 @@ export const ColdReadGame = ({ difficulty, onResult, crewIds = [], chaosCard }: 
     if (type === 'correct') {
       newTrust = trust + 1;
       fb = '✓ Convincing';
+      SFX.tick();
     } else if (type === 'suspicious') {
       if (forgivesLeft > 0) {
         setForgivesLeft(prev => prev - 1);
         fb = '🎭 Grifter covered for you';
+        SFX.tick();
       } else {
         newSuspicion = suspicion + 1;
         fb = '⚠ Suspicious';
+        SFX.fail();
       }
     } else {
       fb = '— Neutral';
@@ -527,6 +534,7 @@ export const WireTapGame = ({ difficulty, onResult, crewIds = [], chaosCard }: E
       return next;
     });
     setRotations(prev => prev + 1);
+    SFX.tick();
 
     // Simple win check: if we've made enough rotations, random success
     // (Full path-finding is complex; use simplified heuristic)
@@ -851,6 +859,7 @@ export const TakedownGame = ({ difficulty, onResult, crewIds = [], chaosCard }: 
     const currentSeq = sequences[seqIndex];
 
     if (dir === currentSeq[inputIdx]) {
+      SFX.tick();
       const nextIdx = inputIdx + 1;
       setInputIdx(nextIdx);
 

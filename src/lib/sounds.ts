@@ -67,6 +67,39 @@ export const SFX = {
   buttonTap: () => {
     playTone(600, 0.04, 'square', 0.05);
   },
+  // ─── New mini-game SFX ───
+  tick: () => {
+    playTone(880, 0.08, 'sine', 0.1);
+  },
+  fail: () => {
+    const ctx = getCtx();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(440, ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(220, ctx.currentTime + 0.4);
+    g.gain.setValueAtTime(0.1, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    osc.connect(g);
+    g.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.4);
+  },
+  success: () => {
+    // C5, E5, G5 ascending arp
+    playTone(523, 0.06, 'sine', 0.12);
+    setTimeout(() => playTone(659, 0.06, 'sine', 0.12), 60);
+    setTimeout(() => playTone(784, 0.1, 'sine', 0.14), 120);
+  },
+  chaos: () => {
+    playTone(80, 0.6, 'sine', 0.18);
+    setTimeout(() => playTone(60, 0.3, 'sine', 0.12), 200);
+  },
+  heartbeat: () => {
+    playTone(60, 0.15, 'sine', 0.12);
+    setTimeout(() => playTone(60, 0.15, 'sine', 0.1), 200);
+  },
 };
 
 // Haptic feedback helpers
