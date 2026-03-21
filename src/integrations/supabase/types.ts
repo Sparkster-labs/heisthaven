@@ -289,6 +289,7 @@ export type Database = {
           id: string
           jewels: Json
           last_login: string | null
+          minigame_unlocks: Json
           notoriety_title: string
           rep_level: number
           rep_xp: number
@@ -305,6 +306,7 @@ export type Database = {
           id: string
           jewels?: Json
           last_login?: string | null
+          minigame_unlocks?: Json
           notoriety_title?: string
           rep_level?: number
           rep_xp?: number
@@ -321,6 +323,7 @@ export type Database = {
           id?: string
           jewels?: Json
           last_login?: string | null
+          minigame_unlocks?: Json
           notoriety_title?: string
           rep_level?: number
           rep_xp?: number

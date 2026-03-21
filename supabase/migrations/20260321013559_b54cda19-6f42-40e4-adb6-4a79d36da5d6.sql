@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS minigame_unlocks jsonb NOT NULL DEFAULT '{"entryGameSuccesses": 0, "wireTapSuccesses": 0, "signalSuccesses": 0, "fullVaultCompletions": 0}'::jsonb;

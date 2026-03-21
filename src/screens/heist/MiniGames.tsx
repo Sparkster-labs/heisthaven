@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { SFX } from '@/lib/sounds';
+import { DIFFICULTY_CONFIG, getDifficultyTier, getMistakeHeat } from '@/lib/difficultyConfig';
 
 // ═══════════════════════════════════════════════════════════════
 // MINI-GAME 1: LOCKPICK — Timing-based sweet spot
@@ -11,17 +12,35 @@ interface LockPickProps {
 }
 
 export const LockPickGame = ({ difficulty, onResult }: LockPickProps) => {
+  const tier = getDifficultyTier(difficulty);
+  const cfg = DIFFICULTY_CONFIG.lockpick[tier];
+
+  const [currentPin, setCurrentPin] = useState(0);
   const [position, setPosition] = useState(0);
   const [direction, setDirection] = useState(1);
   const [locked, setLocked] = useState(false);
   const [result, setResult] = useState<boolean | null>(null);
+  const [pinResults, setPinResults] = useState<boolean[]>([]);
 
-  const sweetSpotWidth = Math.max(12, 35 - difficulty * 5);
-  const sweetSpotStart = 50 - sweetSpotWidth / 2;
-  const speed = 0.8 + difficulty * 0.4;
+  // Generate sweet spots and false sweet spots per pin
+  const [pinData] = useState(() =>
+    Array.from({ length: cfg.pins }, () => {
+      const sweetSpotStart = 20 + Math.random() * (60 - cfg.sweetSpotWidth);
+      const falseSpots: { start: number; width: number }[] = [];
+      if (cfg.falseSweetSpots > 0) {
+        // Place false sweet spot away from real one
+        let fStart = sweetSpotStart > 50 ? 10 + Math.random() * 20 : 70 + Math.random() * 15;
+        falseSpots.push({ start: fStart, width: cfg.sweetSpotWidth * 0.8 });
+      }
+      return { sweetSpotStart, sweetSpotWidth: cfg.sweetSpotWidth, falseSpots };
+    })
+  );
+
+  const currentPinData = pinData[currentPin];
+  const speed = cfg.speed;
 
   useEffect(() => {
-    if (locked) return;
+    if (locked || result !== null) return;
     const interval = setInterval(() => {
       setPosition(prev => {
         let next = prev + direction * speed;
@@ -31,26 +50,72 @@ export const LockPickGame = ({ difficulty, onResult }: LockPickProps) => {
       });
     }, 16);
     return () => clearInterval(interval);
-  }, [locked, direction, speed]);
+  }, [locked, direction, speed, result]);
 
   const handleTap = useCallback(() => {
-    if (locked) return;
+    if (locked || result !== null) return;
     setLocked(true);
-    const hit = position >= sweetSpotStart && position <= sweetSpotStart + sweetSpotWidth;
-    setResult(hit);
-    if (hit) SFX.tick(); else SFX.fail();
-    if (navigator.vibrate) navigator.vibrate(hit ? 50 : 200);
-    setTimeout(() => onResult(hit), 1200);
-  }, [locked, position, sweetSpotStart, sweetSpotWidth, onResult]);
+    const pin = currentPinData;
+    const hit = position >= pin.sweetSpotStart && position <= pin.sweetSpotStart + pin.sweetSpotWidth;
+
+    // Check if they hit a false sweet spot instead
+    const hitFalse = !hit && pin.falseSpots.some(
+      f => position >= f.start && position <= f.start + f.width
+    );
+
+    if (hit) {
+      SFX.tick();
+      if (navigator.vibrate) navigator.vibrate(50);
+      const newResults = [...pinResults, true];
+      setPinResults(newResults);
+
+      if (currentPin + 1 >= cfg.pins) {
+        setResult(true);
+        setTimeout(() => onResult(true), 1200);
+      } else {
+        setCurrentPin(prev => prev + 1);
+        setPosition(0);
+        setDirection(1);
+        setLocked(false);
+      }
+    } else {
+      SFX.fail();
+      if (navigator.vibrate) navigator.vibrate(200);
+      setPinResults([...pinResults, false]);
+      setResult(false);
+      setTimeout(() => onResult(false), 1200);
+    }
+  }, [locked, position, currentPinData, pinResults, currentPin, cfg.pins, onResult, result]);
 
   return (
     <div style={{ textAlign: 'center' }}>
       <div style={{ ...S.eyebrow, marginBottom: THEME.space.md, letterSpacing: 6 }}>🔑 PICK THE LOCK</div>
-      <div style={{ fontFamily: THEME.fonts.body, fontSize: 12, color: THEME.colors.textSecondary, fontStyle: 'italic', marginBottom: THEME.space.xl }}>
-        Tap when the needle hits the gold zone
+      <div style={{ fontFamily: THEME.fonts.body, fontSize: 12, color: THEME.colors.textSecondary, fontStyle: 'italic', marginBottom: THEME.space.lg }}>
+        Pin {currentPin + 1} of {cfg.pins} — Tap when the needle hits the gold zone
       </div>
+
+      {/* Pin progress */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 4, marginBottom: THEME.space.md }}>
+        {Array.from({ length: cfg.pins }, (_, i) => (
+          <div key={i} style={{
+            width: 10, height: 10, borderRadius: '50%',
+            background: i < pinResults.length
+              ? (pinResults[i] ? THEME.colors.emerald : THEME.colors.ruby)
+              : i === currentPin ? THEME.colors.gold : THEME.colors.borderFaint,
+            boxShadow: i === currentPin ? `0 0 6px ${THEME.colors.gold}60` : 'none',
+            transition: 'all 0.2s',
+          }} />
+        ))}
+      </div>
+
       <div style={{ position: 'relative', height: 32, background: THEME.colors.dusk, borderRadius: THEME.radius.md, overflow: 'hidden', border: `1px solid ${THEME.colors.borderFaint}`, marginBottom: THEME.space.xl }}>
-        <div style={{ position: 'absolute', left: `${sweetSpotStart}%`, width: `${sweetSpotWidth}%`, top: 0, bottom: 0, background: `${THEME.colors.gold}25`, borderLeft: `2px solid ${THEME.colors.gold}60`, borderRight: `2px solid ${THEME.colors.gold}60` }} />
+        {/* False sweet spots */}
+        {currentPinData.falseSpots.map((f, i) => (
+          <div key={`false-${i}`} style={{ position: 'absolute', left: `${f.start}%`, width: `${f.width}%`, top: 0, bottom: 0, background: `${THEME.colors.gold}12`, borderLeft: `1px dashed ${THEME.colors.gold}30`, borderRight: `1px dashed ${THEME.colors.gold}30` }} />
+        ))}
+        {/* Real sweet spot */}
+        <div style={{ position: 'absolute', left: `${currentPinData.sweetSpotStart}%`, width: `${currentPinData.sweetSpotWidth}%`, top: 0, bottom: 0, background: `${THEME.colors.gold}25`, borderLeft: `2px solid ${THEME.colors.gold}60`, borderRight: `2px solid ${THEME.colors.gold}60` }} />
+        {/* Needle */}
         <div style={{ position: 'absolute', left: `${position}%`, top: -4, bottom: -4, width: 3, marginLeft: -1.5, background: result === null ? THEME.colors.pearl : result ? THEME.colors.emerald : THEME.colors.ruby, boxShadow: `0 0 8px ${result === null ? THEME.colors.pearl : result ? THEME.colors.emerald : THEME.colors.ruby}60`, borderRadius: 2 }} />
       </div>
       {result !== null ? (
@@ -73,7 +138,10 @@ interface SafeComboProps {
 }
 
 export const SafeComboGame = ({ difficulty, onResult }: SafeComboProps) => {
-  const seqLength = difficulty <= 3 ? 4 : difficulty <= 4 ? 5 : 6;
+  const tier = getDifficultyTier(difficulty);
+  const cfg = DIFFICULTY_CONFIG.safeCombo[tier];
+  const seqLength = cfg.digits;
+
   const [sequence] = useState(() =>
     Array.from({ length: seqLength }, () => (Math.random() < 0.5 ? 'L' : 'R') as 'L' | 'R')
   );
@@ -82,6 +150,13 @@ export const SafeComboGame = ({ difficulty, onResult }: SafeComboProps) => {
   const [inputIdx, setInputIdx] = useState(0);
   const [result, setResult] = useState<boolean | null>(null);
   const [dialRotation, setDialRotation] = useState(0);
+
+  // Decoy zones: one extra fake step shown in display (visual noise)
+  const [decoyPositions] = useState(() =>
+    cfg.decoyZones > 0
+      ? Array.from({ length: cfg.decoyZones }, () => Math.floor(Math.random() * seqLength))
+      : []
+  );
 
   // Show sequence one step at a time
   useEffect(() => {
@@ -130,7 +205,7 @@ export const SafeComboGame = ({ difficulty, onResult }: SafeComboProps) => {
     <div style={{ textAlign: 'center' }}>
       <div style={{ ...S.eyebrow, marginBottom: THEME.space.md, letterSpacing: 6 }}>🔐 SAFE COMBO</div>
       <div style={{ fontFamily: THEME.fonts.body, fontSize: 12, color: THEME.colors.textSecondary, fontStyle: 'italic', marginBottom: THEME.space.lg }}>
-        {phase === 'showing' ? 'Memorize the sequence...' : phase === 'input' ? 'Repeat the sequence!' : ''}
+        {phase === 'showing' ? `Memorize the ${seqLength}-digit sequence...` : phase === 'input' ? 'Repeat the sequence!' : ''}
       </div>
 
       {/* Dial visual */}
@@ -233,7 +308,9 @@ const WIRE_COLORS = [
 
 export const WireCutGame = ({ difficulty, onResult }: WireCutProps) => {
   const wireCount = 4;
-  const timerMax = difficulty >= 4 ? 6 : 8;
+  const tier = getDifficultyTier(difficulty);
+  const timerMax = tier === 1 ? 10 : tier === 2 ? 7 : 5;
+
   const [sequence] = useState(() => [...WIRE_COLORS].sort(() => Math.random() - 0.5));
   const [phase, setPhase] = useState<'showing' | 'cutting' | 'done'>('showing');
   const [cutIndex, setCutIndex] = useState(0);
@@ -266,7 +343,6 @@ export const WireCutGame = ({ difficulty, onResult }: WireCutProps) => {
           setTimeout(() => onResult(false), 1200);
           return 0;
         }
-        // Heartbeat in final 3 seconds
         if (next <= 3 && Math.abs(next - Math.round(next)) < 0.05) {
           SFX.heartbeat();
         }
@@ -377,8 +453,9 @@ interface TailProps {
 }
 
 export const TailGame = ({ difficulty, onResult }: TailProps) => {
+  const tier = getDifficultyTier(difficulty);
   const LANES = 3;
-  const GAME_DURATION = 10000; // 10 seconds
+  const GAME_DURATION = 10000;
   const [playerLane, setPlayerLane] = useState(1);
   const [obstacles, setObstacles] = useState<{ id: number; lane: number; y: number }[]>([]);
   const [elapsed, setElapsed] = useState(0);
@@ -394,7 +471,7 @@ export const TailGame = ({ difficulty, onResult }: TailProps) => {
     lastTimeRef.current = performance.now();
     lastSpawnRef.current = performance.now();
 
-    const spawnInterval = Math.max(600, 1200 - difficulty * 100);
+    const spawnInterval = tier === 1 ? 1200 : tier === 2 ? 900 : 650;
 
     const loop = (now: number) => {
       const dt = now - lastTimeRef.current;
@@ -420,7 +497,7 @@ export const TailGame = ({ difficulty, onResult }: TailProps) => {
       }
 
       // Move obstacles
-      const speed = 0.15 + difficulty * 0.03;
+      const speed = (0.1 + tier * 0.04);
       setObstacles(prev => {
         const moved = prev.map(o => ({ ...o, y: o.y + dt * speed })).filter(o => o.y < 110);
         return moved;
@@ -431,7 +508,7 @@ export const TailGame = ({ difficulty, onResult }: TailProps) => {
 
     frameRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(frameRef.current);
-  }, [result, difficulty, onResult]);
+  }, [result, tier, onResult]);
 
   // Collision detection
   useEffect(() => {
@@ -632,7 +709,6 @@ export const InterrogationGame = ({ difficulty, onResult }: InterrogationProps) 
         color: THEME.colors.textPrimary, lineHeight: 1.6,
       }}>
         {scenario.guardLine}
-        {/* Speech bubble arrow */}
         <div style={{
           position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%)',
           width: 0, height: 0,

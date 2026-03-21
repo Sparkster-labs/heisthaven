@@ -224,6 +224,7 @@ interface MiniGameHUDProps {
   chaosCard: typeof CHAOS_CARDS[number];
   currentGameType: string;
   visible: boolean;
+  crewSuppressed?: boolean;
 }
 
 const GAME_ROLES: Record<string, string> = {
@@ -232,7 +233,7 @@ const GAME_ROLES: Record<string, string> = {
   lock: 'Lockpick', combo: '', wire: 'Hacker', tail: '', interrogation: '',
 };
 
-export const MiniGameHUD = ({ vaultTier, crewIds, chaosCard, currentGameType, visible }: MiniGameHUDProps) => {
+export const MiniGameHUD = ({ vaultTier, crewIds, chaosCard, currentGameType, visible, crewSuppressed }: MiniGameHUDProps) => {
   const activeCrewBonuses = crewIds
     .map(id => CREW_MEMBERS.find(c => c.id === id))
     .filter(Boolean)
@@ -267,6 +268,15 @@ export const MiniGameHUD = ({ vaultTier, crewIds, chaosCard, currentGameType, vi
           </span>
         ))}
       </div>
+
+      {/* Crew suppression warning */}
+      {crewSuppressed && activeCrewBonuses.length > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <span style={{ color: THEME.colors.gold, fontSize: 8, animation: 'chaosPulse 1.5s ease-in-out infinite' }}>
+            ⚠ CREW SUPPRESSED
+          </span>
+        </div>
+      )}
 
       {/* Chaos indicator */}
       {hasChaos && (
