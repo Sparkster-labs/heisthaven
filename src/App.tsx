@@ -28,6 +28,7 @@ import ResetPasswordScreen from '@/screens/ResetPasswordScreen';
 import PhotoModeScreen from '@/screens/PhotoModeScreen';
 import DistrictActivityScreen from '@/screens/DistrictActivityScreen';
 import JailScreen from '@/screens/JailScreen';
+import BottomNav from '@/components/BottomNav';
 import type { Session } from '@supabase/supabase-js';
 
 const queryClient = new QueryClient();
