@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { THEME, S } from '@/styles/theme';
 import { DISTRICT_ACTIVITIES, GAMBLING_CONFIG, FENCE_RATES, TRAINING_COST, INTEL_COST } from '@/lib/districtActivities';
 import { supabase } from '@/integrations/supabase/client';
