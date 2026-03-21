@@ -35,6 +35,20 @@ const getHireCost = (member: typeof CREW_MEMBERS[number], level: number) => {
   return Math.round(member.baseCost * 0.1 * level) || 0;
 };
 
+// Crew ability descriptions shown in the hire screen
+const CREW_ABILITY_TAGS: Record<string, { label: string; color: string }[]> = {
+  fingers: [{ label: '−8% RISK', color: THEME.colors.emerald }],
+  echo:    [{ label: '−5% RISK', color: THEME.colors.emerald }, { label: '−3 HEAT', color: THEME.colors.sapphire }],
+  brick:   [{ label: '−6% RISK', color: THEME.colors.emerald }, { label: 'FORGIVE 1 FAIL', color: THEME.colors.gold }],
+  silk:    [{ label: '+15% PAYOUT', color: THEME.colors.gold }, { label: 'COLD READ+', color: THEME.colors.sapphire }],
+  ghost:   [{ label: '−12% RISK', color: THEME.colors.emerald }],
+  doc:     [{ label: 'FORGIVE 1 FAIL', color: THEME.colors.gold }, { label: '+15 XP', color: THEME.colors.sapphire }],
+  raven:   [{ label: '−7% RISK', color: THEME.colors.emerald }, { label: '−5 HEAT', color: THEME.colors.sapphire }],
+  king:    [{ label: '+25% PAYOUT', color: THEME.colors.gold }, { label: '+25 XP', color: THEME.colors.sapphire }],
+  static:  [{ label: '−5% RISK', color: THEME.colors.emerald }, { label: '−8 HEAT', color: THEME.colors.sapphire }],
+  nitro:   [{ label: '−6% RISK', color: THEME.colors.emerald }, { label: '+10% PAYOUT', color: THEME.colors.gold }],
+};
+
 const CrewHireScreen = ({ vault, onLaunch, onBack }: CrewHireScreenProps) => {
   const [crewStates, setCrewStates] = useState<CrewStateRow[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
