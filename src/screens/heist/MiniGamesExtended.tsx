@@ -70,6 +70,7 @@ export const ShadowWalkGame = ({ difficulty, onResult, crewIds = [], chaosCard }
     const inSafe = guardPos >= segment.start && guardPos <= segment.end;
 
     if (!inSafe) {
+      SFX.fail();
       const newHeat = heat + 15;
       setHeat(newHeat);
       if (newHeat >= 100) {
@@ -78,6 +79,8 @@ export const ShadowWalkGame = ({ difficulty, onResult, crewIds = [], chaosCard }
         setTimeout(() => onResult(false), 1200);
         return;
       }
+    } else {
+      SFX.tick();
     }
 
     if (nextPos >= COVER_POINTS) {
